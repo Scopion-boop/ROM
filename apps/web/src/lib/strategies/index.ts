@@ -8,5 +8,5 @@
 // Built-in: step-by-step guided capture (WebSocket → Python CV)
 import './guided-strategy';
 
-// Future strategies will be imported here:
-// import './auto-detect-strategy';  // feat/vision-auto-detect branch
+// Auto-detect: identifies visible joints and captures ROM automatically
+import './auto-detect-strategy';
