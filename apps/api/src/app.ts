@@ -5,6 +5,7 @@ import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
 import { sessionRouter } from './routes/sessions';
 import { measurementRouter } from './routes/measurements';
+import { noteRouter } from './routes/notes';
 import { requestLogger } from './middleware/request-logger';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/sessions', sessionRouter);
 app.use('/api/sessions', measurementRouter);
+app.use('/api/sessions', noteRouter);
 
 // Fallback
 app.use((_req, res) => {
