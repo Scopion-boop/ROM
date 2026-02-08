@@ -48,6 +48,15 @@ export {
     type AuditEvent,
 } from './audit';
 
+// Capture domain (vision strategy contracts)
+export {
+    CapturedMeasurementSchema,
+    VISION_STRATEGY_KEYS,
+    type CapturedMeasurement,
+    type VisionStrategyMeta,
+    type VisionStrategyKey,
+} from './capture';
+
 // User domain
 export {
     UserRole,

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraSetupWizard from '@/components/capture/CameraSetupWizard';
-import type { CapturedMeasurement } from '@/components/capture/GuidedCaptureFlow';
+import type { CapturedMeasurement } from '@rom/shared-types';
 import MeasurementPanel from '@/components/capture/MeasurementPanel';
 import NoteEditor from '@/components/notes/NoteEditor';
 import { ArrowRight, Camera, ClipboardList, FileText } from 'lucide-react';

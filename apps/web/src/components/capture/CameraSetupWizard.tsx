@@ -21,18 +21,23 @@ import {
 } from 'lucide-react';
 import {
     type JointType,
+    type CapturedMeasurement,
     JOINT_TYPES,
     JOINT_META,
     JOINT_MOVEMENT_MAP,
 } from '@rom/shared-types';
 import { WebcamCapture, type WebcamCaptureHandle } from './WebcamCapture';
 import { PoseOverlay, type OverlayLandmark } from './PoseOverlay';
-import { GuidedCaptureFlow, type CapturedMeasurement } from './GuidedCaptureFlow';
+import {
+    getAllVisionStrategies,
+    getVisionStrategy,
+    getDefaultStrategyKey,
+} from '../../lib/vision-strategy-registry';
+
+// Register all built-in strategies (side-effect import)
+import '../../lib/strategies';
 
 // ─── Constants ─────────────────────────────────────────────────────
-
-const CV_STREAM_URL =
-    process.env.NEXT_PUBLIC_CV_STREAM_URL ?? 'ws://localhost:8100/api/v1/capture/stream';
 
 type Step = 'select_joint' | 'camera_setup' | 'capture' | 'review';
 
@@ -55,6 +60,11 @@ export default function CameraSetupWizard({
     const [selectedJoints, setSelectedJoints] = useState<JointType[]>([]);
     const [measurements, setMeasurements] = useState<CapturedMeasurement[]>([]);
     const [landmarks] = useState<OverlayLandmark[] | null>(null);
+    const [strategyKey, setStrategyKey] = useState<string>(getDefaultStrategyKey());
+
+    const strategies = getAllVisionStrategies();
+    const activeStrategy = getVisionStrategy(strategyKey);
+    const ActiveComponent = activeStrategy?.component;
 
     const webcamRef = useRef<WebcamCaptureHandle | null>(null);
 
@@ -69,7 +79,7 @@ export default function CameraSetupWizard({
         setStep('review');
     }, []);
 
-    // ── Step 1: Select Joints ──────────────────────────────────────
+    // ── Step 1: Select Joints + Strategy ───────────────────────────
     if (step === 'select_joint') {
         return (
             <div data-testid="step-select-joint" className="card" style={{ padding: 28 }}>
@@ -79,6 +89,48 @@ export default function CameraSetupWizard({
                 <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 16 }}>
                     Choose the joints you&apos;d like to capture range-of-motion for.
                 </p>
+
+                {/* Vision Strategy Picker */}
+                {strategies.length > 1 && (
+                    <div style={{ marginBottom: 20 }}>
+                        <span
+                            id="capture-mode-label"
+                            style={{
+                                fontSize: 12,
+                                fontWeight: 600,
+                                color: 'var(--text-muted)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.06em',
+                                display: 'block',
+                                marginBottom: 8,
+                            }}
+                        >
+                            Capture Mode
+                        </span>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }} role="radiogroup" aria-labelledby="capture-mode-label">
+                            {strategies.map((s) => (
+                                <button
+                                    key={s.meta.key}
+                                    data-testid={`strategy-${s.meta.key}`}
+                                    onClick={() => setStrategyKey(s.meta.key)}
+                                    className={strategyKey === s.meta.key ? 'btn-primary' : 'btn-ghost'}
+                                    style={{
+                                        fontSize: 13,
+                                        padding: '8px 16px',
+                                        borderRadius: 'var(--radius-md)',
+                                    }}
+                                >
+                                    {s.meta.label}
+                                </button>
+                            ))}
+                        </div>
+                        {activeStrategy && (
+                            <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 6 }}>
+                                {activeStrategy.meta.description}
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 {REGIONS.map((region) => {
                     const jointsInRegion = JOINT_TYPES.filter(
@@ -185,17 +237,25 @@ export default function CameraSetupWizard({
                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
                     <button
                         className="btn-primary"
-                        disabled={selectedJoints.length === 0}
+                        disabled={activeStrategy?.meta.requiresJointSelection && selectedJoints.length === 0}
                         onClick={() => setStep('camera_setup')}
                         data-testid="btn-next-camera"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                     >
                         <Camera size={16} /> Camera Setup <ArrowRight size={14} />
                     </button>
-                    <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                        {selectedJoints.length} joint{selectedJoints.length === 1 ? '' : 's'}{' '}
-                        selected
-                    </span>
+                    {activeStrategy?.meta.requiresJointSelection === false ? (
+                        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                            Joint selection is optional — auto-detect will find visible joints.
+                            {selectedJoints.length > 0 &&
+                                ` (${selectedJoints.length} joint${selectedJoints.length === 1 ? '' : 's'} pre-selected as filter)`}
+                        </span>
+                    ) : (
+                        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                            {selectedJoints.length} joint{selectedJoints.length === 1 ? '' : 's'}{' '}
+                            selected
+                        </span>
+                    )}
                 </div>
             </div>
         );
@@ -270,15 +330,19 @@ export default function CameraSetupWizard({
                     )}
                 </div>
 
-                {/* Right: Guided capture panel */}
+                {/* Right: Active vision strategy panel */}
                 <div style={{ flex: '1 1 40%', minWidth: 300 }}>
-                    <GuidedCaptureFlow
-                        joints={selectedJoints}
-                        mode="clinician_assisted"
-                        cvStreamUrl={CV_STREAM_URL}
-                        webcamRef={webcamRef}
-                        onComplete={handleCaptureComplete}
-                    />
+                    {ActiveComponent ? (
+                        <ActiveComponent
+                            joints={selectedJoints.length > 0 ? selectedJoints : undefined}
+                            webcamRef={webcamRef}
+                            onComplete={handleCaptureComplete}
+                        />
+                    ) : (
+                        <div style={{ padding: 20, color: 'var(--text-muted)' }}>
+                            No vision strategy loaded. Check strategy registration.
+                        </div>
+                    )}
                 </div>
             </div>
         );

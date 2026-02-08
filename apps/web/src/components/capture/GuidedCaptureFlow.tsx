@@ -25,6 +25,7 @@ import type {
     JointType,
     MovementType,
     BodySide,
+    CapturedMeasurement,
 } from '@rom/shared-types';
 import {
     JOINT_MOVEMENT_MAP,
@@ -33,16 +34,10 @@ import {
 } from '@rom/shared-types';
 import type { WebcamCaptureHandle } from './WebcamCapture';
 
-// ─── Types ─────────────────────────────────────────────────────────
+// Re-export CapturedMeasurement from shared-types for backward compatibility
+export type { CapturedMeasurement } from '@rom/shared-types';
 
-export interface CapturedMeasurement {
-    joint: JointType;
-    movement: MovementType;
-    side: BodySide;
-    romDegrees: number;
-    confidence: number;
-    timestamp: number;
-}
+// ─── Types ─────────────────────────────────────────────────────────
 
 interface MeasurementStep {
     joint: JointType;
