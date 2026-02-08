@@ -5,11 +5,11 @@ import { verifyToken, TokenPayload } from '../auth/jwt';
  * Extend Express Request with authenticated user context.
  */
 declare global {
-  namespace Express {
-    interface Request {
-      user?: TokenPayload;
+    namespace Express {
+        interface Request {
+            user?: TokenPayload;
+        }
     }
-  }
 }
 
 /**
@@ -17,19 +17,19 @@ declare global {
  * Populates req.user on success, returns 401 on failure.
  */
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Missing or invalid authorization header' });
-    return;
-  }
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) {
+        res.status(401).json({ error: 'Missing or invalid authorization header' });
+        return;
+    }
 
-  try {
-    const token = header.slice(7);
-    req.user = verifyToken(token);
-    next();
-  } catch {
-    res.status(401).json({ error: 'Invalid or expired token' });
-  }
+    try {
+        const token = header.slice(7);
+        req.user = verifyToken(token);
+        next();
+    } catch {
+        res.status(401).json({ error: 'Invalid or expired token' });
+    }
 }
 
 /**
@@ -37,15 +37,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
  * Must be used after requireAuth.
  */
 export function requireRole(...allowedRoles: string[]) {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    if (!req.user) {
-      res.status(401).json({ error: 'Authentication required' });
-      return;
-    }
-    if (!allowedRoles.includes(req.user.role)) {
-      res.status(403).json({ error: 'Insufficient permissions' });
-      return;
-    }
-    next();
-  };
+    return (req: Request, res: Response, next: NextFunction): void => {
+        if (!req.user) {
+            res.status(401).json({ error: 'Authentication required' });
+            return;
+        }
+        if (!allowedRoles.includes(req.user.role)) {
+            res.status(403).json({ error: 'Insufficient permissions' });
+            return;
+        }
+        next();
+    };
 }

@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { healthRouter } from './routes/health';
 import { authRouter } from './routes/auth';
+import { sessionRouter } from './routes/sessions';
+import { measurementRouter } from './routes/measurements';
 import { requestLogger } from './middleware/request-logger';
 
 const app = express();
@@ -18,6 +20,8 @@ app.use(requestLogger);
 // Routes
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/sessions', sessionRouter);
+app.use('/api/sessions', measurementRouter);
 
 // Fallback
 app.use((_req, res) => {
