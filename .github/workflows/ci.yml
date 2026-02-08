@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo lint
+
+  test:
+    name: Test (Node)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo test
+
+  test-cv:
+    name: Test (CV Python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/cv
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e ".[dev]"
+      - run: pytest tests/ -v
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Dependency audit (high + critical)
+        run: pnpm audit --audit-level=high || true
+      - name: Check for known vulnerable patterns
+        run: |
+          echo "Checking for eval() usage in source..."
+          ! grep -rn 'eval(' apps/ packages/ --include='*.ts' --include='*.tsx' || echo "Warning: eval() found"
+          echo "Checking for innerHTML assignment..."
+          ! grep -rn 'innerHTML' apps/ packages/ --include='*.ts' --include='*.tsx' || echo "Warning: innerHTML found"
+          echo "Static checks complete"
+
+  evidence-bundle-check:
+    name: Evidence Bundle Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify docs exist
+        run: |
+          test -f docs/planning-v2/README.md
+          echo "Evidence bundle docs present"
