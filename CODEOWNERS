@@ -1,0 +1,28 @@
+# Code Owners
+# Each line is a file pattern followed by one or more owners.
+# Owners are required reviewers for PRs touching matched files.
+
+# Default owner for everything
+* @Scopion-boop
+
+# Planning and governance docs
+/docs/planning-v2/ @Scopion-boop
+/docs/legal/ @Scopion-boop
+/docs/security/ @Scopion-boop
+/docs/release/ @Scopion-boop
+
+# Agent operating contracts
+PROMPT_REGISTRY.md @Scopion-boop
+AGENT_EXECUTION_POLICY.md @Scopion-boop
+
+# CI/CD and infrastructure
+/.github/ @Scopion-boop
+/infra/ @Scopion-boop
+
+# Compliance artifacts
+JURISDICTION_CLAIMS_MATRIX.md @Scopion-boop
+DATA_RETENTION_POLICY.md @Scopion-boop
+
+# Security-sensitive paths
+/src/auth/ @Scopion-boop
+/src/security/ @Scopion-boop

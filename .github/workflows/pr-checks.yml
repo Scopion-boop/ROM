@@ -1,0 +1,106 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v19
+        with:
+          globs: '**/*.md'
+          config: '.markdownlint.json'
+
+      - name: Lint YAML
+        run: |
+          pip install yamllint
+          yamllint -c .yamllint.yml .github/ || true
+
+      # Future: Add ESLint, Ruff, etc. when source code exists
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for test files
+        id: check_tests
+        run: |
+          if find . -name "*.test.*" -o -name "test_*.py" -o -name "*_test.go" | grep -q .; then
+            echo "has_tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_tests=false" >> $GITHUB_OUTPUT
+            echo "No test files found yet — skipping test run."
+          fi
+
+      - name: Run tests (placeholder)
+        if: steps.check_tests.outputs.has_tests == 'true'
+        run: echo "Tests would run here once source code exists"
+
+  security-scan:
+    name: security-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+
+  evidence-bundle-check:
+    name: evidence-bundle-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check PR body for evidence bundle
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if echo "$PR_BODY" | grep -qi "evidence bundle"; then
+            echo "✅ Evidence bundle section found in PR description."
+          else
+            echo "❌ Missing evidence bundle in PR description."
+            echo "All PRs must include an Evidence Bundle per AGENT_EXECUTION_POLICY.md"
+            exit 1
+          fi
+
+      - name: Check for citation table
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if echo "$PR_BODY" | grep -qi "source.*url\|source_citations\|Source Citations"; then
+            echo "✅ Citation section found."
+          else
+            echo "⚠️  No citation table detected. Ensure claims are cited."
+          fi
+
+      - name: Check confidence level
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if echo "$PR_BODY" | grep -qiE "\[x\] (High|Medium|Low)"; then
+            echo "✅ Confidence level selected."
+          else
+            echo "⚠️  No confidence level selected in PR."
+          fi
