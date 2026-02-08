@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { healthRouter } from './routes/health';
+import { authRouter } from './routes/auth';
 import { requestLogger } from './middleware/request-logger';
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(requestLogger);
 
 // Routes
 app.use('/api/health', healthRouter);
+app.use('/api/auth', authRouter);
 
 // Fallback
 app.use((_req, res) => {
