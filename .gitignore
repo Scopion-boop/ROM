@@ -82,7 +82,9 @@ service-account.json
 # Build artifacts
 *.tsbuildinfo
 .nx/cache
+.turbo/
 
 # OS
 Thumbs.db
 .DS_Store
+*.egg-info/
