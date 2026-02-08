@@ -16,7 +16,7 @@ const JOINTS = [
 export default function CameraSetupWizard({
     onComplete,
 }: Readonly<{
-  onComplete: (joints: string[]) => void;
+    onComplete: (joints: string[]) => void;
 }>) {
     const [step, setStep] = useState<WizardStep>('select_joint');
     const [selectedJoints, setSelectedJoints] = useState<string[]>([]);

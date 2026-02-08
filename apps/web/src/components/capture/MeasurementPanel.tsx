@@ -14,7 +14,7 @@ interface MeasurementResult {
 export default function MeasurementPanel({
     measurements,
 }: Readonly<{
-  measurements: MeasurementResult[];
+    measurements: MeasurementResult[];
 }>) {
     if (measurements.length === 0) {
         return (

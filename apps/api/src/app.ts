@@ -8,12 +8,16 @@ import { measurementRouter } from './routes/measurements';
 import { noteRouter } from './routes/notes';
 import { exportRouter } from './routes/export';
 import { requestLogger } from './middleware/request-logger';
+import { rateLimit } from './middleware/rate-limit';
+import { securityHeaders } from './middleware/security-headers';
 
 const app = express();
 
 // Security middleware
 app.use(helmet());
 app.use(cors());
+app.use(securityHeaders);
+app.use(rateLimit());
 app.use(express.json({ limit: '1mb' }));
 
 // Logging

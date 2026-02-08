@@ -67,7 +67,15 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level=high || true
+      - name: Dependency audit (high + critical)
+        run: pnpm audit --audit-level=high || true
+      - name: Check for known vulnerable patterns
+        run: |
+          echo "Checking for eval() usage in source..."
+          ! grep -rn 'eval(' apps/ packages/ --include='*.ts' --include='*.tsx' || echo "Warning: eval() found"
+          echo "Checking for innerHTML assignment..."
+          ! grep -rn 'innerHTML' apps/ packages/ --include='*.ts' --include='*.tsx' || echo "Warning: innerHTML found"
+          echo "Static checks complete"
 
   evidence-bundle-check:
     name: Evidence Bundle Check
