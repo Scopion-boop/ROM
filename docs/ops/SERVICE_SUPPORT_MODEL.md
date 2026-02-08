@@ -16,6 +16,28 @@
 - Monthly security review
 - Quarterly policy/compliance review
 
+## Observability Stack
+
+### Health & Readiness
+- `GET /api/health` — liveness probe (status, version, timestamp)
+- `GET /api/health/ready` — readiness check (Phase B+: DB, queue health)
+- `GET /api/health/metrics` — counter-based metrics + uptime
+
+### Structured Logging
+- JSON format, one object per line
+- Fields: `level`, `message`, `timestamp`, `service`, `correlationId`
+- PHI-safe policy: only metadata logged, never patient data or note content
+- Correlation ID propagated via `x-correlation-id` header
+
+### Metrics (Pilot)
+- In-process counters (requests, errors, exports)
+- Phase B target: Prometheus client or Datadog StatsD
+
+### Alerting (Phase B)
+- Sev1: PagerDuty for health check failures, error rate > 5%
+- Sev2: Slack notification for elevated latency (p99 > 2s)
+- Sev3: Daily digest for warning-level events
+
 ## Knowledge base
 - Clinician onboarding guide
 - Camera setup troubleshooting guide

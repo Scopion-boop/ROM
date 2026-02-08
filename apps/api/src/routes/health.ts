@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { getMetricsSummary } from '../observability/metrics';
 
 export const healthRouter = Router();
 
@@ -12,6 +13,11 @@ healthRouter.get('/', (_req, res) => {
 });
 
 healthRouter.get('/ready', (_req, res) => {
-    // TODO: check DB connectivity, queue health
+    // Readiness: verifies the service can accept traffic.
+    // Phase B will add DB connectivity and queue health checks.
     res.json({ ready: true });
+});
+
+healthRouter.get('/metrics', (_req, res) => {
+    res.json(getMetricsSummary());
 });
