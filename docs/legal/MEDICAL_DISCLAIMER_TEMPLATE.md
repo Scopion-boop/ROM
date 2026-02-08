@@ -2,7 +2,7 @@
 
 > **NOTICE:** This template is for informational purposes only and does not constitute legal advice. All sections marked `[TBD]` require review and completion by qualified legal and regulatory counsel before publication.
 
-**Effective Date:** `[TBD — counsel to set]`  
+**Effective Date:** `[TBD — counsel to set]`
 **Last Reviewed:** `[TBD]`
 
 ---

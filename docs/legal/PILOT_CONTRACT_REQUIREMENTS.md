@@ -2,7 +2,7 @@
 
 > **NOTICE:** This document outlines required contractual elements for the ROM Platform pilot program. All items require legal counsel review before execution.
 
-**Last Updated:** 2026-02-08  
+**Last Updated:** 2026-02-08
 **Status:** Draft — Awaiting Counsel Review
 
 ---

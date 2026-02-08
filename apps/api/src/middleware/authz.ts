@@ -5,6 +5,7 @@ import { verifyToken, TokenPayload } from '../auth/jwt';
  * Extend Express Request with authenticated user context.
  */
 declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace Express {
         interface Request {
             user?: TokenPayload;

@@ -60,7 +60,7 @@ export default function CameraSetupWizard({
         return (
             <div data-testid="step-camera-setup">
                 <h2>Camera Setup</h2>
-                <p>Position the camera so the patient's joints are clearly visible.</p>
+                <p>Position the camera so the patient&apos;s joints are clearly visible.</p>
                 <div data-testid="camera-preview" style={{ width: 640, height: 480, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
                     Camera preview placeholder
                 </div>

@@ -2,8 +2,8 @@
 
 > Complete this document for each pilot release. All sections must be filled before sign-off.
 
-**Release Version:** `[version]`  
-**Release Date:** `[date]`  
+**Release Version:** `[version]`
+**Release Date:** `[date]`
 **Release Manager:** `[name]`
 
 ---
