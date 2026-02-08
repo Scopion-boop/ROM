@@ -1,5 +1,7 @@
 """Schemas for the CV pipeline service."""
 
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 
 
@@ -158,5 +160,57 @@ class StreamMeasurement(BaseModel):
     )
     auto_captured: bool = Field(
         default=False, description="True if this reading was auto-captured due to stability"
+    )
+    algorithm_version: str = Field(
+        default="v1.0", description="Algorithm version + method suffix"
+    )
+
+
+class StreamResponse(BaseModel):
+    """Complete WebSocket response frame — measurements + optional landmarks."""
+
+    frame_index: int
+    measurements: list[StreamMeasurement] = Field(default_factory=list)
+    pose_landmarks: list[Landmark] | None = Field(
+        default=None,
+        description="33 normalised MediaPipe landmarks for skeleton overlay rendering",
+    )
+    error: str | None = None
+
+
+# ─── Calibration schemas ───────────────────────────────────────────
+
+
+class CalibrationRequest(BaseModel):
+    """Request to capture a neutral standing baseline for ROM zero-reference."""
+
+    image_base64: str = Field(
+        ..., description="Base64-encoded image of patient in neutral standing pose"
+    )
+    session_id: str = Field(
+        ..., description="Session identifier — calibration is stored per session"
+    )
+
+
+class CalibrationBaseline(BaseModel):
+    """Per-joint baseline angles captured during calibration."""
+
+    joint: str
+    movement: str
+    side: str
+    baseline_degrees: float = Field(
+        ..., description="Resting angle in neutral standing position"
+    )
+    confidence_score: float
+
+
+class CalibrationResponse(BaseModel):
+    """Response from calibration capture."""
+
+    session_id: str
+    baselines: list[CalibrationBaseline] = Field(default_factory=list)
+    pose_landmarks: PoseLandmarks | None = None
+    quality: str = Field(
+        default="good", description="Overall calibration quality: good, degraded, unusable"
     )
 

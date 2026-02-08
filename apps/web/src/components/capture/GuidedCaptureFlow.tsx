@@ -5,8 +5,7 @@
  * exam order, displaying patient instructions and capturing measurements
  * when the angle stabilises.
  *
- * Supports both clinician-assisted (physician controls flow) and
- * self-guided (patient follows on-screen instructions) modes.
+ * Now streams pose landmarks back to the parent for PoseOverlay rendering.
  */
 
 'use client';
@@ -33,6 +32,7 @@ import {
     getSidesForJoint,
 } from '@rom/shared-types';
 import type { WebcamCaptureHandle } from './WebcamCapture';
+import type { OverlayLandmark, AngleIndicator } from './PoseOverlay';
 
 // Re-export CapturedMeasurement from shared-types for backward compatibility
 export type { CapturedMeasurement } from '@rom/shared-types';
@@ -47,7 +47,7 @@ interface MeasurementStep {
     preferredView: string;
 }
 
-interface StreamMeasurement {
+interface StreamMeasurementMsg {
     joint: string;
     movement: string;
     side: string;
@@ -57,6 +57,13 @@ interface StreamMeasurement {
     is_stable: boolean;
     stable_for_ms: number;
     auto_captured: boolean;
+}
+
+interface StreamResponseMsg {
+    frame_index: number;
+    measurements: StreamMeasurementMsg[];
+    pose_landmarks: OverlayLandmark[] | null;
+    error?: string;
 }
 
 type ExamMode = 'clinician_assisted' | 'self_guided';
@@ -74,6 +81,12 @@ interface GuidedCaptureFlowProps {
     onComplete: (measurements: CapturedMeasurement[]) => void;
     /** Called on each individual capture */
     onCapture?: (measurement: CapturedMeasurement) => void;
+    /** Called each frame with pose landmarks for PoseOverlay rendering */
+    onLandmarksUpdate?: (landmarks: OverlayLandmark[] | null) => void;
+    /** Called each frame with angle indicator data for PoseOverlay */
+    onAngleUpdate?: (angles: AngleIndicator[]) => void;
+    /** Optional session_id to enable calibration offsets */
+    sessionId?: string;
     className?: string;
 }
 
@@ -149,13 +162,16 @@ export function GuidedCaptureFlow({
     webcamRef,
     onComplete,
     onCapture,
+    onLandmarksUpdate,
+    onAngleUpdate,
+    sessionId,
     className = '',
 }: Readonly<GuidedCaptureFlowProps>) {
     const steps = useMemo(() => buildSteps(joints), [joints]);
     const [currentIdx, setCurrentIdx] = useState(0);
     const [captured, setCaptured] = useState<CapturedMeasurement[]>([]);
     const [isPaused, setIsPaused] = useState(mode === 'clinician_assisted');
-    const [liveMeasurement, setLiveMeasurement] = useState<StreamMeasurement | null>(null);
+    const [liveMeasurement, setLiveMeasurement] = useState<StreamMeasurementMsg | null>(null);
     const [autoCapturePending, setAutoCapturePending] = useState(false);
     const wsRef = useRef<WebSocket | null>(null);
     const frameIdxRef = useRef(0);
@@ -165,6 +181,38 @@ export function GuidedCaptureFlow({
     const isComplete = currentIdx >= steps.length;
     const progress = steps.length > 0 ? (captured.length / steps.length) * 100 : 0;
 
+    // ── Build angle indicators from current step + live measurement ──
+    const buildAngleIndicators = useCallback(
+        (measurement: StreamMeasurementMsg | null): AngleIndicator[] => {
+            if (!measurement || !currentStep) return [];
+
+            const triple = getLandmarkTriple(
+                currentStep.joint,
+                currentStep.movement,
+                currentStep.side,
+            );
+            if (!triple) return [];
+
+            const sideLabel = currentStep.side === 'midline'
+                ? ''
+                : `${currentStep.side.charAt(0).toUpperCase()} `;
+            const jointLabel = currentStep.joint.replace('_', ' ');
+            const movementLabel = currentStep.movement.replace('_', ' ');
+
+            return [
+                {
+                    vertexIdx: triple.center,
+                    armAIdx: triple.proximal,
+                    armBIdx: triple.distal,
+                    degrees: measurement.smoothed_rom_degrees,
+                    label: `${sideLabel}${jointLabel} ${movementLabel}`,
+                    isStable: measurement.is_stable,
+                },
+            ];
+        },
+        [currentStep],
+    );
+
     // ── WebSocket stream connection ────────────────────────────────
     useEffect(() => {
         if (isComplete || !currentStep) return;
@@ -173,38 +221,57 @@ export function GuidedCaptureFlow({
         wsRef.current = ws;
 
         ws.onopen = () => {
-            ws.send(
-                JSON.stringify({
-                    joints: [currentStep.joint],
-                    movements: [currentStep.movement],
-                    sides: [currentStep.side],
-                    fps_target: 15,
-                    temporal_window: 10,
-                    auto_capture_threshold_degrees: 2,
-                    auto_capture_hold_ms: 800,
-                    algorithm_version: 'v1.0',
-                }),
-            );
+            const configPayload: Record<string, unknown> = {
+                joints: [currentStep.joint],
+                movements: [currentStep.movement],
+                sides: [currentStep.side],
+                fps_target: 15,
+                temporal_window: 10,
+                auto_capture_threshold_degrees: 2,
+                auto_capture_hold_ms: 800,
+                algorithm_version: 'v1.0',
+            };
+            if (sessionId) {
+                configPayload.session_id = sessionId;
+            }
+            ws.send(JSON.stringify(configPayload));
         };
 
         ws.onmessage = (event) => {
-            const msg = JSON.parse(event.data);
-            if (msg.measurements && msg.measurements.length > 0) {
-                const m = msg.measurements[0] as StreamMeasurement;
-                setLiveMeasurement(m);
+            try {
+                const msg = JSON.parse(event.data) as StreamResponseMsg;
 
-                if (m.auto_captured && !autoCapturePending) {
-                    setAutoCapturePending(true);
+                // Forward landmarks to parent for PoseOverlay
+                if (msg.pose_landmarks) {
+                    onLandmarksUpdate?.(msg.pose_landmarks);
                 }
+
+                if (msg.measurements && msg.measurements.length > 0) {
+                    const m = msg.measurements[0]!;
+                    setLiveMeasurement(m);
+
+                    // Build and forward angle indicators
+                    const indicators = buildAngleIndicators(m);
+                    onAngleUpdate?.(indicators);
+
+                    if (m.auto_captured && !autoCapturePending) {
+                        setAutoCapturePending(true);
+                    }
+                }
+            } catch {
+                // Malformed message — skip
             }
         };
 
         return () => {
             ws.close();
             wsRef.current = null;
+            // Clear overlay when switching steps
+            onLandmarksUpdate?.(null);
+            onAngleUpdate?.([]);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentIdx, cvStreamUrl]);
+    }, [currentIdx, cvStreamUrl, sessionId]);
 
     // ── Frame capture loop ─────────────────────────────────────────
     useEffect(() => {
@@ -295,9 +362,6 @@ export function GuidedCaptureFlow({
         setCaptured((prev) => prev.slice(0, -1));
         setCurrentIdx((prev) => Math.max(0, prev - 1));
     }, []);
-
-    // TODO: Wire angleIndicators to PoseOverlay callback when parent supports it
-    // See getLandmarkTriple(joint, movement, side) → { center, proximal, distal }
 
     if (isComplete) {
         return (

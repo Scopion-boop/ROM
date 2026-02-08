@@ -107,5 +107,5 @@ class TestAngleComputation:
         assert result.joint == "shoulder"
         assert result.movement == "abduction"
         assert result.side == "left"
-        assert result.algorithm_version == "v1.0"
+        assert result.algorithm_version.startswith("v1.0")
         assert isinstance(result.rom_degrees, float)
