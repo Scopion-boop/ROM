@@ -5,22 +5,27 @@
  */
 
 import { z } from 'zod';
+import { JointType } from './clinical/joints';
+import { MovementType } from './clinical/movements';
 
 // ─── Note Status ───────────────────────────────────────────────────
 export const NoteStatus = z.enum([
     'draft',
-    'review',
-    'approved',
+    'reviewed',
+    'finalized',
+    'amended',
     'exported',
 ]);
 export type NoteStatus = z.infer<typeof NoteStatus>;
 
 // ─── Note Block ────────────────────────────────────────────────────
 export const NoteBlockSchema = z.object({
-    joint: z.string(),
-    movement: z.string(),
-    side: z.enum(['left', 'right']),
+    joint: JointType,
+    movement: MovementType,
+    side: z.enum(['left', 'right', 'midline']),
     romDegrees: z.number(),
+    normalRomDegrees: z.number().optional(),
+    percentOfNormal: z.number().optional(),
     confidenceScore: z.number(),
     qualityNote: z.string().optional(),
     clinicianComment: z.string().optional(),
@@ -37,7 +42,8 @@ export const NoteSchema = z.object({
     summaryText: z.string().optional(),
     generatedAt: z.string().datetime(),
     editedAt: z.string().datetime().optional(),
-    approvedAt: z.string().datetime().optional(),
+    reviewedAt: z.string().datetime().optional(),
+    finalizedAt: z.string().datetime().optional(),
     exportedAt: z.string().datetime().optional(),
 });
 export type Note = z.infer<typeof NoteSchema>;

@@ -1,15 +1,8 @@
 import { Router, Request, Response } from 'express';
 import type { IRouter } from 'express';
 import { requireAuth } from '../middleware/authz';
-import { getSession } from '../repositories/session-repo';
-import { listMeasurementsBySession } from '../repositories/measurement-repo';
-import {
-    generateNote,
-    saveNote,
-    listNotesBySession,
-    updateNoteBlocks,
-    updateNoteStatus,
-} from '../services/note-builder';
+import { getRepos } from '../repositories/repo-factory';
+import { generateNote, type MeasurementInput } from '../services/note-builder';
 
 export const noteRouter: IRouter = Router();
 
@@ -18,21 +11,22 @@ noteRouter.use(requireAuth);
 /**
  * POST /api/sessions/:sessionId/notes/generate — generate a draft note from measurements.
  */
-noteRouter.post('/:sessionId/notes/generate', (req: Request, res: Response): void => {
-    const session = getSession(String(req.params.sessionId));
+noteRouter.post('/:sessionId/notes/generate', async (req: Request, res: Response): Promise<void> => {
+    const { sessions, measurements, notes } = getRepos();
+    const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
         return;
     }
 
-    const measurements = listMeasurementsBySession(session.id);
-    if (measurements.length === 0) {
+    const mList = await measurements.listBySession(session.id);
+    if (mList.length === 0) {
         res.status(400).json({ error: 'No measurements found for this session' });
         return;
     }
 
-    const note = generateNote(session.id, measurements);
-    saveNote(note);
+    const note = generateNote(session.id, mList as MeasurementInput[]);
+    await notes.save(note);
 
     res.status(201).json(note);
 });
@@ -40,27 +34,28 @@ noteRouter.post('/:sessionId/notes/generate', (req: Request, res: Response): voi
 /**
  * GET /api/sessions/:sessionId/notes — list notes for a session.
  */
-noteRouter.get('/:sessionId/notes', (req: Request, res: Response): void => {
-    const session = getSession(String(req.params.sessionId));
+noteRouter.get('/:sessionId/notes', async (req: Request, res: Response): Promise<void> => {
+    const { sessions, notes } = getRepos();
+    const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
         return;
     }
 
-    res.json(listNotesBySession(session.id));
+    res.json(await notes.listBySession(session.id));
 });
 
 /**
  * PATCH /api/notes/:noteId/blocks — update note blocks (clinician edits).
  */
-noteRouter.patch('/notes/:noteId/blocks', (req: Request, res: Response): void => {
+noteRouter.patch('/notes/:noteId/blocks', async (req: Request, res: Response): Promise<void> => {
     const { blocks } = req.body;
     if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
         res.status(400).json({ error: 'blocks array is required' });
         return;
     }
 
-    const updated = updateNoteBlocks(String(req.params.noteId), blocks);
+    const updated = await getRepos().notes.updateBlocks(String(req.params.noteId), blocks);
     if (!updated) {
         res.status(404).json({ error: 'Note not found' });
         return;
@@ -71,14 +66,14 @@ noteRouter.patch('/notes/:noteId/blocks', (req: Request, res: Response): void =>
 /**
  * PATCH /api/notes/:noteId/status — transition note status.
  */
-noteRouter.patch('/notes/:noteId/status', (req: Request, res: Response): void => {
+noteRouter.patch('/notes/:noteId/status', async (req: Request, res: Response): Promise<void> => {
     const { status } = req.body;
     if (!status) {
         res.status(400).json({ error: 'status is required' });
         return;
     }
 
-    const updated = updateNoteStatus(String(req.params.noteId), status);
+    const updated = await getRepos().notes.updateStatus(String(req.params.noteId), status);
     if (!updated) {
         res.status(404).json({ error: 'Note not found' });
         return;

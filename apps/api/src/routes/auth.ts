@@ -1,18 +1,9 @@
 import { Router, Request, Response } from 'express';
+import type { IRouter } from 'express';
 import { hashPassword, comparePassword, signToken } from '../auth/jwt';
+import { getRepos } from '../repositories/repo-factory';
 
-export const authRouter = Router();
-
-/**
- * In-memory user store (placeholder until DB integration in Task 4+).
- * Maps email → { passwordHash, userId, organizationId, role }.
- */
-const users: Map<string, {
-    passwordHash: string;
-    userId: string;
-    organizationId: string;
-    role: string;
-}> = new Map();
+export const authRouter: IRouter = Router();
 
 /**
  * POST /api/auth/register
@@ -26,17 +17,18 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<void> 
         return;
     }
 
-    if (users.has(email)) {
+    const { users } = getRepos();
+    const existing = await users.getByEmail(email);
+    if (existing) {
         res.status(409).json({ error: 'User already exists' });
         return;
     }
 
     const passwordHash = await hashPassword(password);
-    const userId = crypto.randomUUID();
-    users.set(email, { passwordHash, userId, organizationId, role });
+    const user = await users.create({ email, passwordHash, organizationId, role });
 
-    const token = signToken({ userId, organizationId, role, email });
-    res.status(201).json({ token, userId });
+    const token = signToken({ userId: user.id, organizationId, role, email });
+    res.status(201).json({ token, userId: user.id });
 });
 
 /**
@@ -51,7 +43,7 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
         return;
     }
 
-    const user = users.get(email);
+    const user = await getRepos().users.getByEmail(email);
     if (!user) {
         res.status(401).json({ error: 'Invalid credentials' });
         return;
@@ -64,10 +56,10 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
     }
 
     const token = signToken({
-        userId: user.userId,
+        userId: user.id,
         organizationId: user.organizationId,
         role: user.role,
         email,
     });
-    res.json({ token, userId: user.userId });
+    res.json({ token, userId: user.id });
 });

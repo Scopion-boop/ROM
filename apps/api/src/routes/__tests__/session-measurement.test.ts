@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../app';
-import { _clearSessions } from '../../repositories/session-repo';
-import { _clearMeasurements } from '../../repositories/measurement-repo';
+import { getRepos } from '../../repositories/repo-factory';
 
 const TEST_USER = {
     email: `session-test-${Date.now()}@test.com`,
@@ -20,8 +19,10 @@ describe('Session & Measurement APIs', () => {
     let token: string;
 
     beforeEach(async () => {
-        _clearSessions();
-        _clearMeasurements();
+        const repos = getRepos();
+        await repos.sessions._clear();
+        await repos.measurements._clear();
+        await repos.users._clear();
         // Re-register each time with a unique email
         TEST_USER.email = `session-test-${Date.now()}@test.com`;
         token = await getToken();

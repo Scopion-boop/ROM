@@ -1,9 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../app';
-import { _clearSessions } from '../../repositories/session-repo';
-import { _clearMeasurements } from '../../repositories/measurement-repo';
-import { _clearNotes } from '../../services/note-builder';
+import { getRepos } from '../../repositories/repo-factory';
 
 async function registerAndToken(): Promise<string> {
     const res = await request(app)
@@ -21,13 +19,13 @@ async function createSessionWithMeasurement(token: string) {
     const session = await request(app)
         .post('/api/sessions')
         .set('Authorization', `Bearer ${token}`)
-        .send({ joints: ['right_shoulder'] });
+        .send({ joints: ['shoulder'] });
 
     await request(app)
         .post(`/api/sessions/${session.body.id}/measurements`)
         .set('Authorization', `Bearer ${token}`)
         .send({
-            joint: 'right_shoulder',
+            joint: 'shoulder',
             movement: 'flexion',
             side: 'right',
             romDegrees: 155,
@@ -44,9 +42,11 @@ describe('Note Generation & Editing', () => {
     let token: string;
 
     beforeEach(async () => {
-        _clearSessions();
-        _clearMeasurements();
-        _clearNotes();
+        const repos = getRepos();
+        await repos.sessions._clear();
+        await repos.measurements._clear();
+        await repos.notes._clear();
+        await repos.users._clear();
         token = await registerAndToken();
     });
 
@@ -92,7 +92,7 @@ describe('Note Generation & Editing', () => {
         const session = await request(app)
             .post('/api/sessions')
             .set('Authorization', `Bearer ${token}`)
-            .send({ joints: ['left_knee'] });
+            .send({ joints: ['knee'] });
 
         const res = await request(app)
             .post(`/api/sessions/${session.body.id}/notes/generate`)

@@ -4,8 +4,12 @@
  * All domain contracts re-exported from this single entry point.
  */
 
+// Clinical domain (joints, movements, normative ranges, landmarks)
+export * from './clinical';
+
 // Session domain
 export {
+    ExamMode,
     SessionStatus,
     SessionSchema,
     CreateSessionSchema,
@@ -16,6 +20,7 @@ export {
 // Measurement domain
 export {
     BodySide,
+    MeasurementPlane,
     QualityFlagSchema,
     MeasurementSchema,
     CreateMeasurementSchema,

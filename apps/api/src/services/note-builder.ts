@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import type { JointType, MovementType, BodySide, NoteStatus } from '@rom/shared-types';
 
 export interface NoteBlock {
     id: string;
@@ -6,19 +7,22 @@ export interface NoteBlock {
     content: string;
 }
 
+/** V1 note status aligns with @rom/shared-types NoteStatus. */
+export type GeneratedNoteStatus = NoteStatus;
+
 export interface GeneratedNote {
     id: string;
     sessionId: string;
-    status: 'draft' | 'reviewed' | 'finalized' | 'amended';
+    status: GeneratedNoteStatus;
     blocks: NoteBlock[];
     createdAt: string;
     updatedAt: string;
 }
 
 export interface MeasurementInput {
-    joint: string;
-    movement: string;
-    side: string;
+    joint: JointType;
+    movement: MovementType;
+    side: BodySide;
     romDegrees: number;
     confidenceScore: number;
     qualityFlags: { code: string; message: string; severity: string }[];
@@ -27,6 +31,8 @@ export interface MeasurementInput {
 /**
  * Generate a deterministic clinical exam note from measurements.
  * V1 produces structured blocks that clinicians can edit before finalizing.
+ *
+ * This is a *pure* function — storage is handled by NoteRepo via the factory.
  */
 export function generateNote(sessionId: string, measurements: MeasurementInput[]): GeneratedNote {
     const now = new Date().toISOString();
@@ -76,44 +82,4 @@ export function generateNote(sessionId: string, measurements: MeasurementInput[]
         createdAt: now,
         updatedAt: now,
     };
-}
-
-// ── In-memory Note Store ─────────────────────────────────────
-
-const notes: Map<string, GeneratedNote> = new Map();
-
-export function saveNote(note: GeneratedNote): GeneratedNote {
-    notes.set(note.id, note);
-    return note;
-}
-
-export function getNote(id: string): GeneratedNote | undefined {
-    return notes.get(id);
-}
-
-export function listNotesBySession(sessionId: string): GeneratedNote[] {
-    return [...notes.values()].filter((n) => n.sessionId === sessionId);
-}
-
-export function updateNoteBlocks(id: string, blocks: NoteBlock[]): GeneratedNote | undefined {
-    const note = notes.get(id);
-    if (!note) return undefined;
-    note.blocks = blocks;
-    note.updatedAt = new Date().toISOString();
-    return note;
-}
-
-export function updateNoteStatus(
-    id: string,
-    status: GeneratedNote['status'],
-): GeneratedNote | undefined {
-    const note = notes.get(id);
-    if (!note) return undefined;
-    note.status = status;
-    note.updatedAt = new Date().toISOString();
-    return note;
-}
-
-export function _clearNotes(): void {
-    notes.clear();
 }

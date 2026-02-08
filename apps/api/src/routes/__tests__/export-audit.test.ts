@@ -1,10 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../app';
-import { _clearSessions } from '../../repositories/session-repo';
-import { _clearMeasurements } from '../../repositories/measurement-repo';
-import { _clearNotes } from '../../services/note-builder';
-import { _clearAuditLog } from '../../services/audit-log';
+import { getRepos } from '../../repositories/repo-factory';
 
 const TEST_USER = {
     email: `export-test-${Date.now()}@test.com`,
@@ -22,10 +19,12 @@ describe('Export & Audit APIs', () => {
     let token: string;
 
     beforeEach(async () => {
-        _clearSessions();
-        _clearMeasurements();
-        _clearNotes();
-        _clearAuditLog();
+        const repos = getRepos();
+        await repos.sessions._clear();
+        await repos.measurements._clear();
+        await repos.notes._clear();
+        await repos.audit._clear();
+        await repos.users._clear();
         TEST_USER.email = `export-test-${Date.now()}@test.com`;
         token = await getToken();
     });

@@ -8,22 +8,23 @@ class Landmark(BaseModel):
 
     x: float = Field(..., description="Normalized x coordinate [0, 1]")
     y: float = Field(..., description="Normalized y coordinate [0, 1]")
-    z: float = Field(default=0.0, description="Depth coordinate (optional)")
+    z: float = Field(default=0.0, description="Depth coordinate (from MediaPipe world_landmarks)")
     visibility: float = Field(
         default=1.0, ge=0.0, le=1.0, description="Landmark visibility confidence"
     )
 
 
 class MeasurementRequest(BaseModel):
-    """Input payload for ROM measurement."""
+    """Input payload for ROM measurement from pre-extracted landmarks."""
 
     joint: str = Field(..., description="Target joint (e.g., shoulder, elbow, knee)")
     movement: str = Field(..., description="Movement type (e.g., flexion, extension, abduction)")
-    side: str = Field(..., pattern="^(left|right)$", description="Body side")
+    side: str = Field(..., pattern="^(left|right|midline)$", description="Body side")
     landmarks: list[Landmark] = Field(
         ..., min_length=3, description="Ordered landmarks: proximal, joint center, distal"
     )
     algorithm_version: str = Field(default="v1.0", description="Algorithm version identifier")
+    use_3d: bool = Field(default=True, description="Whether to use 3D (x,y,z) angle computation")
 
 
 class QualityFlag(BaseModel):
@@ -46,3 +47,116 @@ class MeasurementResponse(BaseModel):
     )
     quality_flags: list[QualityFlag] = Field(default_factory=list)
     algorithm_version: str
+
+
+# ─── Frame-based processing schemas ────────────────────────────────
+
+
+class FrameRequest(BaseModel):
+    """Input for processing a single image frame to extract pose and compute angles."""
+
+    image_base64: str = Field(..., description="Base64-encoded JPEG/PNG frame from camera")
+    joints: list[str] = Field(
+        default_factory=list,
+        description="Joints to measure. Empty = detect all visible joints.",
+    )
+    movements: list[str] = Field(
+        default_factory=list,
+        description="Movements to measure (paired with joints). Same length as joints.",
+    )
+    sides: list[str] = Field(
+        default_factory=list,
+        description="Sides to measure (paired with joints). Same length as joints.",
+    )
+    algorithm_version: str = Field(default="v1.0")
+
+
+class PoseLandmarks(BaseModel):
+    """Full set of 33 MediaPipe pose landmarks from a single frame."""
+
+    landmarks: list[Landmark] = Field(
+        ..., min_length=33, max_length=33, description="All 33 MediaPipe pose landmarks"
+    )
+    world_landmarks: list[Landmark] = Field(
+        default_factory=list,
+        description="33 MediaPipe world landmarks (real-world 3D coordinates in meters)",
+    )
+
+
+class FrameMeasurement(BaseModel):
+    """A single joint measurement extracted from a frame."""
+
+    joint: str
+    movement: str
+    side: str
+    rom_degrees: float
+    confidence_score: float
+    quality_flags: list[QualityFlag] = Field(default_factory=list)
+
+
+class FrameResponse(BaseModel):
+    """Output from processing a single frame."""
+
+    measurements: list[FrameMeasurement] = Field(default_factory=list)
+    pose_landmarks: PoseLandmarks | None = None
+    frame_quality: str = Field(
+        default="good", description="Overall frame quality: good, degraded, unusable"
+    )
+    algorithm_version: str = Field(default="v1.0")
+
+
+# ─── Streaming protocol messages ───────────────────────────────────
+
+
+class StreamConfig(BaseModel):
+    """Configuration sent at the start of a WebSocket streaming session."""
+
+    joints: list[str] = Field(..., description="Joints to track during this stream")
+    movements: list[str] = Field(..., description="Movements to measure")
+    sides: list[str] = Field(..., description="Body sides")
+    fps_target: int = Field(default=15, ge=1, le=30)
+    temporal_window: int = Field(
+        default=10, ge=3, le=30,
+        description="Number of frames for temporal smoothing",
+    )
+    auto_capture_threshold_degrees: float = Field(
+        default=2.0, ge=0.5, le=5.0,
+        description="Angle stability threshold for auto-capture (±degrees)",
+    )
+    auto_capture_hold_ms: int = Field(
+        default=800, ge=300, le=3000,
+        description="How long angle must be stable before auto-capture (ms)",
+    )
+    algorithm_version: str = Field(default="v1.0")
+
+
+class StreamFrame(BaseModel):
+    """A single frame in a streaming session."""
+
+    frame_index: int
+    image_base64: str
+
+
+class StreamMeasurement(BaseModel):
+    """Real-time measurement update sent back over the WebSocket."""
+
+    frame_index: int
+    joint: str
+    movement: str
+    side: str
+    rom_degrees: float
+    smoothed_rom_degrees: float = Field(
+        ..., description="Temporally smoothed angle (median of sliding window)"
+    )
+    confidence_score: float
+    quality_flags: list[QualityFlag] = Field(default_factory=list)
+    is_stable: bool = Field(
+        default=False, description="True when angle has stabilized within threshold"
+    )
+    stable_for_ms: int = Field(
+        default=0, description="How long the angle has been stable (ms)"
+    )
+    auto_captured: bool = Field(
+        default=False, description="True if this reading was auto-captured due to stability"
+    )
+

@@ -1,61 +1,47 @@
-import { randomUUID } from 'node:crypto';
+/**
+ * Audit-log service — thin async façade over AuditRepo.
+ *
+ * Routes now call the repo directly via getRepos().audit.
+ * This file only remains for backward-compat during migration.
+ * It will be deleted once all consumers are on the factory pattern.
+ */
+import { getRepos } from '../repositories/repo-factory';
+import type { AuditEventRecord } from '../repositories/interfaces';
 
-export interface AuditEvent {
-    id: string;
-    eventType: string;
-    entityType: string;
-    entityId: string;
-    userId: string;
-    organizationId: string;
-    details: Record<string, unknown>;
-    timestamp: string;
-}
+export type { AuditEventRecord as AuditEvent } from '../repositories/interfaces';
 
-// Immutable append-only log — events can never be modified or deleted
-const auditLog: AuditEvent[] = [];
-
-export function recordEvent(
+export async function recordEvent(
     eventType: string,
     entityType: string,
     entityId: string,
     userId: string,
     organizationId: string,
     details: Record<string, unknown> = {},
-): AuditEvent {
-    const event: AuditEvent = {
-        id: randomUUID(),
+): Promise<AuditEventRecord> {
+    return getRepos().audit.record({
         eventType,
         entityType,
         entityId,
-        userId,
+        actorId: userId,
         organizationId,
-        details,
-        timestamp: new Date().toISOString(),
-    };
-    auditLog.push(event);
-    return event;
+        metadata: details,
+    });
 }
 
-export function listEvents(filters: {
+export async function listEvents(filters: {
     entityType?: string;
     entityId?: string;
     organizationId?: string;
     eventType?: string;
-}): AuditEvent[] {
-    return auditLog.filter((e) => {
-        if (filters.entityType && e.entityType !== filters.entityType) return false;
-        if (filters.entityId && e.entityId !== filters.entityId) return false;
-        if (filters.organizationId && e.organizationId !== filters.organizationId) return false;
-        if (filters.eventType && e.eventType !== filters.eventType) return false;
-        return true;
-    });
+}): Promise<AuditEventRecord[]> {
+    return getRepos().audit.list(filters);
 }
 
-export function getEventCount(): number {
-    return auditLog.length;
+export async function getEventCount(): Promise<number> {
+    return getRepos().audit.count();
 }
 
 /** Test helper only — not for production use */
-export function _clearAuditLog(): void {
-    auditLog.length = 0;
+export async function _clearAuditLog(): Promise<void> {
+    return getRepos().audit._clear();
 }

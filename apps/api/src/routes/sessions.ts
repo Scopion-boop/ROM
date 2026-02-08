@@ -1,12 +1,7 @@
 import { Router, Request, Response } from 'express';
 import type { IRouter } from 'express';
 import { requireAuth } from '../middleware/authz';
-import {
-    createSession,
-    getSession,
-    listSessionsByOrg,
-    updateSessionStatus,
-} from '../repositories/session-repo';
+import { getRepos } from '../repositories/repo-factory';
 
 export const sessionRouter: IRouter = Router();
 
@@ -15,7 +10,7 @@ sessionRouter.use(requireAuth);
 /**
  * POST /api/sessions — create a new examination session.
  */
-sessionRouter.post('/', (req: Request, res: Response): void => {
+sessionRouter.post('/', async (req: Request, res: Response): Promise<void> => {
     const { joints, patientId } = req.body;
 
     if (!joints || !Array.isArray(joints) || joints.length === 0) {
@@ -23,7 +18,7 @@ sessionRouter.post('/', (req: Request, res: Response): void => {
         return;
     }
 
-    const session = createSession({
+    const session = await getRepos().sessions.create({
         organizationId: req.user!.organizationId,
         clinicianId: req.user!.userId,
         patientId,
@@ -36,16 +31,16 @@ sessionRouter.post('/', (req: Request, res: Response): void => {
 /**
  * GET /api/sessions — list sessions for the authenticated user's organization.
  */
-sessionRouter.get('/', (req: Request, res: Response): void => {
-    const sessions = listSessionsByOrg(req.user!.organizationId);
+sessionRouter.get('/', async (req: Request, res: Response): Promise<void> => {
+    const sessions = await getRepos().sessions.listByOrg(req.user!.organizationId);
     res.json(sessions);
 });
 
 /**
  * GET /api/sessions/:id — get a single session.
  */
-sessionRouter.get('/:id', (req: Request, res: Response): void => {
-    const session = getSession(String(req.params.id));
+sessionRouter.get('/:id', async (req: Request, res: Response): Promise<void> => {
+    const session = await getRepos().sessions.getById(String(req.params.id));
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
         return;
@@ -56,13 +51,13 @@ sessionRouter.get('/:id', (req: Request, res: Response): void => {
 /**
  * PATCH /api/sessions/:id/status — update session status.
  */
-sessionRouter.patch('/:id/status', (req: Request, res: Response): void => {
+sessionRouter.patch('/:id/status', async (req: Request, res: Response): Promise<void> => {
     const { status } = req.body;
     if (!status) {
         res.status(400).json({ error: 'status is required' });
         return;
     }
-    const session = updateSessionStatus(String(req.params.id), status);
+    const session = await getRepos().sessions.updateStatus(String(req.params.id), status);
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
         return;
