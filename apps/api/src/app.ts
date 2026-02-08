@@ -6,6 +6,7 @@ import { authRouter } from './routes/auth';
 import { sessionRouter } from './routes/sessions';
 import { measurementRouter } from './routes/measurements';
 import { noteRouter } from './routes/notes';
+import { exportRouter } from './routes/export';
 import { requestLogger } from './middleware/request-logger';
 
 const app = express();
@@ -24,6 +25,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/sessions', sessionRouter);
 app.use('/api/sessions', measurementRouter);
 app.use('/api/sessions', noteRouter);
+app.use('/api/notes', exportRouter);
+app.use('/api', exportRouter);
 
 // Fallback
 app.use((_req, res) => {
