@@ -1,7 +1,9 @@
 import { Router, Request, Response } from 'express';
 import type { IRouter } from 'express';
 import { requireAuth } from '../middleware/authz';
+import { validateBody, validateParams } from '../middleware/validation';
 import { getRepos } from '../repositories/repo-factory';
+import { createSessionSchema, updateSessionStatusSchema, idParamSchema } from '../schemas/api-schemas';
 
 export const sessionRouter: IRouter = Router();
 
@@ -10,13 +12,8 @@ sessionRouter.use(requireAuth);
 /**
  * POST /api/sessions — create a new examination session.
  */
-sessionRouter.post('/', async (req: Request, res: Response): Promise<void> => {
+sessionRouter.post('/', validateBody(createSessionSchema), async (req: Request, res: Response): Promise<void> => {
     const { joints, patientId } = req.body;
-
-    if (!joints || !Array.isArray(joints) || joints.length === 0) {
-        res.status(400).json({ error: 'joints array is required and must not be empty' });
-        return;
-    }
 
     const { sessions, audit } = getRepos();
     const session = await sessions.create({
@@ -50,7 +47,7 @@ sessionRouter.get('/', async (req: Request, res: Response): Promise<void> => {
 /**
  * GET /api/sessions/:id — get a single session.
  */
-sessionRouter.get('/:id', async (req: Request, res: Response): Promise<void> => {
+sessionRouter.get('/:id', validateParams(idParamSchema), async (req: Request, res: Response): Promise<void> => {
     const session = await getRepos().sessions.getById(String(req.params.id));
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
@@ -62,12 +59,8 @@ sessionRouter.get('/:id', async (req: Request, res: Response): Promise<void> => 
 /**
  * PATCH /api/sessions/:id/status — update session status.
  */
-sessionRouter.patch('/:id/status', async (req: Request, res: Response): Promise<void> => {
+sessionRouter.patch('/:id/status', validateParams(idParamSchema), validateBody(updateSessionStatusSchema), async (req: Request, res: Response): Promise<void> => {
     const { status } = req.body;
-    if (!status) {
-        res.status(400).json({ error: 'status is required' });
-        return;
-    }
     const { sessions, audit } = getRepos();
     const session = await sessions.updateStatus(String(req.params.id), status);
     if (!session || session.organizationId !== req.user!.organizationId) {

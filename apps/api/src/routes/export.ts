@@ -1,11 +1,13 @@
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { requireAuth } from '../middleware/authz.js';
+import { validateParams, validateQuery } from '../middleware/validation';
 import { getRepos } from '../repositories/repo-factory';
+import { noteIdParamSchema, sessionIdParamSchema, auditQuerySchema } from '../schemas/api-schemas';
 
 const exportRouter: IRouter = Router();
 
 // Clipboard / JSON export for a note
-exportRouter.get('/:noteId/export/json', requireAuth, async (req: Request, res: Response) => {
+exportRouter.get('/:noteId/export/json', requireAuth, validateParams(noteIdParamSchema), async (req: Request, res: Response) => {
     const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
     if (!note) {
@@ -30,7 +32,7 @@ exportRouter.get('/:noteId/export/json', requireAuth, async (req: Request, res: 
 });
 
 // Plain-text export (clipboard-friendly)
-exportRouter.get('/:noteId/export/text', requireAuth, async (req: Request, res: Response) => {
+exportRouter.get('/:noteId/export/text', requireAuth, validateParams(noteIdParamSchema), async (req: Request, res: Response) => {
     const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
     if (!note) {
@@ -56,7 +58,7 @@ exportRouter.get('/:noteId/export/text', requireAuth, async (req: Request, res: 
 });
 
 // PDF stub — returns metadata for now, real PDF generation deferred
-exportRouter.get('/:noteId/export/pdf', requireAuth, async (req: Request, res: Response) => {
+exportRouter.get('/:noteId/export/pdf', requireAuth, validateParams(noteIdParamSchema), async (req: Request, res: Response) => {
     const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
     if (!note) {
@@ -86,7 +88,7 @@ exportRouter.get('/:noteId/export/pdf', requireAuth, async (req: Request, res: R
 });
 
 // Audit trail for a session
-exportRouter.get('/sessions/:sessionId/audit', requireAuth, async (req: Request, res: Response) => {
+exportRouter.get('/sessions/:sessionId/audit', requireAuth, validateParams(sessionIdParamSchema), validateQuery(auditQuerySchema), async (req: Request, res: Response) => {
     const { sessions, audit } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session) {

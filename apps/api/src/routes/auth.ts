@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import type { IRouter } from 'express';
 import { hashPassword, comparePassword, signToken } from '../auth/jwt';
+import { validateBody } from '../middleware/validation';
 import { getRepos } from '../repositories/repo-factory';
+import { registerSchema, loginSchema } from '../schemas/api-schemas';
+
+const SENTINEL_UUID = '00000000-0000-0000-0000-000000000000';
 
 export const authRouter: IRouter = Router();
 
@@ -9,13 +13,8 @@ export const authRouter: IRouter = Router();
  * POST /api/auth/register
  * Body: { email, password, organizationId, role }
  */
-authRouter.post('/register', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/register', validateBody(registerSchema), async (req: Request, res: Response): Promise<void> => {
     const { email, password, organizationId, role } = req.body;
-
-    if (!email || !password || !organizationId || !role) {
-        res.status(400).json({ error: 'email, password, organizationId, and role are required' });
-        return;
-    }
 
     const { users, audit } = getRepos();
     const existing = await users.getByEmail(email);
@@ -45,13 +44,8 @@ authRouter.post('/register', async (req: Request, res: Response): Promise<void> 
  * POST /api/auth/login
  * Body: { email, password }
  */
-authRouter.post('/login', async (req: Request, res: Response): Promise<void> => {
+authRouter.post('/login', validateBody(loginSchema), async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-        res.status(400).json({ error: 'email and password are required' });
-        return;
-    }
 
     const { users, audit } = getRepos();
     const user = await users.getByEmail(email);
@@ -60,9 +54,9 @@ authRouter.post('/login', async (req: Request, res: Response): Promise<void> => 
         await audit.record({
             eventType: 'auth.failed',
             entityType: 'auth',
-            entityId: 'unknown',
-            actorId: 'unknown',
-            organizationId: 'unknown',
+            entityId: SENTINEL_UUID,
+            actorId: SENTINEL_UUID,
+            organizationId: SENTINEL_UUID,
             metadata: { email, reason: 'user_not_found' },
         });
         res.status(401).json({ error: 'Invalid credentials' });

@@ -22,6 +22,10 @@ export const sessionIdParamSchema = z.object({
     sessionId: commonSchemas.uuid.or(commonSchemas.nonEmptyString).describe('Session ID'),
 });
 
+export const idParamSchema = z.object({
+    id: commonSchemas.uuid.or(commonSchemas.nonEmptyString).describe('Resource ID'),
+});
+
 // ── Measurement Schemas ──────────────────────────────────────────────
 
 export const createMeasurementSchema = z.object({
@@ -32,7 +36,15 @@ export const createMeasurementSchema = z.object({
     confidenceScore: commonSchemas.confidenceScore
         .default(0)
         .describe('Algorithm confidence score (0-1)'),
-    qualityFlags: validateArray(sanitizeString(50), 0, 20)
+    qualityFlags: validateArray(
+        z.object({
+            code: sanitizeString(50),
+            message: sanitizeString(200),
+            severity: sanitizeString(20),
+        }),
+        0,
+        20,
+    )
         .default([])
         .describe('Quality indicators array'),
     algorithmVersion: sanitizeString(20).default('v1.0').describe('CV algorithm version'),
@@ -92,7 +104,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-    username: z.string().email({ message: 'Invalid email address' }).describe('User email'),
+    email: z.string().email({ message: 'Invalid email address' }).describe('User email'),
     password: z.string().min(1, { message: 'Password required' }).describe('User password'),
 });
 

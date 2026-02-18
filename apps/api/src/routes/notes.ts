@@ -1,7 +1,9 @@
 import { Router, Request, Response } from 'express';
 import type { IRouter } from 'express';
 import { requireAuth } from '../middleware/authz';
+import { validateBody, validateParams } from '../middleware/validation';
 import { getRepos } from '../repositories/repo-factory';
+import { sessionIdParamSchema, noteIdParamSchema, updateNoteBlocksSchema, updateNoteStatusSchema } from '../schemas/api-schemas';
 import { generateNote, type MeasurementInput } from '../services/note-builder';
 
 export const noteRouter: IRouter = Router();
@@ -11,7 +13,7 @@ noteRouter.use(requireAuth);
 /**
  * POST /api/sessions/:sessionId/notes/generate — generate a draft note from measurements.
  */
-noteRouter.post('/:sessionId/notes/generate', async (req: Request, res: Response): Promise<void> => {
+noteRouter.post('/:sessionId/notes/generate', validateParams(sessionIdParamSchema), async (req: Request, res: Response): Promise<void> => {
     const { sessions, measurements, notes, audit } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
@@ -48,7 +50,7 @@ noteRouter.post('/:sessionId/notes/generate', async (req: Request, res: Response
 /**
  * GET /api/sessions/:sessionId/notes — list notes for a session.
  */
-noteRouter.get('/:sessionId/notes', async (req: Request, res: Response): Promise<void> => {
+noteRouter.get('/:sessionId/notes', validateParams(sessionIdParamSchema), async (req: Request, res: Response): Promise<void> => {
     const { sessions, notes } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
@@ -62,12 +64,8 @@ noteRouter.get('/:sessionId/notes', async (req: Request, res: Response): Promise
 /**
  * PATCH /api/notes/:noteId/blocks — update note blocks (clinician edits).
  */
-noteRouter.patch('/notes/:noteId/blocks', async (req: Request, res: Response): Promise<void> => {
+noteRouter.patch('/notes/:noteId/blocks', validateParams(noteIdParamSchema), validateBody(updateNoteBlocksSchema), async (req: Request, res: Response): Promise<void> => {
     const { blocks } = req.body;
-    if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
-        res.status(400).json({ error: 'blocks array is required' });
-        return;
-    }
 
     const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
@@ -108,12 +106,8 @@ noteRouter.patch('/notes/:noteId/blocks', async (req: Request, res: Response): P
 /**
  * PATCH /api/notes/:noteId/status — transition note status.
  */
-noteRouter.patch('/notes/:noteId/status', async (req: Request, res: Response): Promise<void> => {
+noteRouter.patch('/notes/:noteId/status', validateParams(noteIdParamSchema), validateBody(updateNoteStatusSchema), async (req: Request, res: Response): Promise<void> => {
     const { status } = req.body;
-    if (!status) {
-        res.status(400).json({ error: 'status is required' });
-        return;
-    }
 
     const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));

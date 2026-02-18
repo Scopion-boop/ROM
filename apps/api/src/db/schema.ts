@@ -116,11 +116,9 @@ export const auditEvents = pgTable('audit_events', {
     id: uuid('id').primaryKey().defaultRandom(),
     eventType: varchar('event_type', { length: 128 }).notNull(),
     entityType: varchar('entity_type', { length: 64 }).notNull(),
-    entityId: uuid('entity_id').notNull(),
-    actorId: uuid('actor_id').notNull(),
-    organizationId: uuid('organization_id')
-        .notNull()
-        .references(() => organizations.id),
+    entityId: varchar('entity_id', { length: 128 }).notNull(),
+    actorId: varchar('actor_id', { length: 128 }).notNull(),
+    organizationId: varchar('organization_id', { length: 128 }).notNull(),
     metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull().default({}),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

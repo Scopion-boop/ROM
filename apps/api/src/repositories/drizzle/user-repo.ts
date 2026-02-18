@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { getDb, users } from '../../db';
+import { getDb, users, organizations } from '../../db';
 import type { UserRepo, UserRecord } from '../interfaces';
 
 function rowToRecord(row: typeof users.$inferSelect): UserRecord {
@@ -16,6 +16,15 @@ export function createDrizzleUserRepo(): UserRepo {
     return {
         async create(data) {
             const db = getDb();
+
+            // Ensure the organization exists (FK constraint satisfaction)
+            if (data.organizationId) {
+                const existing = await db.select().from(organizations).where(eq(organizations.id, data.organizationId));
+                if (existing.length === 0) {
+                    await db.insert(organizations).values({ id: data.organizationId, name: data.organizationId });
+                }
+            }
+
             const rows = await db
                 .insert(users)
                 .values({
