@@ -6,10 +6,16 @@ const exportRouter: IRouter = Router();
 
 // Clipboard / JSON export for a note
 exportRouter.get('/:noteId/export/json', requireAuth, async (req: Request, res: Response) => {
-    const { notes, audit } = getRepos();
+    const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
     if (!note) {
         res.status(404).json({ error: 'Note not found' });
+        return;
+    }
+    // Org-scoped authorization check
+    const session = await sessions.getById(note.sessionId);
+    if (!session || session.organizationId !== req.user!.organizationId) {
+        res.status(403).json({ error: 'Access denied' });
         return;
     }
     await audit.record({
@@ -25,10 +31,16 @@ exportRouter.get('/:noteId/export/json', requireAuth, async (req: Request, res: 
 
 // Plain-text export (clipboard-friendly)
 exportRouter.get('/:noteId/export/text', requireAuth, async (req: Request, res: Response) => {
-    const { notes, audit } = getRepos();
+    const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
     if (!note) {
         res.status(404).json({ error: 'Note not found' });
+        return;
+    }
+    // Org-scoped authorization check
+    const session = await sessions.getById(note.sessionId);
+    if (!session || session.organizationId !== req.user!.organizationId) {
+        res.status(403).json({ error: 'Access denied' });
         return;
     }
     const text = note.blocks.map((b) => b.content).join('\n\n');
@@ -45,10 +57,16 @@ exportRouter.get('/:noteId/export/text', requireAuth, async (req: Request, res: 
 
 // PDF stub — returns metadata for now, real PDF generation deferred
 exportRouter.get('/:noteId/export/pdf', requireAuth, async (req: Request, res: Response) => {
-    const { notes, audit } = getRepos();
+    const { notes, sessions, audit } = getRepos();
     const note = await notes.getById(String(req.params.noteId));
     if (!note) {
         res.status(404).json({ error: 'Note not found' });
+        return;
+    }
+    // Org-scoped authorization check
+    const session = await sessions.getById(note.sessionId);
+    if (!session || session.organizationId !== req.user!.organizationId) {
+        res.status(403).json({ error: 'Access denied' });
         return;
     }
     await audit.record({

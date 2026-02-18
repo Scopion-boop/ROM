@@ -18,11 +18,22 @@ sessionRouter.post('/', async (req: Request, res: Response): Promise<void> => {
         return;
     }
 
-    const session = await getRepos().sessions.create({
+    const { sessions, audit } = getRepos();
+    const session = await sessions.create({
         organizationId: req.user!.organizationId,
         clinicianId: req.user!.userId,
         patientId,
         joints,
+    });
+
+    // Audit log: session creation (PHI access initiation)
+    await audit.record({
+        eventType: 'session.created',
+        entityType: 'session',
+        entityId: session.id,
+        actorId: req.user!.userId,
+        organizationId: req.user!.organizationId,
+        metadata: { joints, patientId: patientId || 'anonymous' },
     });
 
     res.status(201).json(session);
@@ -57,10 +68,22 @@ sessionRouter.patch('/:id/status', async (req: Request, res: Response): Promise<
         res.status(400).json({ error: 'status is required' });
         return;
     }
-    const session = await getRepos().sessions.updateStatus(String(req.params.id), status);
+    const { sessions, audit } = getRepos();
+    const session = await sessions.updateStatus(String(req.params.id), status);
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
         return;
     }
+
+    // Audit log: session status change (especially finalization)
+    await audit.record({
+        eventType: status === 'finalized' ? 'session.finalized' : 'session.status_updated',
+        entityType: 'session',
+        entityId: session.id,
+        actorId: req.user!.userId,
+        organizationId: req.user!.organizationId,
+        metadata: { status, previousStatus: 'updated' },
+    });
+
     res.json(session);
 });

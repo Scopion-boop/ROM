@@ -38,6 +38,8 @@ export function LiveRomCapture({
     webcamRef,
     onComplete,
     onCapture,
+    onLandmarksUpdate,
+    onAngleUpdate: _onAngleUpdate,
     className = '',
 }: Readonly<VisionStrategyProps>) {
     // Fallback ref for when WebcamCapture hasn't mounted yet
@@ -106,6 +108,11 @@ export function LiveRomCapture({
             visibility: lm.visibility ?? 0,
         }));
     }, [frame]);
+
+    // Forward landmarks to parent (for shared PoseOverlay in CameraSetupWizard)
+    useEffect(() => {
+        onLandmarksUpdate?.(overlayLandmarks);
+    }, [overlayLandmarks, onLandmarksUpdate]);
 
     // ── Actions ────────────────────────────────────────────────────
 

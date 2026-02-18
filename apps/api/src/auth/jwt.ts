@@ -1,7 +1,19 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
+/**
+ * SECURITY: JWT_SECRET must be provided via environment variable.
+ * The application will fail to start if JWT_SECRET is not set.
+ * In production, use AWS Secrets Manager or HashiCorp Vault.
+ */
+if (!process.env.JWT_SECRET) {
+    throw new Error(
+        'FATAL: JWT_SECRET environment variable is required for security. ' +
+        'Set JWT_SECRET in your .env file or secrets vault.'
+    );
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = '8h';
 const SALT_ROUNDS = 12;
 

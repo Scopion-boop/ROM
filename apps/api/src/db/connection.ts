@@ -41,3 +41,26 @@ export async function closeDb(): Promise<void> {
         _db = null;
     }
 }
+
+/**
+ * Check database connectivity for health checks.
+ * Returns { healthy: true } if connection works, { healthy: false, error } otherwise.
+ */
+export async function checkDbHealth(): Promise<{ healthy: boolean; error?: string }> {
+    // If DATABASE_URL is not set, database is not configured (using in-memory)
+    if (!process.env.DATABASE_URL) {
+        return { healthy: true }; // In-memory mode is always "healthy"
+    }
+
+    try {
+        const db = getDb();
+        // Execute a simple query to verify connection
+        await db.execute('SELECT 1');
+        return { healthy: true };
+    } catch (err) {
+        return {
+            healthy: false,
+            error: err instanceof Error ? err.message : 'Unknown database error',
+        };
+    }
+}

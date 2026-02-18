@@ -12,7 +12,7 @@ noteRouter.use(requireAuth);
  * POST /api/sessions/:sessionId/notes/generate — generate a draft note from measurements.
  */
 noteRouter.post('/:sessionId/notes/generate', async (req: Request, res: Response): Promise<void> => {
-    const { sessions, measurements, notes } = getRepos();
+    const { sessions, measurements, notes, audit } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
@@ -27,6 +27,20 @@ noteRouter.post('/:sessionId/notes/generate', async (req: Request, res: Response
 
     const note = generateNote(session.id, mList as MeasurementInput[]);
     await notes.save(note);
+
+    // Audit log: clinical note generated (PHI documentation)
+    await audit.record({
+        eventType: 'note.generated',
+        entityType: 'note',
+        entityId: note.id,
+        actorId: req.user!.userId,
+        organizationId: req.user!.organizationId,
+        metadata: {
+            sessionId: session.id,
+            measurementCount: mList.length,
+            status: note.status,
+        },
+    });
 
     res.status(201).json(note);
 });
@@ -55,11 +69,39 @@ noteRouter.patch('/notes/:noteId/blocks', async (req: Request, res: Response): P
         return;
     }
 
-    const updated = await getRepos().notes.updateBlocks(String(req.params.noteId), blocks);
+    const { notes, sessions, audit } = getRepos();
+    const note = await notes.getById(String(req.params.noteId));
+    if (!note) {
+        res.status(404).json({ error: 'Note not found' });
+        return;
+    }
+
+    // Org-scoped authorization check
+    const session = await sessions.getById(note.sessionId);
+    if (!session || session.organizationId !== req.user!.organizationId) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+    }
+
+    const updated = await notes.updateBlocks(String(req.params.noteId), blocks);
     if (!updated) {
         res.status(404).json({ error: 'Note not found' });
         return;
     }
+
+    // Audit log: clinician edited note (PHI modification)
+    await audit.record({
+        eventType: 'note.edited',
+        entityType: 'note',
+        entityId: updated.id,
+        actorId: req.user!.userId,
+        organizationId: req.user!.organizationId,
+        metadata: {
+            sessionId: updated.sessionId,
+            blockCount: blocks.length,
+        },
+    });
+
     res.json(updated);
 });
 
@@ -73,10 +115,45 @@ noteRouter.patch('/notes/:noteId/status', async (req: Request, res: Response): P
         return;
     }
 
-    const updated = await getRepos().notes.updateStatus(String(req.params.noteId), status);
+    const { notes, sessions, audit } = getRepos();
+    const note = await notes.getById(String(req.params.noteId));
+    if (!note) {
+        res.status(404).json({ error: 'Note not found' });
+        return;
+    }
+
+    // Org-scoped authorization check
+    const session = await sessions.getById(note.sessionId);
+    if (!session || session.organizationId !== req.user!.organizationId) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+    }
+
+    const previousStatus = note.status;
+    const updated = await notes.updateStatus(String(req.params.noteId), status);
     if (!updated) {
         res.status(404).json({ error: 'Note not found' });
         return;
     }
+
+    // Audit log: note status changed (especially approval/finalization)
+    const eventType =
+        status === 'finalized' || status === 'reviewed'
+            ? 'note.approved'
+            : 'note.status_updated';
+
+    await audit.record({
+        eventType,
+        entityType: 'note',
+        entityId: updated.id,
+        actorId: req.user!.userId,
+        organizationId: req.user!.organizationId,
+        metadata: {
+            sessionId: updated.sessionId,
+            previousStatus,
+            newStatus: status,
+        },
+    });
+
     res.json(updated);
 });

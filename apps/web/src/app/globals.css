@@ -611,3 +611,31 @@ legend {
     background: var(--accent-glow-strong);
     color: var(--text-primary);
 }
+
+/* ── Print / PDF ── */
+@media print {
+    body {
+        background: #fff !important;
+        color: #111 !important;
+    }
+
+    main>*:not(.note-print-area),
+    [data-testid="note-renderer"]>div:first-child,
+    [data-testid="note-renderer"]>div:last-child,
+    [data-testid="btn-copy-note"],
+    [data-testid="btn-print-note"],
+    [data-testid="btn-generate-interpretation"],
+    nav,
+    header {
+        display: none !important;
+    }
+
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    pre {
+        color: #111 !important;
+    }
+}

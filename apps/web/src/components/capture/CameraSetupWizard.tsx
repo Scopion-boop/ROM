@@ -27,7 +27,8 @@ import {
     JOINT_MOVEMENT_MAP,
 } from '@rom/shared-types';
 import { WebcamCapture, type WebcamCaptureHandle } from './WebcamCapture';
-import { PoseOverlay, type OverlayLandmark } from './PoseOverlay';
+import { PoseOverlay, type OverlayLandmark, type AngleIndicator } from './PoseOverlay';
+import { PhoneCameraLink } from './PhoneCameraLink';
 import {
     getAllVisionStrategies,
     getVisionStrategy,
@@ -39,7 +40,7 @@ import '../../lib/strategies';
 
 // ─── Constants ─────────────────────────────────────────────────────
 
-type Step = 'select_joint' | 'camera_setup' | 'capture' | 'review';
+type Step = 'select_joint' | 'camera_setup' | 'phone_pair' | 'capture' | 'review';
 
 const REGION_LABELS: Record<string, string> = {
     upper_extremity: 'Upper Extremity',
@@ -59,8 +60,11 @@ export default function CameraSetupWizard({
     const [step, setStep] = useState<Step>('select_joint');
     const [selectedJoints, setSelectedJoints] = useState<JointType[]>([]);
     const [measurements, setMeasurements] = useState<CapturedMeasurement[]>([]);
-    const [landmarks] = useState<OverlayLandmark[] | null>(null);
+    const [landmarks, setLandmarks] = useState<OverlayLandmark[] | null>(null);
+    const [angles, setAngles] = useState<AngleIndicator[]>([]);
     const [strategyKey, setStrategyKey] = useState<string>(getDefaultStrategyKey());
+    const [secondaryStream, setSecondaryStream] = useState<MediaStream | null>(null);
+    const [wizardSessionId] = useState(() => crypto.randomUUID().slice(0, 8));
 
     const strategies = getAllVisionStrategies();
     const activeStrategy = getVisionStrategy(strategyKey);
@@ -292,11 +296,67 @@ export default function CameraSetupWizard({
                     </button>
                     <button
                         className="btn-primary"
-                        onClick={() => setStep('capture')}
+                        onClick={() => setStep('phone_pair')}
                         data-testid="btn-start-capture"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                     >
-                        <Play size={16} /> Start Capture
+                        <Play size={16} /> Next: Phone Pairing
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ── Step 2b: Phone Pairing (optional) ────────────────────────
+    if (step === 'phone_pair') {
+        const signalingHost = globalThis.window === undefined ? 'localhost' : globalThis.location.hostname;
+        const signalingUrl = `ws://${signalingHost}:${process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001'}/ws/signaling`;
+
+        return (
+            <div data-testid="step-phone-pair" className="card" style={{ padding: 28 }}>
+                <h2 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: 4 }}>
+                    Pair Phone Camera (Optional)
+                </h2>
+                <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 20 }}>
+                    Scan the QR code with your phone for a second camera angle.
+                    This improves 3D measurement accuracy. You can skip this step.
+                </p>
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+                    <PhoneCameraLink
+                        signalingUrl={signalingUrl}
+                        sessionId={wizardSessionId}
+                        onRemoteStream={(stream) => setSecondaryStream(stream)}
+                        onDisconnect={() => setSecondaryStream(null)}
+                    />
+                </div>
+
+                {secondaryStream && (
+                    <div style={{
+                        padding: '12px 16px', borderRadius: 'var(--radius-md)',
+                        background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                        marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8,
+                        color: '#16a34a', fontSize: 14, fontWeight: 500,
+                    }}>
+                        ✓ Phone camera connected — dual camera mode active
+                    </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 10 }}>
+                    <button
+                        className="btn-ghost"
+                        onClick={() => setStep('camera_setup')}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <ArrowLeft size={14} /> Back
+                    </button>
+                    <button
+                        className="btn-primary"
+                        onClick={() => setStep('capture')}
+                        data-testid="btn-start-capture-after-pair"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                    >
+                        <Play size={16} /> {secondaryStream ? 'Start Dual Capture' : 'Skip & Start Capture'}
                     </button>
                 </div>
             </div>
@@ -326,6 +386,7 @@ export default function CameraSetupWizard({
                         <PoseOverlay
                             videoRef={webcamRef.current.videoRef}
                             landmarks={landmarks}
+                            angles={angles}
                         />
                     )}
                 </div>
@@ -337,6 +398,8 @@ export default function CameraSetupWizard({
                             joints={selectedJoints.length > 0 ? selectedJoints : undefined}
                             webcamRef={webcamRef}
                             onComplete={handleCaptureComplete}
+                            onLandmarksUpdate={setLandmarks}
+                            onAngleUpdate={setAngles}
                         />
                     ) : (
                         <div style={{ padding: 20, color: 'var(--text-muted)' }}>

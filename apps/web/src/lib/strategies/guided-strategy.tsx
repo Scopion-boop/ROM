@@ -26,8 +26,10 @@ function GuidedStrategyAdapter({
     webcamRef,
     onComplete,
     onCapture,
+    onLandmarksUpdate,
+    onAngleUpdate,
     className,
-}: VisionStrategyProps) {
+}: Readonly<VisionStrategyProps>) {
     return (
         <GuidedCaptureFlow
             joints={joints ?? []}
@@ -36,6 +38,8 @@ function GuidedStrategyAdapter({
             webcamRef={webcamRef}
             onComplete={onComplete}
             onCapture={onCapture}
+            onLandmarksUpdate={onLandmarksUpdate}
+            onAngleUpdate={onAngleUpdate}
             className={className}
         />
     );

@@ -56,9 +56,11 @@ function RemoteCameraContent() {
                 return;
             }
 
-            // 2. Connect to signaling server
+            // 2. Connect to signaling server (port 4001)
+            const signalingHost = globalThis.location.hostname;
             const wsProtocol = globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${wsProtocol}//${globalThis.location.host}/ws/signaling?session=${sessionId}&token=${token}&role=remote`;
+            const signalingPort = process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001';
+            const wsUrl = `${wsProtocol}//${signalingHost}:${signalingPort}/ws/signaling?session=${sessionId}&token=${token}&role=remote`;
 
             const ws = new WebSocket(wsUrl);
             wsRef.current = ws;

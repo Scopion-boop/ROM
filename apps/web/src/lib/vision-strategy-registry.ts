@@ -29,6 +29,10 @@ export interface VisionStrategyProps {
     onComplete: (measurements: CapturedMeasurement[]) => void;
     /** Called on each individual capture event */
     onCapture?: (measurement: CapturedMeasurement) => void;
+    /** Called each frame with pose landmarks for overlay rendering */
+    onLandmarksUpdate?: (landmarks: import('../components/capture/PoseOverlay').OverlayLandmark[] | null) => void;
+    /** Called each frame with angle indicator data for overlay */
+    onAngleUpdate?: (angles: import('../components/capture/PoseOverlay').AngleIndicator[]) => void;
     /** Optional CSS class */
     className?: string;
 }

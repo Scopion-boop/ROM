@@ -88,3 +88,8 @@ service-account.json
 Thumbs.db
 .DS_Store
 *.egg-info/
+
+# Snyk Security Extension - AI Rules (auto-generated)
+.github/instructions/snyk_rules.instructions.md
+
+.early.coverage

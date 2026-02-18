@@ -4,7 +4,9 @@ import { describe, it, expect, vi } from 'vitest';
 
 import CameraSetupWizard from '../capture/CameraSetupWizard';
 import MeasurementPanel from '../capture/MeasurementPanel';
-import NoteEditor from '../notes/NoteEditor';
+import NoteRenderer from '../notes/NoteRenderer';
+import type { EnrichedMeasurement } from '@/lib/rom-utils';
+import type { GeneratedNote } from '@/lib/note-generator';
 
 describe('CameraSetupWizard', () => {
     it('renders joint selection step by default', () => {
@@ -13,39 +15,37 @@ describe('CameraSetupWizard', () => {
         expect(screen.getByText('Select Joints to Measure')).toBeDefined();
     });
 
-    it('disables next button when no joints selected', () => {
+    it('allows proceeding without joint selection when auto-detect is active', () => {
         render(<CameraSetupWizard onComplete={vi.fn()} />);
         const btn = screen.getByTestId('btn-next-camera');
-        expect((btn as HTMLButtonElement).disabled).toBe(true);
+        // Auto-detect mode does not require joint selection
+        expect((btn as HTMLButtonElement).disabled).toBe(false);
     });
 
     it('enables next button after selecting a joint', () => {
         render(<CameraSetupWizard onComplete={vi.fn()} />);
-        fireEvent.click(screen.getByTestId('joint-right_shoulder'));
+        fireEvent.click(screen.getByTestId('joint-shoulder'));
         const btn = screen.getByTestId('btn-next-camera');
         expect((btn as HTMLButtonElement).disabled).toBe(false);
     });
 
-    it('advances through all wizard steps', () => {
-        const onComplete = vi.fn();
-        render(<CameraSetupWizard onComplete={onComplete} />);
+    it('advances to camera setup after selecting joint', () => {
+        render(<CameraSetupWizard onComplete={vi.fn()} />);
 
         // Select joint and proceed
-        fireEvent.click(screen.getByTestId('joint-right_knee'));
+        fireEvent.click(screen.getByTestId('joint-knee'));
         fireEvent.click(screen.getByTestId('btn-next-camera'));
         expect(screen.getByTestId('step-camera-setup')).toBeDefined();
+    });
 
-        // Camera setup → capture
+    it('advances from camera setup to phone pair', () => {
+        render(<CameraSetupWizard onComplete={vi.fn()} />);
+
+        // Select joint → camera setup → phone pair
+        fireEvent.click(screen.getByTestId('joint-knee'));
+        fireEvent.click(screen.getByTestId('btn-next-camera'));
         fireEvent.click(screen.getByTestId('btn-start-capture'));
-        expect(screen.getByTestId('step-capture')).toBeDefined();
-
-        // Capture → review
-        fireEvent.click(screen.getByTestId('btn-finish-capture'));
-        expect(screen.getByTestId('step-review')).toBeDefined();
-
-        // Confirm
-        fireEvent.click(screen.getByTestId('btn-confirm'));
-        expect(onComplete).toHaveBeenCalledWith(['right_knee']);
+        expect(screen.getByTestId('step-phone-pair')).toBeDefined();
     });
 });
 
@@ -57,59 +57,61 @@ describe('MeasurementPanel', () => {
     });
 
     it('renders measurement rows', () => {
-        const measurements = [
+        const measurements: EnrichedMeasurement[] = [
             {
                 joint: 'shoulder',
                 movement: 'flexion',
                 side: 'right',
                 romDegrees: 155,
-                confidenceScore: 0.93,
-                qualityFlags: [],
+                confidence: 0.93,
+                timestamp: Date.now(),
+                normalRomDegrees: 180,
+                percentOfNormal: 86,
+                deficitDegrees: 25,
+                withinNormal: false,
+                status: 'mild',
             },
         ];
         render(<MeasurementPanel measurements={measurements} />);
         expect(screen.getByTestId('measurement-panel')).toBeDefined();
         expect(screen.getByTestId('measurement-row-0')).toBeDefined();
-        expect(screen.getByText('155')).toBeDefined();
-        expect(screen.getByText('93%')).toBeDefined();
+        expect(screen.getByText('155°')).toBeDefined();
     });
 });
 
-describe('NoteEditor', () => {
-    it('renders blocks and edit controls', () => {
-        const blocks = [
-            { id: '1', type: 'header', content: 'ROM Examination' },
-            { id: '2', type: 'free_text', content: '' },
-        ];
-        render(<NoteEditor blocks={blocks} onSave={vi.fn()} onFinalize={vi.fn()} />);
-        expect(screen.getByTestId('note-editor')).toBeDefined();
-        expect(screen.getByTestId('note-block-header')).toBeDefined();
-        expect(screen.getByTestId('note-block-free_text')).toBeDefined();
-        expect(screen.getByTestId('free-text-input')).toBeDefined();
+describe('NoteRenderer', () => {
+    it('renders note sections', () => {
+        const note: GeneratedNote = {
+            generatedAt: new Date().toISOString(),
+            measurementCount: 2,
+            deficitCount: 1,
+            jointsCovered: ['shoulder'],
+            sections: [
+                { id: 's1', type: 'header', title: 'ROM Examination', content: 'Header content' },
+                { id: 's2', type: 'summary', title: 'Summary', content: 'Overall summary' },
+            ],
+        };
+        render(<NoteRenderer note={note} />);
+        expect(screen.getByTestId('note-renderer')).toBeDefined();
+        expect(screen.getByText('ROM Examination')).toBeDefined();
+        expect(screen.getByText('Summary')).toBeDefined();
     });
 
-    it('calls onSave with updated blocks', () => {
-        const onSave = vi.fn();
-        const blocks = [
-            { id: '1', type: 'free_text', content: '' },
-        ];
-        render(<NoteEditor blocks={blocks} onSave={onSave} onFinalize={vi.fn()} />);
-
-        const textarea = screen.getByTestId('free-text-input') as HTMLTextAreaElement;
-        fireEvent.change(textarea, { target: { value: 'Patient tolerated exam well.' } });
-        fireEvent.click(screen.getByTestId('btn-save-note'));
-
-        expect(onSave).toHaveBeenCalledTimes(1);
-        expect(onSave).toHaveBeenCalledWith([
-            { id: '1', type: 'free_text', content: 'Patient tolerated exam well.' },
-        ]);
-    });
-
-    it('calls onFinalize when finalize clicked', () => {
-        const onFinalize = vi.fn();
-        const blocks = [{ id: '1', type: 'header', content: 'Test' }];
-        render(<NoteEditor blocks={blocks} onSave={vi.fn()} onFinalize={onFinalize} />);
-        fireEvent.click(screen.getByTestId('btn-finalize-note'));
-        expect(onFinalize).toHaveBeenCalledTimes(1);
+    it('renders AI button when interpretation is placeholder', () => {
+        const note: GeneratedNote = {
+            generatedAt: new Date().toISOString(),
+            measurementCount: 1,
+            deficitCount: 0,
+            jointsCovered: ['shoulder'],
+            sections: [
+                { id: 's1', type: 'interpretation', title: 'AI Interpretation', content: '[Placeholder: AI interpretation]' },
+            ],
+        };
+        const onRequest = vi.fn();
+        render(<NoteRenderer note={note} onRequestInterpretation={onRequest} />);
+        const btn = screen.getByTestId('btn-generate-interpretation');
+        expect(btn).toBeDefined();
+        fireEvent.click(btn);
+        expect(onRequest).toHaveBeenCalledTimes(1);
     });
 });

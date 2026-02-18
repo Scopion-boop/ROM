@@ -1,14 +1,68 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraSetupWizard from '@/components/capture/CameraSetupWizard';
 import type { CapturedMeasurement } from '@rom/shared-types';
 import MeasurementPanel from '@/components/capture/MeasurementPanel';
-import NoteEditor from '@/components/notes/NoteEditor';
+import NoteRenderer from '@/components/notes/NoteRenderer';
 import { ArrowRight, Camera, ClipboardList, FileText } from 'lucide-react';
+import { processCaptures, type EnrichedMeasurement } from '@/lib/rom-utils';
+import { generateNote, type GeneratedNote, type NoteSection } from '@/lib/note-generator';
 
 type SessionPhase = 'setup' | 'results' | 'note';
+
+interface LlmRecommendation {
+    name: string;
+    purpose: string;
+    rationale: string;
+    priority: string;
+}
+
+interface JointTestGroup {
+    joint: string;
+    tests: { name: string; purpose: string; indication: string; evidence?: string }[];
+}
+
+function formatRecommendation(r: LlmRecommendation, idx: number): string {
+    return `${idx + 1}. ${r.name} [${r.priority.toUpperCase()}]\n   Purpose: ${r.purpose}\n   Rationale: ${r.rationale}`;
+}
+
+function formatTestEvidence(t: { name: string; purpose: string; evidence?: string }): string {
+    const suffix = t.evidence ? ` (${t.evidence})` : '';
+    return `  • ${t.name}: ${t.purpose}${suffix}`;
+}
+
+function formatTestGroup(jt: JointTestGroup): string {
+    const header = `\n── ${jt.joint.charAt(0).toUpperCase() + jt.joint.slice(1)} Special Tests ──`;
+    const tests = jt.tests.map((t) => formatTestEvidence(t)).join('\n');
+    return `${header}\n${tests}`;
+}
+
+interface InterpretationPayload {
+    interpretation: string;
+    recommendations: LlmRecommendation[];
+    clinicalTests: JointTestGroup[];
+}
+
+function applyInterpretation(section: NoteSection, payload: InterpretationPayload): NoteSection {
+    if (section.type === 'interpretation') {
+        return { ...section, content: payload.interpretation };
+    }
+    if (section.type === 'recommendations') {
+        const recLines = payload.recommendations.map((r, i) => formatRecommendation(r, i)).join('\n\n');
+        const testLines = payload.clinicalTests.map((g) => formatTestGroup(g)).join('\n');
+        return { ...section, content: `${recLines}\n${testLines}` };
+    }
+    return section;
+}
+
+function applyInterpretationError(section: NoteSection, message: string): NoteSection {
+    if (section.type === 'interpretation') {
+        return { ...section, content: `[Error: ${message}. Check console for details.]` };
+    }
+    return section;
+}
 
 const STEPS = [
     { key: 'setup', label: 'Capture', icon: Camera },
@@ -24,26 +78,60 @@ const pageVariants = {
 
 export default function NewSessionPage() {
     const [phase, setPhase] = useState<SessionPhase>('setup');
-    const [capturedMeasurements, setCapturedMeasurements] = useState<CapturedMeasurement[]>([]);
-
-    const panelMeasurements = capturedMeasurements.map((m) => ({
-        joint: m.joint,
-        movement: m.movement,
-        side: m.side,
-        romDegrees: m.romDegrees,
-        confidenceScore: m.confidence,
-        qualityFlags: [] as { code: string; message: string; severity: string }[],
-    }));
-
-    const placeholderBlocks = [
-        { id: '1', type: 'header', content: `ROM Examination — ${capturedMeasurements.length} measurement(s)` },
-        { id: '2', type: 'free_text', content: '' },
-    ];
+    const [enrichedMeasurements, setEnrichedMeasurements] = useState<EnrichedMeasurement[]>([]);
+    const [generatedNote, setGeneratedNote] = useState<GeneratedNote | null>(null);
+    const [isInterpreting, setIsInterpreting] = useState(false);
 
     const handleWizardComplete = (measurements: CapturedMeasurement[]) => {
-        setCapturedMeasurements(measurements);
+        setEnrichedMeasurements(processCaptures(measurements));
         setPhase('results');
     };
+
+    const handleProceedToNote = () => {
+        setGeneratedNote(generateNote(enrichedMeasurements));
+        setPhase('note');
+    };
+
+    const handleRequestInterpretation = useCallback(async () => {
+        if (enrichedMeasurements.length === 0 || !generatedNote) return;
+        setIsInterpreting(true);
+
+        try {
+            const res = await fetch('/api/interpret', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ measurements: enrichedMeasurements }),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error ?? `API error ${res.status}`);
+            }
+
+            const data = await res.json() as InterpretationPayload;
+
+            // Update interpretation and recommendations sections
+            setGeneratedNote((prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    sections: prev.sections.map((s) => applyInterpretation(s, data)),
+                };
+            });
+        } catch (err) {
+            console.error('Interpretation failed:', err);
+            const msg = err instanceof Error ? err.message : 'Failed to generate interpretation';
+            setGeneratedNote((prev) => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    sections: prev.sections.map((s) => applyInterpretationError(s, msg)),
+                };
+            });
+        } finally {
+            setIsInterpreting(false);
+        }
+    }, [enrichedMeasurements, generatedNote]);
 
     const currentStep = STEPS.findIndex((s) => s.key === phase);
 
@@ -156,11 +244,11 @@ export default function NewSessionPage() {
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
                             Review captured ROM data before generating the clinical note.
                         </p>
-                        <MeasurementPanel measurements={panelMeasurements} />
+                        <MeasurementPanel measurements={enrichedMeasurements} />
                         <div style={{ marginTop: 24 }}>
                             <button
                                 className="btn-primary btn-lg"
-                                onClick={() => setPhase('note')}
+                                onClick={handleProceedToNote}
                                 data-testid="btn-proceed-note"
                                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                             >
@@ -185,15 +273,13 @@ export default function NewSessionPage() {
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
                             Edit, save, or finalize the auto-generated clinical note.
                         </p>
-                        <NoteEditor
-                            blocks={placeholderBlocks}
-                            onSave={(updatedBlocks: { id: string; type: string; content: string }[]) => {
-                                console.log('Save:', updatedBlocks);
-                            }}
-                            onFinalize={() => {
-                                console.log('Finalized');
-                            }}
-                        />
+                        {generatedNote && (
+                            <NoteRenderer
+                                note={generatedNote}
+                                onRequestInterpretation={handleRequestInterpretation}
+                                isInterpreting={isInterpreting}
+                            />
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>

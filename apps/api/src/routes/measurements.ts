@@ -11,7 +11,7 @@ measurementRouter.use(requireAuth);
  * POST /api/sessions/:sessionId/measurements — record a ROM measurement.
  */
 measurementRouter.post('/:sessionId/measurements', async (req: Request, res: Response): Promise<void> => {
-    const { sessions, measurements } = getRepos();
+    const { sessions, measurements, audit } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
         res.status(404).json({ error: 'Session not found' });
@@ -35,6 +35,23 @@ measurementRouter.post('/:sessionId/measurements', async (req: Request, res: Res
         qualityFlags: qualityFlags ?? [],
         algorithmVersion: algorithmVersion ?? 'v1.0',
         captureDurationMs: captureDurationMs ?? 0,
+    });
+
+    // Audit log: measurement recorded (PHI data captured)
+    await audit.record({
+        eventType: 'measurement.recorded',
+        entityType: 'measurement',
+        entityId: measurement.id,
+        actorId: req.user!.userId,
+        organizationId: req.user!.organizationId,
+        metadata: {
+            sessionId: session.id,
+            joint,
+            movement,
+            side,
+            romDegrees,
+            confidenceScore: measurement.confidenceScore,
+        },
     });
 
     res.status(201).json(measurement);

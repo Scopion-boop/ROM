@@ -1,0 +1,102 @@
+# Docker Compose configuration for local development/testing
+# This mirrors the production environment architecture
+
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rom-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rom_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rom_network
+
+  # API service
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: rom-api
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rom_dev
+      JWT_SECRET: dev-secret-for-docker-compose-only-change-in-production
+      # Optional: Add OPENAI_API_KEY, ANTHROPIC_API_KEY if testing AI features
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    networks:
+      - rom_network
+    restart: unless-stopped
+
+  # Web application (Next.js)
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: rom-web
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_SIGNAL_PORT: 3001
+      # Optional: Add API keys for AI interpretation
+      # OPENAI_API_KEY: sk-...
+      # ANTHROPIC_API_KEY: sk-ant-...
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+    networks:
+      - rom_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  rom_network:
+    driver: bridge
+
+# Usage:
+# 1. Build images: docker-compose build
+# 2. Start all services: docker-compose up
+# 3. Start in detached mode: docker-compose up -d
+# 4. View logs: docker-compose logs -f
+# 5. Stop all services: docker-compose down
+# 6. Stop and remove volumes: docker-compose down -v
+#
+# Access:
+# - Web UI: http://localhost:3000
+# - API: http://localhost:4000
+# - PostgreSQL: localhost:5432 (postgres/postgres)

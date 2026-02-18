@@ -63,3 +63,53 @@
 - All lint passing: shared-types (typescript-eslint), API (typescript-eslint), web (next lint)
 - Enhanced pilot readiness report template
 - ESLint flat config setup for all packages (ESLint v9)
+
+---
+
+## Implementation — Branch: feat/vision-auto-detect
+
+### Browser CV Pipeline (358f710, a96a2b5, 93a7738)
+- Pluggable vision strategy architecture — auto-detect + guided modes
+- MediaPipe Pose integration: pose-estimator, angle-calculator, joint-router
+- Body detector, movement detector, temporal filter
+- Camera capture hooks (useCamera, usePoseDetection)
+- Calibration, streaming support, plane projection
+- 20 tests passing at this checkpoint
+
+### Phase 2 — Clinical Features (uncommitted — 20 files)
+
+#### Phase 2a: ROM Enrichment & Measurement Display
+- `rom-utils.ts` — filterMaxRom → enrichWithNormative → classifyStatus pipeline
+- `MeasurementPanel.tsx` — full rewrite with normative comparison, status badges, progress bars
+- `EnrichedMeasurement` type extending CapturedMeasurement with deficits and status
+
+#### Phase 2b: Dual-Camera via QR Phone Pairing
+- `services/signaling/server.js` — WebSocket signaling server on port 4001
+- `camera/remote/page.tsx` — phone remote camera page (WebRTC)
+- `PhoneCameraLink.tsx` — QR code generation via qrcode.react
+- `landmark-fusion.ts` — fuseLandmarks() with isSecondaryUseful() blend
+- `CameraSetupWizard.tsx` — added phone_pair wizard step
+
+#### Phase 2c: Clinical Note Generation
+- `note-generator.ts` — generateNote() produces typed NoteSection array
+- `noteToPlainText()` for clipboard export
+- `NoteRenderer.tsx` — rich clinical note display with copy/print/AI button
+- `globals.css` — @media print rules (hide toolbar, clean formatting)
+
+#### Phase 2d: AI Interpretation & Clinical Tests
+- `interpretation/clinical-tests.ts` — 23 clinical special tests (8 shoulder, 8 knee, 7 hip)
+- `interpretation/system-prompt.ts` — MSK system prompt for JSON output
+- `interpretation/prompt-builder.ts` — user prompt from grouped measurements
+- `interpretation/llm-client.ts` — unified OpenAI (gpt-4o) / Anthropic (claude-sonnet-4-20250514) client
+- `api/interpret/route.ts` — POST endpoint, augments LLM response with clinical test recommendations
+- `sessions/new/page.tsx` — 3-phase session flow fully wired with AI interpretation
+
+#### Phase 2e: Integration & Testing
+- `.env.local.example` — OPENAI_API_KEY, ANTHROPIC_API_KEY, model overrides, NEXT_PUBLIC_SIGNAL_PORT=4001
+- `vitest.config.ts` — added @/ path alias via resolve.alias
+- `capture-flow.test.tsx` — full rewrite for new components (NoteRenderer, EnrichedMeasurement)
+- **29/29 web tests passing** ✅
+- **TypeScript compiles clean** (tsc --noEmit) ✅
+
+## 2026-02-08
+- Updated infrastructure docs (AI_CONTEXT.md, progress.md, task_plan.md, findings.md, README.md) to reflect current codebase state

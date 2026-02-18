@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { healthRouter } from './routes/health';
@@ -11,7 +11,7 @@ import { requestLogger } from './middleware/request-logger';
 import { rateLimit } from './middleware/rate-limit';
 import { securityHeaders } from './middleware/security-headers';
 
-const app = express();
+const app: Express = express();
 
 // Security middleware
 app.use(helmet());

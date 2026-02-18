@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Smartphone, Wifi, CheckCircle, XCircle } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 export type PairingStatus = 'idle' | 'waiting' | 'connecting' | 'connected' | 'error';
 
@@ -133,18 +134,10 @@ export function PhoneCameraLink({
                 Pair Phone Camera (Optional)
             </h3>
 
-            {/* QR Code placeholder — rendered via qrcode.react at integration time */}
+            {/* QR Code */}
             <div className="flex h-48 w-48 items-center justify-center rounded-lg bg-white p-3">
                 {phoneUrl ? (
-                    <div className="flex h-full w-full flex-col items-center justify-center gap-2">
-                        {/* Will be replaced with <QRCodeSVG> */}
-                        <div className="grid h-32 w-32 place-items-center rounded bg-gray-100 text-xs text-gray-500">
-                            QR: {pairingToken}
-                        </div>
-                        <p className="text-[10px] text-gray-600 break-all text-center leading-tight">
-                            {phoneUrl}
-                        </p>
-                    </div>
+                    <QRCodeSVG value={phoneUrl} size={168} level="M" />
                 ) : (
                     <p className="text-xs text-gray-400">Generating…</p>
                 )}
