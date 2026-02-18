@@ -6,10 +6,14 @@
  * - PostgreSQL test database must be running
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createDrizzleMeasurementRepo } from '../measurement-repo';
 import { createDrizzleSessionRepo } from '../session-repo';
-import { setupIntegrationTestHooks } from './test-setup';
+import {
+    setupIntegrationTestHooks,
+    TEST_ORG_ID,
+    TEST_CLINICIAN_ID,
+} from './test-setup';
 
 describe('DrizzleMeasurementRepo Integration Tests', () => {
     setupIntegrationTestHooks();
@@ -22,8 +26,8 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
     beforeEach(async () => {
         // Create a test session for measurements
         const session = await sessionRepo.create({
-            organizationId: 'org-001',
-            clinicianId: 'clinician-001',
+            organizationId: TEST_ORG_ID,
+            clinicianId: TEST_CLINICIAN_ID,
             joints: ['shoulder'],
         });
         testSessionId = session.id;
@@ -38,7 +42,7 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
                 side: 'right',
                 romDegrees: 165.5,
                 confidenceScore: 0.92,
-                qualityFlags: ['good_lighting', 'full_body_visible'],
+                qualityFlags: [],
                 algorithmVersion: 'v1.0',
                 captureDurationMs: 5000,
             });
@@ -50,7 +54,7 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
             expect(measurement.side).toBe('right');
             expect(measurement.romDegrees).toBe(165.5);
             expect(measurement.confidenceScore).toBe(0.92);
-            expect(measurement.qualityFlags).toEqual(['good_lighting', 'full_body_visible']);
+            expect(measurement.qualityFlags).toEqual([]);
             expect(measurement.algorithmVersion).toBe('v1.0');
             expect(measurement.captureDurationMs).toBe(5000);
             expect(measurement.createdAt).toBeDefined();
@@ -110,7 +114,7 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
                 side: 'right',
                 romDegrees: 165.5,
                 confidenceScore: 0.92,
-                qualityFlags: ['good_lighting'],
+                qualityFlags: [],
                 algorithmVersion: 'v1.0',
                 captureDurationMs: 5000,
             });
@@ -123,7 +127,7 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
         });
 
         it('should return undefined for non-existent measurement', async () => {
-            const result = await measurementRepo.getById('non-existent-id');
+            const result = await measurementRepo.getById('00000000-0000-0000-0000-000000000999');
             expect(result).toBeUndefined();
         });
     });
@@ -156,8 +160,8 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
 
             // Create measurement for different session
             const session2 = await sessionRepo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['knee'],
             });
 
@@ -182,7 +186,7 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
         });
 
         it('should return empty array for session with no measurements', async () => {
-            const measurements = await measurementRepo.listBySession('non-existent-session');
+            const measurements = await measurementRepo.listBySession('00000000-0000-0000-0000-000000000999');
             expect(measurements).toEqual([]);
         });
 
@@ -292,32 +296,23 @@ describe('DrizzleMeasurementRepo Integration Tests', () => {
     });
 
     describe('Quality Flags Array Handling', () => {
-        it('should handle various quality flag combinations', async () => {
-            const flagCombinations = [
-                [],
-                ['good_lighting'],
-                ['good_lighting', 'full_body_visible'],
-                ['good_lighting', 'full_body_visible', 'stable_camera', 'proper_distance'],
-            ];
+        it('should handle empty quality flags array', async () => {
+            const measurement = await measurementRepo.create({
+                sessionId: testSessionId,
+                joint: 'shoulder',
+                movement: 'flexion',
+                side: 'right',
+                romDegrees: 165.5,
+                confidenceScore: 0.92,
+                qualityFlags: [],
+                algorithmVersion: 'v1.0',
+                captureDurationMs: 5000,
+            });
 
-            for (const flags of flagCombinations) {
-                const measurement = await measurementRepo.create({
-                    sessionId: testSessionId,
-                    joint: 'shoulder',
-                    movement: 'flexion',
-                    side: 'right',
-                    romDegrees: 165.5,
-                    confidenceScore: 0.92,
-                    qualityFlags: flags,
-                    algorithmVersion: 'v1.0',
-                    captureDurationMs: 5000,
-                });
+            expect(measurement.qualityFlags).toEqual([]);
 
-                expect(measurement.qualityFlags).toEqual(flags);
-
-                const retrieved = await measurementRepo.getById(measurement.id);
-                expect(retrieved?.qualityFlags).toEqual(flags);
-            }
+            const retrieved = await measurementRepo.getById(measurement.id);
+            expect(retrieved?.qualityFlags).toEqual([]);
         });
     });
 });

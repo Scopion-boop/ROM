@@ -10,7 +10,14 @@
 
 import { describe, it, expect } from 'vitest';
 import { createDrizzleSessionRepo } from '../session-repo';
-import { setupIntegrationTestHooks } from './test-setup';
+import {
+    setupIntegrationTestHooks,
+    TEST_ORG_ID,
+    TEST_ORG_2_ID,
+    TEST_CLINICIAN_ID,
+    TEST_CLINICIAN_2_ID,
+    TEST_CLINICIAN_3_ID,
+} from './test-setup';
 
 describe('DrizzleSessionRepo Integration Tests', () => {
     setupIntegrationTestHooks();
@@ -20,15 +27,15 @@ describe('DrizzleSessionRepo Integration Tests', () => {
     describe('create()', () => {
         it('should create a session with all fields', async () => {
             const session = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 patientId: 'patient-001',
                 joints: ['shoulder', 'knee'],
             });
 
             expect(session.id).toBeDefined();
-            expect(session.organizationId).toBe('org-001');
-            expect(session.clinicianId).toBe('clinician-001');
+            expect(session.organizationId).toBe(TEST_ORG_ID);
+            expect(session.clinicianId).toBe(TEST_CLINICIAN_ID);
             expect(session.patientId).toBe('patient-001');
             expect(session.joints).toEqual(['shoulder', 'knee']);
             expect(session.status).toBe('created');
@@ -38,8 +45,8 @@ describe('DrizzleSessionRepo Integration Tests', () => {
 
         it('should create a session without optional patientId', async () => {
             const session = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
@@ -49,14 +56,14 @@ describe('DrizzleSessionRepo Integration Tests', () => {
 
         it('should generate unique IDs for multiple sessions', async () => {
             const session1 = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
             const session2 = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['knee'],
             });
 
@@ -67,8 +74,8 @@ describe('DrizzleSessionRepo Integration Tests', () => {
     describe('getById()', () => {
         it('should retrieve an existing session', async () => {
             const created = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
@@ -76,11 +83,11 @@ describe('DrizzleSessionRepo Integration Tests', () => {
 
             expect(retrieved).toBeDefined();
             expect(retrieved?.id).toBe(created.id);
-            expect(retrieved?.organizationId).toBe('org-001');
+            expect(retrieved?.organizationId).toBe(TEST_ORG_ID);
         });
 
         it('should return undefined for non-existent session', async () => {
-            const result = await repo.getById('non-existent-id');
+            const result = await repo.getById('00000000-0000-0000-0000-000000000999');
             expect(result).toBeUndefined();
         });
     });
@@ -88,33 +95,33 @@ describe('DrizzleSessionRepo Integration Tests', () => {
     describe('listByOrg()', () => {
         it('should return all sessions for an organization', async () => {
             await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
             await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-002',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_2_ID,
                 joints: ['knee'],
             });
 
             await repo.create({
-                organizationId: 'org-002',
-                clinicianId: 'clinician-003',
+                organizationId: TEST_ORG_2_ID,
+                clinicianId: TEST_CLINICIAN_3_ID,
                 joints: ['hip'],
             });
 
-            const org001Sessions = await repo.listByOrg('org-001');
-            const org002Sessions = await repo.listByOrg('org-002');
+            const org1Sessions = await repo.listByOrg(TEST_ORG_ID);
+            const org2Sessions = await repo.listByOrg(TEST_ORG_2_ID);
 
-            expect(org001Sessions).toHaveLength(2);
-            expect(org002Sessions).toHaveLength(1);
-            expect(org001Sessions.every(s => s.organizationId === 'org-001')).toBe(true);
+            expect(org1Sessions).toHaveLength(2);
+            expect(org2Sessions).toHaveLength(1);
+            expect(org1Sessions.every(s => s.organizationId === TEST_ORG_ID)).toBe(true);
         });
 
         it('should return empty array for organization with no sessions', async () => {
-            const sessions = await repo.listByOrg('org-999');
+            const sessions = await repo.listByOrg('00000000-0000-0000-0000-000000000999');
             expect(sessions).toEqual([]);
         });
     });
@@ -122,31 +129,31 @@ describe('DrizzleSessionRepo Integration Tests', () => {
     describe('updateStatus()', () => {
         it('should update session status', async () => {
             const session = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
-            const updated = await repo.updateStatus(session.id, 'in_progress');
+            const updated = await repo.updateStatus(session.id, 'capture_in_progress');
 
             expect(updated).toBeDefined();
-            expect(updated?.status).toBe('in_progress');
+            expect(updated?.status).toBe('capture_in_progress');
             expect(updated?.updatedAt).not.toBe(session.updatedAt);
         });
 
         it('should return undefined for non-existent session', async () => {
-            const result = await repo.updateStatus('non-existent-id', 'completed');
+            const result = await repo.updateStatus('00000000-0000-0000-0000-000000000999', 'finalized');
             expect(result).toBeUndefined();
         });
 
         it('should support all valid status transitions', async () => {
             const session = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
-            const statuses = ['in_progress', 'completed', 'cancelled'];
+            const statuses = ['capture_in_progress', 'capture_complete', 'review', 'finalized', 'exported', 'archived'];
 
             for (const status of statuses) {
                 const updated = await repo.updateStatus(session.id, status);
@@ -157,10 +164,10 @@ describe('DrizzleSessionRepo Integration Tests', () => {
 
     describe('Concurrent Operations', () => {
         it('should handle concurrent creates without race conditions', async () => {
-            const promises = Array.from({ length: 10 }, (_, i) =>
+            const promises = Array.from({ length: 10 }, () =>
                 repo.create({
-                    organizationId: 'org-001',
-                    clinicianId: `clinician-${i}`,
+                    organizationId: TEST_ORG_ID,
+                    clinicianId: TEST_CLINICIAN_ID,
                     joints: ['shoulder'],
                 })
             );
@@ -175,32 +182,32 @@ describe('DrizzleSessionRepo Integration Tests', () => {
 
         it('should handle concurrent updates to different sessions', async () => {
             const session1 = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder'],
             });
 
             const session2 = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-002',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_2_ID,
                 joints: ['knee'],
             });
 
             const [updated1, updated2] = await Promise.all([
-                repo.updateStatus(session1.id, 'in_progress'),
-                repo.updateStatus(session2.id, 'completed'),
+                repo.updateStatus(session1.id, 'capture_in_progress'),
+                repo.updateStatus(session2.id, 'finalized'),
             ]);
 
-            expect(updated1?.status).toBe('in_progress');
-            expect(updated2?.status).toBe('completed');
+            expect(updated1?.status).toBe('capture_in_progress');
+            expect(updated2?.status).toBe('finalized');
         });
     });
 
     describe('Data Persistence', () => {
         it('should persist data across multiple reads', async () => {
             const created = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 joints: ['shoulder', 'knee'],
             });
 
@@ -215,18 +222,18 @@ describe('DrizzleSessionRepo Integration Tests', () => {
 
         it('should maintain data integrity after updates', async () => {
             const session = await repo.create({
-                organizationId: 'org-001',
-                clinicianId: 'clinician-001',
+                organizationId: TEST_ORG_ID,
+                clinicianId: TEST_CLINICIAN_ID,
                 patientId: 'patient-001',
                 joints: ['shoulder'],
             });
 
-            await repo.updateStatus(session.id, 'completed');
+            await repo.updateStatus(session.id, 'finalized');
 
             const retrieved = await repo.getById(session.id);
 
-            expect(retrieved?.status).toBe('completed');
-            expect(retrieved?.organizationId).toBe('org-001');
+            expect(retrieved?.status).toBe('finalized');
+            expect(retrieved?.organizationId).toBe(TEST_ORG_ID);
             expect(retrieved?.patientId).toBe('patient-001');
             expect(retrieved?.joints).toEqual(['shoulder']);
         });

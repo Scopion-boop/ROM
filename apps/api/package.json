@@ -8,8 +8,13 @@
         "start": "node dist/server.js",
         "lint": "eslint src/",
         "test": "vitest run",
+        "test:unit": "vitest run --exclude='**/drizzle/**'",
+        "test:integration": "vitest run --config vitest.integration.config.ts",
         "test:watch": "vitest",
         "typecheck": "tsc --noEmit",
+        "db:push": "drizzle-kit push",
+        "db:studio": "drizzle-kit studio",
+        "db:generate": "drizzle-kit generate",
         "clean": "rm -rf dist"
     },
     "dependencies": {

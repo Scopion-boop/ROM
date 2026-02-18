@@ -86,3 +86,51 @@ jobs:
         run: |
           test -f docs/planning-v2/README.md
           echo "Evidence bundle docs present"
+
+  test-integration:
+    name: Integration Tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: rom_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:test@localhost:5432/rom_test
+      TEST_DATABASE_URL: postgresql://postgres:test@localhost:5432/rom_test
+      JWT_SECRET: ci-test-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Push Drizzle schema
+        working-directory: apps/api
+        run: npx drizzle-kit push
+      - name: Run integration tests
+        working-directory: apps/api
+        run: pnpm test:integration
+
+  docker-build:
+    name: Docker Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -t rom-api -f apps/api/Dockerfile .
+      - name: Build Web image
+        run: docker build -t rom-web -f apps/web/Dockerfile .

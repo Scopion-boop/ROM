@@ -15,6 +15,14 @@ import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import * as schema from '../../../db/schema';
 
+// ── Known fixture UUIDs ─────────────────────────────────────────
+// These rows are seeded before each test and can be referenced directly.
+export const TEST_ORG_ID = '00000000-0000-0000-0000-000000000001';
+export const TEST_ORG_2_ID = '00000000-0000-0000-0000-000000000005';
+export const TEST_CLINICIAN_ID = '00000000-0000-0000-0000-000000000002';
+export const TEST_CLINICIAN_2_ID = '00000000-0000-0000-0000-000000000003';
+export const TEST_CLINICIAN_3_ID = '00000000-0000-0000-0000-000000000004';
+
 let testClient: ReturnType<typeof postgres> | null = null;
 let testDb: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
@@ -81,6 +89,41 @@ export async function clearAllTables() {
 }
 
 /**
+ * Seed prerequisite FK parent rows (org + clinicians) with known IDs.
+ * Called after clearAllTables so tests can create sessions/measurements
+ * without worrying about FK violations.
+ */
+export async function seedTestFixtures() {
+    const db = getTestDb();
+
+    await db.insert(schema.organizations).values([
+        { id: TEST_ORG_ID, name: 'Test Organization 1' },
+        { id: TEST_ORG_2_ID, name: 'Test Organization 2' },
+    ]);
+
+    await db.insert(schema.users).values([
+        {
+            id: TEST_CLINICIAN_ID,
+            organizationId: TEST_ORG_ID,
+            email: 'clinician1@test.example',
+            passwordHash: 'hash-placeholder-1',
+        },
+        {
+            id: TEST_CLINICIAN_2_ID,
+            organizationId: TEST_ORG_ID,
+            email: 'clinician2@test.example',
+            passwordHash: 'hash-placeholder-2',
+        },
+        {
+            id: TEST_CLINICIAN_3_ID,
+            organizationId: TEST_ORG_2_ID,
+            email: 'clinician3@test.example',
+            passwordHash: 'hash-placeholder-3',
+        },
+    ]);
+}
+
+/**
  * Setup hooks for integration tests.
  * Call this in your test suite's beforeAll/afterAll/beforeEach.
  */
@@ -95,5 +138,6 @@ export function setupIntegrationTestHooks() {
 
     beforeEach(async () => {
         await clearAllTables();
+        await seedTestFixtures();
     });
 }

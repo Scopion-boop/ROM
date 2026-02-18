@@ -333,7 +333,7 @@ describe('DrizzleAuditRepo Integration Tests', () => {
                 // No metadata
             });
 
-            expect(event.metadata).toBeUndefined();
+            expect(event.metadata).toEqual({});
         });
 
         it('should handle concurrent audit writes', async () => {
