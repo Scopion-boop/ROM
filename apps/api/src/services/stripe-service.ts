@@ -1,10 +1,15 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
-  apiVersion: '2026-01-28.clover',
-});
+let _stripe: Stripe | null = null;
 
-export { stripe };
+function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error('STRIPE_SECRET_KEY is not set');
+    _stripe = new Stripe(key, { apiVersion: '2026-01-28.clover' });
+  }
+  return _stripe;
+}
 
 export async function getOrCreateStripeCustomer(
   orgId: string,
@@ -12,7 +17,7 @@ export async function getOrCreateStripeCustomer(
   existingCustomerId: string | null | undefined,
 ): Promise<string> {
   if (existingCustomerId) return existingCustomerId;
-  const customer = await stripe.customers.create({
+  const customer = await getStripe().customers.create({
     name: orgName,
     metadata: { organizationId: orgId },
   });
@@ -26,7 +31,7 @@ export async function createCheckoutSession(
   successUrl: string,
   cancelUrl: string,
 ): Promise<string> {
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: stripeCustomerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
@@ -46,7 +51,7 @@ export async function createPortalSession(
   stripeCustomerId: string,
   returnUrl: string,
 ): Promise<string> {
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: stripeCustomerId,
     return_url: returnUrl,
   });
@@ -54,7 +59,7 @@ export async function createPortalSession(
 }
 
 export function constructWebhookEvent(rawBody: Buffer, signature: string): Stripe.Event {
-  return stripe.webhooks.constructEvent(
+  return getStripe().webhooks.constructEvent(
     rawBody,
     signature,
     process.env.STRIPE_WEBHOOK_SECRET ?? '',
