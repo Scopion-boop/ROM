@@ -23,6 +23,11 @@ physiolens.com, www.physiolens.com {
 		reverse_proxy signaling:4001
 	}
 
+	# API requests — same-origin proxy to Express API
+	handle /api/* {
+		reverse_proxy api:4000
+	}
+
 	# Next.js web app
 	handle {
 		reverse_proxy web:3000
