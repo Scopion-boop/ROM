@@ -23,7 +23,11 @@ COPY apps/api ./apps/api
 COPY packages/shared-types ./packages/shared-types
 COPY tsconfig.base.json ./
 
-# Build TypeScript
+# Build shared-types first (API depends on it)
+WORKDIR /app/packages/shared-types
+RUN pnpm run build
+
+# Build API
 WORKDIR /app/apps/api
 RUN pnpm run build
 
