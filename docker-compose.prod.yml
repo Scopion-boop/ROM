@@ -72,7 +72,7 @@ services:
       context: .
       dockerfile: apps/web/Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.physiolens.com}
+        - NEXT_PUBLIC_API_URL=
         - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
         - NEXT_PUBLIC_SIGNAL_URL=${NEXT_PUBLIC_SIGNAL_URL:-wss://physiolens.com/ws/signaling}
     container_name: physiolens-web
