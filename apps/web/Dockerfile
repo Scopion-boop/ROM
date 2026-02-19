@@ -54,7 +54,7 @@ ENV NEXT_PUBLIC_SIGNAL_URL=$NEXT_PUBLIC_SIGNAL_URL
 # Build Next.js app (generates .next directory)
 RUN pnpm run build
 
-# ── Stage 3: Runtime ──────────────────────────────────────────────────
+# ── Stage 3: Runtime (standalone) ────────────────────────────────────
 FROM node:20-alpine AS runtime
 
 # Add non-root user for security
@@ -63,27 +63,13 @@ RUN addgroup -g 1001 -S nodejs && \
 
 WORKDIR /app
 
-# Copy package files
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
-COPY --from=builder /app/apps/web/package.json ./apps/web/
-
-# Install pnpm and production dependencies only
-RUN npm install -g pnpm@9.15.4
-
-# Copy built Next.js application
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next ./apps/web/.next
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/next.config.js ./apps/web/
-COPY --from=builder --chown=nextjs:nodejs /app/packages/shared-types/dist ./packages/shared-types/dist
-
-# Install only production dependencies
-WORKDIR /app
-RUN pnpm install --prod --frozen-lockfile
+# Copy standalone server (includes all required node_modules)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+# Copy static assets (not included in standalone output)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
 # Switch to non-root user
 USER nextjs
-
-# Set working directory to web app
-WORKDIR /app/apps/web
 
 # Environment variables (defaults, override at runtime)
 ENV NODE_ENV=production
@@ -91,12 +77,12 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Health check (assumes Next.js serves on root)
+# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Expose web port
 EXPOSE 3000
 
-# Start Next.js server on port 3000 (matches EXPOSE and healthcheck)
-CMD ["npx", "next", "start", "-p", "3000"]
+# Start standalone Next.js server
+CMD ["node", "apps/web/server.js"]
