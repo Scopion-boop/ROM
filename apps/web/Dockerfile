@@ -72,8 +72,7 @@ RUN npm install -g pnpm@9.15.4
 
 # Copy built Next.js application
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next ./apps/web/.next
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/next.config.ts ./apps/web/
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/next.config.js ./apps/web/
 COPY --from=builder --chown=nextjs:nodejs /app/packages/shared-types/dist ./packages/shared-types/dist
 
 # Install only production dependencies
