@@ -28,7 +28,7 @@ COPY --from=deps /app/packages/shared-types/node_modules ./packages/shared-types
 # Copy source code
 COPY apps/web ./apps/web
 COPY packages/shared-types ./packages/shared-types
-COPY tsconfig.json ./
+COPY tsconfig.base.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Build shared-types first
