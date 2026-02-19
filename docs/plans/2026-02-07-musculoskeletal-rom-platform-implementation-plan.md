@@ -1,4 +1,4 @@
-# Musculoskeletal ROM Platform Implementation Plan
+# PhysioLens Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
@@ -44,14 +44,14 @@ Run: `git add . && git commit -m "chore: bootstrap monorepo and CI skeleton"`
 - Test: `packages/shared-types/src/__tests__/schema.test.ts`
 
 **Step 1: Write failing type/schema tests**
-Run: `pnpm --filter @rom/shared-types test`
+Run: `pnpm --filter @physiolens/shared-types test`
 Expected: FAIL (missing or incomplete schemas)
 
 **Step 2: Implement shared contracts**
 Add explicit schemas for session, measurement, note export payload.
 
 **Step 3: Re-run tests**
-Run: `pnpm --filter @rom/shared-types test`
+Run: `pnpm --filter @physiolens/shared-types test`
 Expected: PASS
 
 **Step 4: Commit**
@@ -68,14 +68,14 @@ Run: `git add packages/shared-types && git commit -m "feat: add shared domain co
 - Test: `apps/api/src/auth/__tests__/authz.test.ts`
 
 **Step 1: Write failing authz tests**
-Run: `pnpm --filter @rom/api test authz`
+Run: `pnpm --filter @physiolens/api test authz`
 Expected: FAIL for unauthorized role access
 
 **Step 2: Implement minimal auth and role middleware**
 Support roles: clinic_admin, clinician, reviewer, support_readonly.
 
 **Step 3: Verify tests**
-Run: `pnpm --filter @rom/api test authz`
+Run: `pnpm --filter @physiolens/api test authz`
 Expected: PASS
 
 **Step 4: Commit**
@@ -93,14 +93,14 @@ Run: `git add apps/api/src/auth apps/api/src/middleware apps/api/src/routes/auth
 - Test: `apps/api/src/routes/__tests__/session-measurement.test.ts`
 
 **Step 1: Write failing route tests**
-Run: `pnpm --filter @rom/api test session-measurement`
+Run: `pnpm --filter @physiolens/api test session-measurement`
 Expected: FAIL (routes missing)
 
 **Step 2: Implement CRUD for session and measurement records**
 Include validation and organization scoping.
 
 **Step 3: Verify tests**
-Run: `pnpm --filter @rom/api test session-measurement`
+Run: `pnpm --filter @physiolens/api test session-measurement`
 Expected: PASS
 
 **Step 4: Commit**
@@ -116,14 +116,14 @@ Run: `git add apps/api/src/routes apps/api/src/repositories && git commit -m "fe
 - Test: `apps/api/src/services/__tests__/note-builder.test.ts`
 
 **Step 1: Write failing note-generation tests**
-Run: `pnpm --filter @rom/api test note-builder`
+Run: `pnpm --filter @physiolens/api test note-builder`
 Expected: FAIL
 
 **Step 2: Implement deterministic note template engine**
 Input: measurements + quality flags; Output: editable note block.
 
 **Step 3: Verify tests**
-Run: `pnpm --filter @rom/api test note-builder`
+Run: `pnpm --filter @physiolens/api test note-builder`
 Expected: PASS
 
 **Step 4: Commit**
@@ -141,14 +141,14 @@ Run: `git add apps/api/src/services apps/api/src/routes/notes.ts && git commit -
 - Test: `apps/web/src/components/__tests__/capture-flow.test.tsx`
 
 **Step 1: Write failing UI flow tests**
-Run: `pnpm --filter @rom/web test capture-flow`
+Run: `pnpm --filter @physiolens/web test capture-flow`
 Expected: FAIL
 
 **Step 2: Implement minimal clinician capture and note edit flow**
 Camera setup -> movement capture placeholder -> note editor.
 
 **Step 3: Verify tests**
-Run: `pnpm --filter @rom/web test capture-flow`
+Run: `pnpm --filter @physiolens/web test capture-flow`
 Expected: PASS
 
 **Step 4: Commit**
@@ -189,14 +189,14 @@ Run: `git add services/cv && git commit -m "feat: add cv pipeline service skelet
 - Test: `apps/api/src/routes/__tests__/export-audit.test.ts`
 
 **Step 1: Write failing export/audit tests**
-Run: `pnpm --filter @rom/api test export-audit`
+Run: `pnpm --filter @physiolens/api test export-audit`
 Expected: FAIL
 
 **Step 2: Implement copy payload + PDF stub + immutable audit events**
 Track note generation, edits, and exports.
 
 **Step 3: Verify tests**
-Run: `pnpm --filter @rom/api test export-audit`
+Run: `pnpm --filter @physiolens/api test export-audit`
 Expected: PASS
 
 **Step 4: Commit**
@@ -213,14 +213,14 @@ Run: `git add apps/api/src/routes/export.ts apps/api/src/services/audit-log.ts a
 - Create: `docs/security/THREAT_MODEL_V1.md`
 
 **Step 1: Add failing security middleware tests**
-Run: `pnpm --filter @rom/api test security`
+Run: `pnpm --filter @physiolens/api test security`
 Expected: FAIL
 
 **Step 2: Implement middleware and CI scans**
 Add dependency audit and static checks into CI workflow.
 
 **Step 3: Verify tests and CI locally**
-Run: `pnpm --filter @rom/api test security && pnpm -r lint`
+Run: `pnpm --filter @physiolens/api test security && pnpm -r lint`
 Expected: PASS
 
 **Step 4: Commit**
@@ -237,14 +237,14 @@ Run: `git add apps/api/src/middleware .github/workflows/ci.yml docs/security/THR
 - Modify: `docs/ops/SERVICE_SUPPORT_MODEL.md`
 
 **Step 1: Write failing health/metrics tests**
-Run: `pnpm --filter @rom/api test observability`
+Run: `pnpm --filter @physiolens/api test observability`
 Expected: FAIL
 
 **Step 2: Implement health, metrics, and structured logging**
 Include correlation IDs and PHI-safe log policy.
 
 **Step 3: Verify tests**
-Run: `pnpm --filter @rom/api test observability`
+Run: `pnpm --filter @physiolens/api test observability`
 Expected: PASS
 
 **Step 4: Commit**

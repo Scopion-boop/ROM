@@ -15,7 +15,7 @@
  * Uses TemporalFilterBank for per-channel temporal smoothing.
  */
 
-import type { JointType, MovementType, CapturedMeasurement, Side } from '@rom/shared-types';
+import type { JointType, MovementType, CapturedMeasurement, Side } from '@physiolens/shared-types';
 import { TemporalFilterBank } from './temporal-filter';
 import { computeMeasurement } from './joint-router';
 import type { PoseFrame } from './pose-estimator';

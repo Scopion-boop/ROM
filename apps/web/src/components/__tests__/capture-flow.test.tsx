@@ -12,7 +12,7 @@ describe('CameraSetupWizard', () => {
     it('renders joint selection step by default', () => {
         render(<CameraSetupWizard onComplete={vi.fn()} />);
         expect(screen.getByTestId('step-select-joint')).toBeDefined();
-        expect(screen.getByText('Select Joints to Measure')).toBeDefined();
+        expect(screen.getByText('What are we measuring today?')).toBeDefined();
     });
 
     it('allows proceeding without joint selection when auto-detect is active', () => {

@@ -1,4 +1,4 @@
-# Musculoskeletal ROM Measurement Application
+# PhysioLens — Clinical ROM Measurement Platform
 AI-assisted range of motion measurement and clinical documentation system
 
 ✅ **Status**: MVP Complete - All Core Features Implemented
@@ -41,7 +41,7 @@ Computer vision-powered range of motion measurement platform for physiotherapist
 
 ## Project Structure
 ```
-musculoskeletal-rom-app/
+physiolens/
 ├── apps/
 │   ├── web/                      # Next.js web application
 │   │   ├── src/
@@ -118,7 +118,7 @@ pnpm test       # All test suites
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd musculoskeletal-rom-app
+cd physiolens
 
 # Install dependencies (from root)
 pnpm install
@@ -139,13 +139,13 @@ cp apps/api/.env.example apps/api/.env
 pnpm dev
 
 # Or run individually:
-pnpm --filter @rom/web dev       # Next.js on http://localhost:2000
-pnpm --filter @rom/api dev       # Express API on http://localhost:3000
+pnpm --filter @physiolens/web dev       # Next.js on http://localhost:2000
+pnpm --filter @physiolens/api dev       # Express API on http://localhost:3000
 
 # Run tests
 pnpm test                        # All tests
-pnpm --filter @rom/web test      # Web app tests only
-pnpm --filter @rom/api test      # API tests only
+pnpm --filter @physiolens/web test      # Web app tests only
+pnpm --filter @physiolens/api test      # API tests only
 
 # TypeScript type checking
 pnpm typecheck

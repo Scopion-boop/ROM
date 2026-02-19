@@ -1,8 +1,8 @@
 {
-    "name": "@rom/root",
+    "name": "@physiolens/root",
     "private": true,
     "version": "0.0.0",
-    "description": "Musculoskeletal ROM Platform — monorepo root",
+    "description": "PhysioLens — Clinical ROM Measurement Platform — monorepo root",
     "scripts": {
         "dev": "turbo run dev",
         "build": "turbo run build",

@@ -1,6 +1,6 @@
 # Medical Device Classification Decision Framework
 
-**Platform:** Musculoskeletal ROM Measurement Platform
+**Platform:** PhysioLens
 **Organization:** [YOUR COMPANY NAME]
 **Version:** 1.0
 **Last Updated:** February 9, 2026
@@ -32,7 +32,7 @@ Under 21 USC §321(h), a medical device is an instrument, apparatus, implement, 
 
 FDA may exercise **enforcement discretion** (not require 510(k) clearance) for certain low-risk software, including:
 
-**Relevant Criteria for ROM Platform:**
+**Relevant Criteria for PhysioLens:**
 - **Does not analyze patient-specific data** to detect, diagnose, or treat disease
 - **Provides general wellness information** or clinical reference
 - **Assists healthcare providers** but does not replace clinical judgment
@@ -188,7 +188,7 @@ FDA may exercise **enforcement discretion** (not require 510(k) clearance) for c
 
 - **Sample Size:** 30-100 subjects (FDA may require larger sample)
 - **Multi-Site:** 2-3 clinical sites for generalizability
-- **Blinded Comparison:** ROM Platform vs. manual goniometry (gold standard)
+- **Blinded Comparison:** PhysioLens vs. manual goniometry (gold standard)
 - **Statistical Analysis:** Bland-Altman plots, ICC, MAE, 95% confidence intervals
 - **IRB Approval:** Institutional Review Board approval for human subjects research
 - **GCP Compliance:** Good Clinical Practice standards
@@ -455,7 +455,7 @@ START: Is rapid market entry critical? (validate MVP hypothesis)
 - Software that provides patient-specific treatment recommendations
 - Software that analyzes patient data to detect disease
 
-**ROM Platform Assessment:**
+**PhysioLens Assessment:**
 - ✅ Assists clinicians (not autonomous diagnosis)
 - ✅ General clinical reference (normative ROM values)
 - ✅ Requires professional interpretation
@@ -487,7 +487,7 @@ Dear Sir or Madam:
 The ROM Measurement Platform is a software application that uses computer vision to measure joint range of motion. It is intended for use by licensed healthcare professionals to assist in clinical documentation of musculoskeletal assessments.
 
 **Specific Questions for FDA:**
-1. Does the ROM Platform meet the criteria for enforcement discretion under the FDA Policy for Device Software Functions (2022)?
+1. Does the PhysioLens meet the criteria for enforcement discretion under the FDA Policy for Device Software Functions (2022)?
 2. If the Platform IS considered a medical device, what regulatory pathway would FDA recommend (510(k), De Novo, exempt)?
 3. What clinical validation data would FDA require for a potential future 510(k) submission?
 

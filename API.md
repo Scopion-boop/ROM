@@ -1,6 +1,6 @@
 # API Documentation
 
-Complete API reference for the Musculoskeletal ROM Measurement Platform.
+Complete API reference for the PhysioLens platform.
 
 ## Table of Contents
 - [Overview](#overview)

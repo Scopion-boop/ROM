@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Audit event contracts.
+ * @physiolens/shared-types — Audit event contracts.
  */
 
 import { z } from 'zod';

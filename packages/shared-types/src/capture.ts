@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Capture domain contracts.
+ * @physiolens/shared-types — Capture domain contracts.
  *
  * Defines the universal interface that any vision strategy must satisfy
  * to plug into the CameraSetupWizard capture step. This allows multiple

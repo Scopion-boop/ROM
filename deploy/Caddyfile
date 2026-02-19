@@ -1,0 +1,42 @@
+# PhysioLens Production Reverse Proxy
+# Caddy provides automatic HTTPS via Let's Encrypt
+
+{
+	email admin@physiolens.com
+	# Uncomment for testing to avoid Let's Encrypt rate limits:
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+# Main site
+physiolens.com, www.physiolens.com {
+	header {
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(self), microphone=(), geolocation=(), payment=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		-Server
+	}
+
+	# WebSocket signaling for phone camera pairing
+	handle /ws/signaling* {
+		reverse_proxy signaling:4001
+	}
+
+	# Next.js web app
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+# API subdomain
+api.physiolens.com {
+	header {
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		-Server
+	}
+
+	reverse_proxy api:4000
+}

@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Note domain contracts.
+ * @physiolens/shared-types — Note domain contracts.
  *
  * Types for clinician exam notes generated from measurements.
  */

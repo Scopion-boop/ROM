@@ -3,3 +3,8 @@ export { createMemoryMeasurementRepo } from './measurement-repo';
 export { createMemoryNoteRepo } from './note-repo';
 export { createMemoryAuditRepo } from './audit-repo';
 export { createMemoryUserRepo } from './user-repo';
+export { createMemoryOrgRepo } from './org-repo';
+export { createMemorySubscriptionRepo } from './subscription-repo';
+export { createMemoryPatientLinkRepo } from './patient-link-repo';
+export { createMemoryStripeEventRepo } from './stripe-event-repo';
+export { createMemoryClinicInviteRepo } from './clinic-invite-repo';

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { JointType, MovementType, BodySide, NoteStatus } from '@rom/shared-types';
+import type { JointType, MovementType, BodySide, NoteStatus } from '@physiolens/shared-types';
 
 export interface NoteBlock {
     id: string;
@@ -7,7 +7,7 @@ export interface NoteBlock {
     content: string;
 }
 
-/** V1 note status aligns with @rom/shared-types NoteStatus. */
+/** V1 note status aligns with @physiolens/shared-types NoteStatus. */
 export type GeneratedNoteStatus = NoteStatus;
 
 export interface GeneratedNote {

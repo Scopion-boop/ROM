@@ -1,5 +1,5 @@
 {
-    "name": "@rom/signaling",
+    "name": "@physiolens/signaling",
     "version": "0.1.0",
     "private": true,
     "type": "module",

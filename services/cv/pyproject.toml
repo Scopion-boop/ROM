@@ -1,7 +1,7 @@
 [project]
-name = "rom-cv-worker"
+name = "physiolens-cv-worker"
 version = "0.1.0"
-description = "Computer vision worker for ROM pose estimation and angle measurement"
+description = "Computer vision worker for PhysioLens pose estimation and angle measurement"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",

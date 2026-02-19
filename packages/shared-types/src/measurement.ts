@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Measurement domain contracts.
+ * @physiolens/shared-types — Measurement domain contracts.
  *
  * Types for ROM measurements captured during sessions.
  */

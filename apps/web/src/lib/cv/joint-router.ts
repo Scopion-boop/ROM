@@ -7,8 +7,8 @@
  * ROM angle.
  */
 
-import type { JointType, MovementType } from '@rom/shared-types';
-import { LANDMARK_MAP, getLandmarkTriple, type LandmarkTriple, type Side } from '@rom/shared-types';
+import type { JointType, MovementType } from '@physiolens/shared-types';
+import { LANDMARK_MAP, getLandmarkTriple, type LandmarkTriple, type Side } from '@physiolens/shared-types';
 import { computeAngle, type Point3D } from './angle-calculator';
 
 /** The full result of routing + computing one measurement. */

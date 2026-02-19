@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — User and auth contracts.
+ * @physiolens/shared-types — User and auth contracts.
  */
 
 import { z } from 'zod';

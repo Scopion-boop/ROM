@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for ROM Web App (Next.js)
+# Multi-stage Dockerfile for PhysioLens Web App (Next.js)
 # Optimized for production deployment with static optimization
 
 # ── Stage 1: Dependencies ─────────────────────────────────────────────
@@ -42,6 +42,14 @@ WORKDIR /app/apps/web
 # Set build-time environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+
+# Accept NEXT_PUBLIC_* as build args (baked into the Next.js bundle)
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_SIGNAL_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_SIGNAL_URL=$NEXT_PUBLIC_SIGNAL_URL
 
 # Build Next.js app (generates .next directory)
 RUN pnpm run build
@@ -91,5 +99,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
 # Expose web port
 EXPOSE 3000
 
-# Start Next.js server
-CMD ["pnpm", "start"]
+# Start Next.js server on port 3000 (matches EXPOSE and healthcheck)
+CMD ["npx", "next", "start", "-p", "3000"]

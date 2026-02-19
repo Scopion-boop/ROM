@@ -5,7 +5,7 @@
  * - enrichWithNormative(): attach normal range data to each measurement
  */
 
-import { compareToNormative, type CapturedMeasurement } from '@rom/shared-types';
+import { compareToNormative, type CapturedMeasurement } from '@physiolens/shared-types';
 
 // ─── Enriched Measurement (CapturedMeasurement + normative data) ───
 

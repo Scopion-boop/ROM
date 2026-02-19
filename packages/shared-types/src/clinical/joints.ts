@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Clinical joint type definitions.
+ * @physiolens/shared-types — Clinical joint type definitions.
  *
  * Canonical list of joints supported for ROM measurement.
  * Source: AMA Guides to the Evaluation of Permanent Impairment, 6th Ed.

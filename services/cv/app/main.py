@@ -1,4 +1,4 @@
-"""ROM CV Worker — FastAPI application for pose estimation and ROM measurement."""
+"""PhysioLens CV Worker — FastAPI application for pose estimation and ROM measurement."""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes import health, pipeline, capture
 
 app = FastAPI(
-    title="ROM CV Worker",
+    title="PhysioLens CV Worker",
     description="Pose estimation and ROM angle measurement service",
     version="0.2.0",
 )

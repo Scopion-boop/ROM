@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Clinical domain barrel export.
+ * @physiolens/shared-types — Clinical domain barrel export.
  */
 
 // Core enums

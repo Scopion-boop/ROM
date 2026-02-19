@@ -8,7 +8,7 @@
 
 ## IMPORTANT: READ CAREFULLY BEFORE USING THIS PLATFORM
 
-This Medical Disclaimer governs the clinical use of the Musculoskeletal ROM Measurement Platform. By using this Platform, healthcare professionals acknowledge and accept the limitations, warnings, and professional responsibilities outlined below.
+This Medical Disclaimer governs the clinical use of the PhysioLens. By using this Platform, healthcare professionals acknowledge and accept the limitations, warnings, and professional responsibilities outlined below.
 
 ---
 

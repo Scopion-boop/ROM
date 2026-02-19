@@ -1,7 +1,7 @@
 # Incident Response Playbook
 
 **Organization:** [YOUR COMPANY NAME]
-**Platform:** Musculoskeletal ROM Measurement Platform
+**Platform:** PhysioLens
 **Version:** 1.0
 **Last Updated:** February 9, 2026
 **Review Cycle:** Quarterly

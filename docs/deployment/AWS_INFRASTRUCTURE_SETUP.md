@@ -1,6 +1,6 @@
 # AWS Infrastructure Setup Guide
 
-Complete guide for provisioning production-ready AWS infrastructure for the Musculoskeletal ROM Measurement Platform with HIPAA-compliant security controls.
+Complete guide for provisioning production-ready AWS infrastructure for the PhysioLens with HIPAA-compliant security controls.
 
 ## Table of Contents
 
@@ -248,7 +248,7 @@ aws kms create-alias \
 ```bash
 aws rds create-db-subnet-group \
   --db-subnet-group-name rom-db-subnet-group \
-  --db-subnet-group-description "ROM Platform Database Subnet Group" \
+  --db-subnet-group-description "PhysioLens Database Subnet Group" \
   --subnet-ids subnet-xxx subnet-yyy \
   --tags Key=Name,Value=rom-db-subnet-group
 ```

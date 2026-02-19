@@ -18,12 +18,13 @@ function formatMovement(m: string) {
         .join(' ');
 }
 
+// 4-colour clinical data system
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string; border: string }> = {
-    normal: { bg: 'rgba(34,197,94,0.08)', text: '#16a34a', label: 'Normal', border: 'rgba(34,197,94,0.2)' },
-    mild: { bg: 'rgba(234,179,8,0.08)', text: '#ca8a04', label: 'Mild Deficit', border: 'rgba(234,179,8,0.2)' },
-    moderate: { bg: 'rgba(249,115,22,0.08)', text: '#ea580c', label: 'Moderate Deficit', border: 'rgba(249,115,22,0.2)' },
-    severe: { bg: 'rgba(239,68,68,0.08)', text: '#dc2626', label: 'Severe Deficit', border: 'rgba(239,68,68,0.2)' },
-    unknown: { bg: 'rgba(107,114,128,0.08)', text: '#6b7280', label: 'No Reference', border: 'rgba(107,114,128,0.2)' },
+    normal: { bg: 'rgba(74,222,128,0.08)', text: 'rgba(74,222,128,0.8)', label: 'Normal', border: 'rgba(74,222,128,0.2)' },
+    mild: { bg: 'rgba(245,158,11,0.08)', text: '#F59E0B', label: 'Borderline', border: 'rgba(245,158,11,0.2)' },
+    moderate: { bg: 'rgba(248,113,113,0.08)', text: '#F87171', label: 'Deficit', border: 'rgba(248,113,113,0.2)' },
+    severe: { bg: 'rgba(248,113,113,0.08)', text: '#F87171', label: 'Deficit', border: 'rgba(248,113,113,0.2)' },
+    unknown: { bg: 'rgba(75,85,99,0.08)', text: '#4B5563', label: 'No Reference', border: 'rgba(75,85,99,0.2)' },
 };
 
 function StatusBadge({ status }: Readonly<{ status: string }>) {
@@ -58,7 +59,7 @@ function ProgressBar({ percent, status }: Readonly<{ percent: number | null; sta
             <span style={{ fontSize: 12, fontWeight: 600, color: style.text, minWidth: 38, textAlign: 'right' }}>
                 {percent}%
             </span>
-            {percent > 100 && <TrendingUp size={12} style={{ color: '#16a34a' }} />}
+            {percent > 100 && <TrendingUp size={12} style={{ color: 'rgba(74,222,128,0.8)' }} />}
         </div>
     );
 }
@@ -90,13 +91,13 @@ export default function MeasurementPanel({
                 <h3 style={{ fontSize: 15, fontWeight: 600 }}>ROM Measurements ({measurements.length})</h3>
                 <div style={{ display: 'flex', gap: 12 }}>
                     {normalCount > 0 && (
-                        <span style={{ fontSize: 12, color: '#16a34a', fontWeight: 500 }}>
+                        <span style={{ fontSize: 12, color: 'rgba(74,222,128,0.8)', fontWeight: 500 }}>
                             <CheckCircle2 size={12} style={{ display: 'inline', verticalAlign: -1, marginRight: 4 }} />
                             {normalCount} normal
                         </span>
                     )}
                     {deficitCount > 0 && (
-                        <span style={{ fontSize: 12, color: '#ea580c', fontWeight: 500 }}>
+                        <span style={{ fontSize: 12, color: '#F87171', fontWeight: 500 }}>
                             <AlertTriangle size={12} style={{ display: 'inline', verticalAlign: -1, marginRight: 4 }} />
                             {deficitCount} deficit{deficitCount === 1 ? '' : 's'}
                         </span>
@@ -121,7 +122,7 @@ export default function MeasurementPanel({
                         <tr key={`${m.joint}-${m.movement}-${m.side}`} data-testid={`measurement-row-${i}`}
                             style={{
                                 borderBottom: i < measurements.length - 1 ? '1px solid var(--border-secondary)' : 'none',
-                                background: m.status === 'severe' ? 'rgba(239,68,68,0.03)' : 'transparent',
+                                background: m.status === 'severe' ? 'rgba(248,113,113,0.03)' : 'transparent',
                             }}>
                             <td style={{ padding: '12px 16px', fontSize: 14, fontWeight: 500 }}>{formatJoint(m.joint)}</td>
                             <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-secondary)' }}>{formatMovement(m.movement)}</td>

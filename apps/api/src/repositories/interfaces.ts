@@ -64,7 +64,54 @@ export interface UserRecord {
     organizationId: string;
     email: string;
     passwordHash: string;
+    displayName?: string;
     role: string;
+}
+
+// ── V2 Commercial Record Types ──────────────────────────────────
+
+export interface OrgRecord {
+    id: string;
+    name: string;
+    billingEmail?: string;
+    stripeCustomerId?: string;
+    monthlySessionCount: number;
+    billingCycleStart?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface SubscriptionRecord {
+    id: string;
+    organizationId: string;
+    stripeCustomerId: string;
+    stripeSubscriptionId?: string;
+    stripePriceId?: string;
+    plan: 'solo' | 'practice' | 'enterprise';
+    status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete';
+    trialEndsAt?: string;
+    currentPeriodEnd?: string;
+    cancelAtPeriodEnd: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PatientLinkRecord {
+    id: string;
+    token: string;
+    sessionId: string;
+    organizationId: string;
+    joints: string[];
+    expiresAt: string;
+    usedAt?: string;
+    createdAt: string;
+}
+
+export interface StripeEventRecord {
+    id: string;
+    stripeEventId: string;
+    type: string;
+    processedAt: string;
 }
 
 // ── Repository contracts ───────────────────────────────────────
@@ -137,9 +184,100 @@ export interface UserRepo {
         passwordHash: string;
         organizationId: string;
         role: string;
+        displayName?: string;
     }): Promise<UserRecord>;
 
     getByEmail(email: string): Promise<UserRecord | undefined>;
+
+    listByOrg(organizationId: string): Promise<UserRecord[]>;
+
+    /** Test helper */
+    _clear(): Promise<void>;
+}
+
+// ── V2 Commercial Repository Contracts ─────────────────────────
+
+export interface OrgRepo {
+    create(data: { name: string; billingEmail?: string }): Promise<OrgRecord>;
+
+    getById(id: string): Promise<OrgRecord | undefined>;
+
+    updateStripeCustomerId(id: string, stripeCustomerId: string): Promise<void>;
+
+    incrementSessionCount(id: string): Promise<void>;
+
+    resetSessionCount(id: string): Promise<void>;
+
+    /** Test helper */
+    _clear(): Promise<void>;
+}
+
+export interface SubscriptionRepo {
+    create(
+        data: Omit<SubscriptionRecord, 'id' | 'createdAt' | 'updatedAt'>,
+    ): Promise<SubscriptionRecord>;
+
+    getActiveByOrgId(organizationId: string): Promise<SubscriptionRecord | undefined>;
+
+    upsertByOrgId(
+        organizationId: string,
+        data: Partial<Omit<SubscriptionRecord, 'id' | 'organizationId' | 'createdAt'>>,
+    ): Promise<SubscriptionRecord>;
+
+    /** Test helper */
+    _clear(): Promise<void>;
+}
+
+export interface PatientLinkRepo {
+    create(data: {
+        sessionId: string;
+        organizationId: string;
+        joints: string[];
+        expiresAt: Date;
+    }): Promise<PatientLinkRecord>;
+
+    getByToken(token: string): Promise<PatientLinkRecord | undefined>;
+
+    markUsed(token: string): Promise<void>;
+
+    /** Test helper */
+    _clear(): Promise<void>;
+}
+
+export interface StripeEventRepo {
+    record(data: { stripeEventId: string; type: string }): Promise<StripeEventRecord>;
+
+    getByStripeEventId(stripeEventId: string): Promise<StripeEventRecord | undefined>;
+
+    /** Test helper */
+    _clear(): Promise<void>;
+}
+
+export interface ClinicInviteRecord {
+    id: string;
+    token: string;
+    organizationId: string;
+    invitedEmail: string;
+    invitedByUserId: string;
+    role: string;
+    expiresAt: string;
+    acceptedAt?: string;
+    createdAt: string;
+}
+
+export interface ClinicInviteRepo {
+    create(data: {
+        token: string;
+        organizationId: string;
+        invitedEmail: string;
+        invitedByUserId: string;
+        role: string;
+        expiresAt: Date;
+    }): Promise<ClinicInviteRecord>;
+
+    getByToken(token: string): Promise<ClinicInviteRecord | undefined>;
+
+    markAccepted(token: string): Promise<void>;
 
     /** Test helper */
     _clear(): Promise<void>;

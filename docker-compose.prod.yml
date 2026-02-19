@@ -1,0 +1,143 @@
+version: "3.8"
+
+services:
+  # Reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: physiolens-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    networks:
+      - physiolens_network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: physiolens-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-physiolens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-physiolens_prod}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-physiolens}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - physiolens_network
+
+  # Express API
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: physiolens-api
+    restart: always
+    env_file:
+      - .env.api
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-physiolens}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-physiolens_prod}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:4000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    networks:
+      - physiolens_network
+
+  # Next.js web app
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://api.physiolens.com}
+        - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
+        - NEXT_PUBLIC_SIGNAL_URL=${NEXT_PUBLIC_SIGNAL_URL:-wss://physiolens.com/ws/signaling}
+    container_name: physiolens-web
+    restart: always
+    env_file:
+      - .env.web
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 3s
+      start_period: 15s
+      retries: 3
+    networks:
+      - physiolens_network
+
+  # WebRTC signaling server
+  signaling:
+    build:
+      context: .
+      dockerfile: services/signaling/Dockerfile
+    container_name: physiolens-signaling
+    restart: always
+    environment:
+      NODE_ENV: production
+      SIGNAL_PORT: 4001
+    healthcheck:
+      test: ["CMD", "node", "-e", "try{require('net').createConnection(4001,'localhost',()=>process.exit(0)).on('error',()=>process.exit(1))}catch(e){process.exit(1)}"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - physiolens_network
+
+  # CV service (uncomment when needed)
+  # cv:
+  #   build:
+  #     context: .
+  #     dockerfile: services/cv/Dockerfile
+  #   container_name: physiolens-cv
+  #   restart: unless-stopped
+  #   environment:
+  #     PYTHONUNBUFFERED: "1"
+  #   healthcheck:
+  #     test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 3
+  #   networks:
+  #     - physiolens_network
+
+volumes:
+  postgres_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+
+networks:
+  physiolens_network:
+    driver: bridge

@@ -1,4 +1,4 @@
-# ROM Platform — Placeholder Buildout & CV Implementation Plan
+# PhysioLens — Placeholder Buildout & CV Implementation Plan
 
 > **Date:** 8 February 2026
 > **Status:** PROPOSED
@@ -8,7 +8,7 @@
 
 ## Executive Audit Summary
 
-The ROM Platform has a **polished UI shell** and a **well-structured API skeleton**, but almost everything behind the surface is a placeholder. Here's the current state:
+PhysioLens has a **polished UI shell** and a **well-structured API skeleton**, but almost everything behind the surface is a placeholder. Here's the current state:
 
 | Component | Visual | Functional | Key Gap |
 |---|---|---|---|

@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraSetupWizard from '@/components/capture/CameraSetupWizard';
-import type { CapturedMeasurement } from '@rom/shared-types';
+import type { CapturedMeasurement } from '@physiolens/shared-types';
 import MeasurementPanel from '@/components/capture/MeasurementPanel';
 import NoteRenderer from '@/components/notes/NoteRenderer';
 import { ArrowRight, Camera, ClipboardList, FileText } from 'lucide-react';
 import { processCaptures, type EnrichedMeasurement } from '@/lib/rom-utils';
 import { generateNote, type GeneratedNote, type NoteSection } from '@/lib/note-generator';
+import { usePlan } from '@/lib/plan-context';
+import { UpgradePrompt } from '@/components/billing/UpgradePrompt';
 
 type SessionPhase = 'setup' | 'results' | 'note';
 
@@ -30,11 +32,11 @@ function formatRecommendation(r: LlmRecommendation, idx: number): string {
 
 function formatTestEvidence(t: { name: string; purpose: string; evidence?: string }): string {
     const suffix = t.evidence ? ` (${t.evidence})` : '';
-    return `  • ${t.name}: ${t.purpose}${suffix}`;
+    return `  * ${t.name}: ${t.purpose}${suffix}`;
 }
 
 function formatTestGroup(jt: JointTestGroup): string {
-    const header = `\n── ${jt.joint.charAt(0).toUpperCase() + jt.joint.slice(1)} Special Tests ──`;
+    const header = `\n-- ${jt.joint.charAt(0).toUpperCase() + jt.joint.slice(1)} Special Tests --`;
     const tests = jt.tests.map((t) => formatTestEvidence(t)).join('\n');
     return `${header}\n${tests}`;
 }
@@ -81,6 +83,10 @@ export default function NewSessionPage() {
     const [enrichedMeasurements, setEnrichedMeasurements] = useState<EnrichedMeasurement[]>([]);
     const [generatedNote, setGeneratedNote] = useState<GeneratedNote | null>(null);
     const [isInterpreting, setIsInterpreting] = useState(false);
+    const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+    const [sessionDurationMin, setSessionDurationMin] = useState<number | null>(null);
+    const sessionStartRef = useRef(Date.now());
+    const { plan } = usePlan();
 
     const handleWizardComplete = (measurements: CapturedMeasurement[]) => {
         setEnrichedMeasurements(processCaptures(measurements));
@@ -88,12 +94,18 @@ export default function NewSessionPage() {
     };
 
     const handleProceedToNote = () => {
+        const durationMin = Math.round((Date.now() - sessionStartRef.current) / 60000);
+        setSessionDurationMin(durationMin);
         setGeneratedNote(generateNote(enrichedMeasurements));
         setPhase('note');
     };
 
     const handleRequestInterpretation = useCallback(async () => {
         if (enrichedMeasurements.length === 0 || !generatedNote) return;
+        if (plan === 'free') {
+            setShowUpgradePrompt(true);
+            return;
+        }
         setIsInterpreting(true);
 
         try {
@@ -131,13 +143,13 @@ export default function NewSessionPage() {
         } finally {
             setIsInterpreting(false);
         }
-    }, [enrichedMeasurements, generatedNote]);
+    }, [enrichedMeasurements, generatedNote, plan]);
 
     const currentStep = STEPS.findIndex((s) => s.key === phase);
 
     return (
         <main data-testid="new-session-page" style={{ maxWidth: 960, margin: '0 auto' }}>
-            {/* ── Progress Stepper ── */}
+            {/* -- Progress Stepper -- */}
             <div
                 style={{
                     display: 'flex',
@@ -208,7 +220,7 @@ export default function NewSessionPage() {
                 })}
             </div>
 
-            {/* ── Phase Content ── */}
+            {/* -- Phase Content -- */}
             <AnimatePresence mode="wait">
                 {phase === 'setup' && (
                     <motion.div
@@ -270,6 +282,11 @@ export default function NewSessionPage() {
                         <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 8, letterSpacing: '-0.03em' }}>
                             Clinical Note
                         </h1>
+                        {sessionDurationMin !== null && (
+                            <p style={{ color: 'var(--accent)', marginBottom: 4, fontSize: 14, fontWeight: 500 }}>
+                                Note ready. Your session took {sessionDurationMin} minute{sessionDurationMin === 1 ? '' : 's'} — {Math.max(0, 20 - sessionDurationMin)} minutes saved vs manual documentation.
+                            </p>
+                        )}
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
                             Edit, save, or finalize the auto-generated clinical note.
                         </p>
@@ -278,11 +295,20 @@ export default function NewSessionPage() {
                                 note={generatedNote}
                                 onRequestInterpretation={handleRequestInterpretation}
                                 isInterpreting={isInterpreting}
+                                plan={plan}
                             />
                         )}
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {showUpgradePrompt && (
+                <UpgradePrompt
+                    feature="AI Clinical Interpretation"
+                    requiredPlan="pro"
+                    onDismiss={() => setShowUpgradePrompt(false)}
+                />
+            )}
         </main>
     );
 }

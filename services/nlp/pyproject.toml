@@ -1,7 +1,7 @@
 [project]
-name = "rom-nlp-worker"
+name = "physiolens-nlp-worker"
 version = "0.1.0"
-description = "NLP worker for AI-assisted note summarization"
+description = "NLP worker for PhysioLens AI-assisted note summarization"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",

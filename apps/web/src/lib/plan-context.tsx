@@ -1,0 +1,61 @@
+'use client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { authClient } from './auth-client';
+
+export type PlanName = 'free' | 'pro' | 'practice';
+
+interface PlanState {
+    plan: PlanName;
+    status: string;
+    sessionsThisMonth: number;
+    sessionLimit: number;
+    loading: boolean;
+}
+
+const PlanContext = createContext<PlanState>({
+    plan: 'free',
+    status: 'active',
+    sessionsThisMonth: 0,
+    sessionLimit: 10,
+    loading: true,
+});
+
+export function PlanProvider({ children }: { children: React.ReactNode }) {
+    const [state, setState] = useState<PlanState>({
+        plan: 'free',
+        status: 'active',
+        sessionsThisMonth: 0,
+        sessionLimit: 10,
+        loading: true,
+    });
+
+    useEffect(() => {
+        const headers = authClient.getAuthHeaders();
+        if (!headers.Authorization) {
+            setState((s) => ({ ...s, loading: false }));
+            return;
+        }
+        fetch(`${authClient.apiUrl}/api/billing/subscription`, { headers })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+                if (data) {
+                    setState({
+                        plan: data.plan ?? 'free',
+                        status: data.status ?? 'active',
+                        sessionsThisMonth: data.sessionsThisMonth ?? 0,
+                        sessionLimit: data.sessionLimit ?? 10,
+                        loading: false,
+                    });
+                } else {
+                    setState((s) => ({ ...s, loading: false }));
+                }
+            })
+            .catch(() => setState((s) => ({ ...s, loading: false })));
+    }, []);
+
+    return <PlanContext.Provider value={state}>{children}</PlanContext.Provider>;
+}
+
+export function usePlan() {
+    return useContext(PlanContext);
+}

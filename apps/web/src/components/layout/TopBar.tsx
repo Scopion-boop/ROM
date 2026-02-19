@@ -13,7 +13,7 @@ export default function TopBar() {
                 justifyContent: 'space-between',
                 padding: '0 var(--space-8)',
                 borderBottom: '1px solid var(--border-primary)',
-                background: 'rgba(9, 9, 11, 0.8)',
+                background: 'rgba(14, 17, 23, 0.8)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
                 position: 'sticky',
@@ -22,9 +22,16 @@ export default function TopBar() {
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                <h6 style={{ margin: 0, fontSize: '0.75rem' }}>
+                <span style={{
+                    margin: 0,
+                    fontSize: '0.6875rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    color: 'var(--text-tertiary)',
+                }}>
                     {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                </h6>
+                </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>

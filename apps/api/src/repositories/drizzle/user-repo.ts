@@ -8,6 +8,7 @@ function rowToRecord(row: typeof users.$inferSelect): UserRecord {
         organizationId: row.organizationId,
         email: row.email,
         passwordHash: row.passwordHash,
+        displayName: row.displayName ?? undefined,
         role: row.role,
     };
 }
@@ -32,6 +33,7 @@ export function createDrizzleUserRepo(): UserRepo {
                     passwordHash: data.passwordHash,
                     organizationId: data.organizationId,
                     role: data.role as typeof users.$inferInsert.role,
+                    displayName: data.displayName,
                 })
                 .returning();
             return rowToRecord(rows[0]!);
@@ -41,6 +43,12 @@ export function createDrizzleUserRepo(): UserRepo {
             const db = getDb();
             const rows = await db.select().from(users).where(eq(users.email, email));
             return rows[0] ? rowToRecord(rows[0]) : undefined;
+        },
+
+        async listByOrg(organizationId) {
+            const db = getDb();
+            const rows = await db.select().from(users).where(eq(users.organizationId, organizationId));
+            return rows.map(rowToRecord);
         },
 
         async _clear() {

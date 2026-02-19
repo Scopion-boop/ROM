@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Production deployment guide for the Musculoskeletal ROM Measurement Platform.
+Production deployment guide for PhysioLens.
 
 ## Table of Contents
 - [Overview](#overview)

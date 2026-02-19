@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - run: pip install -e ".[dev]"
       - run: pytest tests/ -v
 
@@ -96,7 +96,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: test
-          POSTGRES_DB: rom_test
+          POSTGRES_DB: physiolens_test
         ports:
           - 5432:5432
         options: >-
@@ -105,8 +105,8 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgresql://postgres:test@localhost:5432/rom_test
-      TEST_DATABASE_URL: postgresql://postgres:test@localhost:5432/rom_test
+      DATABASE_URL: postgresql://postgres:test@localhost:5432/physiolens_test
+      TEST_DATABASE_URL: postgresql://postgres:test@localhost:5432/physiolens_test
       JWT_SECRET: ci-test-secret
     steps:
       - uses: actions/checkout@v4
@@ -131,6 +131,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build API image
-        run: docker build -t rom-api -f apps/api/Dockerfile .
+        run: docker build -t physiolens-api -f apps/api/Dockerfile .
       - name: Build Web image
-        run: docker build -t rom-web -f apps/web/Dockerfile .
+        run: docker build -t physiolens-web -f apps/web/Dockerfile .

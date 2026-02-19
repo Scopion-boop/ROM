@@ -1,7 +1,7 @@
 # Phase 1 & Phase 2 Completion Report
 
 **Report Date:** February 9, 2026
-**Project:** Musculoskeletal ROM Measurement Platform
+**Project:** PhysioLens
 **Version:** MVP v0.1.0
 **Status:** ✅ Phase 1 & Phase 2 Complete
 
@@ -372,7 +372,7 @@ Dear [Patient Name],
 
 We are writing to inform you of a data security incident that may have
 affected your protected health information (PHI) stored in our
-Musculoskeletal ROM Measurement Platform.
+PhysioLens.
 
 What Happened: [Description]
 What Information Was Involved: [PHI types]

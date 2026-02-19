@@ -21,12 +21,13 @@ import type { EnrichedMeasurement } from '@/lib/rom-utils';
 
 // ─── Status colours (matching MeasurementPanel) ────────────────────
 
+// 4-colour clinical data system
 const STATUS_COLORS: Record<string, { bg: string; text: string; track: string }> = {
-    normal: { bg: 'rgba(34,197,94,0.08)', text: '#16a34a', track: '#16a34a' },
-    mild: { bg: 'rgba(234,179,8,0.08)', text: '#ca8a04', track: '#ca8a04' },
-    moderate: { bg: 'rgba(249,115,22,0.08)', text: '#ea580c', track: '#ea580c' },
-    severe: { bg: 'rgba(239,68,68,0.08)', text: '#dc2626', track: '#dc2626' },
-    unknown: { bg: 'rgba(107,114,128,0.08)', text: '#6b7280', track: '#6b7280' },
+    normal: { bg: 'rgba(74,222,128,0.08)', text: 'rgba(74,222,128,0.8)', track: 'rgba(74,222,128,0.8)' },
+    mild: { bg: 'rgba(245,158,11,0.08)', text: '#F59E0B', track: '#F59E0B' },
+    moderate: { bg: 'rgba(248,113,113,0.08)', text: '#F87171', track: '#F87171' },
+    severe: { bg: 'rgba(248,113,113,0.08)', text: '#F87171', track: '#F87171' },
+    unknown: { bg: 'rgba(75,85,99,0.08)', text: '#4B5563', track: '#4B5563' },
 };
 
 // ─── Section icon resolver ─────────────────────────────────────────
@@ -187,10 +188,12 @@ export default function NoteRenderer({
     note,
     onRequestInterpretation,
     isInterpreting,
+    plan,
 }: Readonly<{
     note: GeneratedNote;
     onRequestInterpretation?: () => void;
     isInterpreting?: boolean;
+    plan?: string;
 }>) {
     const [copied, setCopied] = useState(false);
 
@@ -280,8 +283,13 @@ export default function NoteRenderer({
                                 >
                                     {isInterpreting
                                         ? (<><Sparkles size={14} className="animate-pulse" /> Analysing...</>)
-                                        : (<><Brain size={14} /> Generate AI Interpretation</>)}
+                                        : (<><Sparkles size={14} /> ✦ Get AI Clinical Interpretation</>)}
                                 </button>
+                                {plan === 'free' && (
+                                    <p style={{ marginTop: 6, fontSize: 11, color: 'var(--text-muted)' }}>
+                                        (Pro feature — upgrade to unlock)
+                                    </p>
+                                )}
                             </div>
                         )}
                     </div>

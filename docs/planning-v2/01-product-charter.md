@@ -1,7 +1,7 @@
 # 01 - Product Charter
 
 ## Product Name (working)
-Musculoskeletal ROM Assistant
+PhysioLens
 
 ## Vision
 Enable clinicians to capture reliable ROM measurements and generate high-quality exam notes in minutes, with optional patient-guided pre-assessment workflows.

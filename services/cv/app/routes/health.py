@@ -10,7 +10,7 @@ async def health_check() -> dict[str, str]:
     """Return service health status."""
     return {
         "status": "ok",
-        "service": "rom-cv-worker",
+        "service": "physiolens-cv-worker",
         "version": "0.1.0",
     }
 

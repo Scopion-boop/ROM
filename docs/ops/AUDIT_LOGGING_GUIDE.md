@@ -9,7 +9,7 @@
 
 ## Overview
 
-This document describes the comprehensive audit logging system implemented across the Musculoskeletal ROM Platform to meet HIPAA compliance requirements. All PHI access and modifications are logged in an immutable audit trail.
+This document describes the comprehensive audit logging system implemented across the PhysioLens to meet HIPAA compliance requirements. All PHI access and modifications are logged in an immutable audit trail.
 
 ### Regulatory Requirements
 

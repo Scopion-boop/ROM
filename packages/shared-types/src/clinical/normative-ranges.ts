@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Normative ROM ranges.
+ * @physiolens/shared-types — Normative ROM ranges.
  *
  * Normal ROM for each (joint × movement) pair.
  * Sources: AMA Guides to the Evaluation of Permanent Impairment 6th Ed,

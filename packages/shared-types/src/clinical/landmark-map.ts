@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — MediaPipe PoseLandmarker landmark mapping.
+ * @physiolens/shared-types — MediaPipe PoseLandmarker landmark mapping.
  *
  * Maps each (joint, movement, side) triple to 3 MediaPipe landmarks:
  *   proximal, center, distal

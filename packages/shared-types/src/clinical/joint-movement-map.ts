@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Joint ↔ Movement valid combination map.
+ * @physiolens/shared-types — Joint ↔ Movement valid combination map.
  *
  * Defines which movements are clinically applicable to each joint.
  * Used for schema validation, UI rendering, and capture flow ordering.

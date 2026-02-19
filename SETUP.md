@@ -1,6 +1,6 @@
 # Development Environment Setup
 
-Complete guide for setting up the Musculoskeletal ROM Measurement Application development environment.
+Complete guide for setting up the PhysioLens development environment.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -69,7 +69,7 @@ Complete guide for setting up the Musculoskeletal ROM Measurement Application de
 
 ```bash
 git clone <repository-url>
-cd musculoskeletal-rom-app
+cd physiolens
 ```
 
 ### 2. Install Dependencies
@@ -322,11 +322,11 @@ pnpm start       # Run production build
 pnpm test
 
 # Run tests for specific app
-pnpm --filter @rom/web test
-pnpm --filter @rom/api test
+pnpm --filter @physiolens/web test
+pnpm --filter @physiolens/api test
 
 # Watch mode
-pnpm --filter @rom/web test:watch
+pnpm --filter @physiolens/web test:watch
 
 # Coverage report
 pnpm test -- --coverage
@@ -419,7 +419,7 @@ brew services list | grep postgresql  # macOS
 systemctl status postgresql           # Linux
 
 # Reset database
-pnpm --filter @rom/api db:push --force
+pnpm --filter @physiolens/api db:push --force
 ```
 
 ### MediaPipe Errors

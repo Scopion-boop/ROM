@@ -360,9 +360,9 @@ These areas define the same concepts independently and can drift out of sync:
 | File | Status | Action Needed |
 |---|---|---|
 | `api/repositories/audit-repo.ts` | Never imported | Wire into `audit-log.ts` service or remove |
-| `@rom/shared-types` imports in `api` | Declared in package.json but zero import statements | Actually import from shared-types OR remove the dependency |
-| `@rom/shared-types` imports in `web` | Declared in package.json + next.config.js transpile but zero imports | Same as above |
-| `next.config.js` transpilePackages | Configured for `@rom/shared-types` but package not imported | Remove config or add actual imports |
+| `@physiolens/shared-types` imports in `api` | Declared in package.json but zero import statements | Actually import from shared-types OR remove the dependency |
+| `@physiolens/shared-types` imports in `web` | Declared in package.json + next.config.js transpile but zero imports | Same as above |
+| `next.config.js` transpilePackages | Configured for `@physiolens/shared-types` but package not imported | Remove config or add actual imports |
 
 ---
 

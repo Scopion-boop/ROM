@@ -4,6 +4,7 @@ import { requireAuth } from '../middleware/authz';
 import { validateBody, validateParams } from '../middleware/validation';
 import { getRepos } from '../repositories/repo-factory';
 import { createSessionSchema, updateSessionStatusSchema, idParamSchema } from '../schemas/api-schemas';
+import type { SessionRecord } from '../repositories/interfaces';
 
 export const sessionRouter: IRouter = Router();
 
@@ -80,3 +81,28 @@ sessionRouter.patch('/:id/status', validateParams(idParamSchema), validateBody(u
 
     res.json(session);
 });
+
+/**
+ * GET /api/sessions/export/csv — export sessions as CSV
+ */
+sessionRouter.get('/export/csv', async (req: Request, res: Response): Promise<void> => {
+    const { sessions } = getRepos();
+    const sessionList = await sessions.listByOrg(req.user!.organizationId);
+
+    const csvRows = [
+        ['Session ID', 'Patient ID', 'Date', 'Joints', 'Status', 'Clinician ID'].join(','),
+        ...sessionList.map((s: SessionRecord) => [
+            s.id,
+            s.patientId ?? '',
+            new Date(s.createdAt).toISOString(),
+            Array.isArray(s.joints) ? s.joints.join('|') : '',
+            s.status,
+            s.clinicianId,
+        ].map((v: string) => `"${String(v).replace(/"/g, '""')}"`).join(',')),
+    ];
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="physiolens-sessions.csv"');
+    res.send(csvRows.join('\n'));
+});
+

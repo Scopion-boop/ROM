@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Clinical movement type definitions.
+ * @physiolens/shared-types — Clinical movement type definitions.
  *
  * Every movement pattern the platform can measure.
  * Source: AMA Guides 6th Ed, AAOS standard nomenclature.

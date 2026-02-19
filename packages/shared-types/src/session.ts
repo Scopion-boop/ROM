@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Session domain contracts.
+ * @physiolens/shared-types — Session domain contracts.
  *
  * All session-related types shared between web, API, and services.
  */

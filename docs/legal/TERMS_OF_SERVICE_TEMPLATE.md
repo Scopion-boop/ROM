@@ -9,7 +9,7 @@
 
 ## 1. Service Description
 
-The ROM Platform ("Service") provides computer-vision-assisted musculoskeletal range-of-motion measurement, clinical note generation, and documentation export for licensed healthcare organizations.
+PhysioLens ("Service") provides computer-vision-assisted musculoskeletal range-of-motion measurement, clinical note generation, and documentation export for licensed healthcare organizations.
 
 ## 2. Eligibility and Account Responsibilities
 

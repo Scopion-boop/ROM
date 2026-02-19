@@ -1,5 +1,5 @@
 /**
- * @rom/shared-types — Public API barrel export.
+ * @physiolens/shared-types — Public API barrel export.
  *
  * All domain contracts re-exported from this single entry point.
  */

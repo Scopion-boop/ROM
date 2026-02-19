@@ -73,7 +73,7 @@ Execute **immediate rollback** if ANY of the following occur:
 |-------|----------|---------|----------|
 | Launch started | Engineering + stakeholders | Slack + email | "Pilot deployment in progress" |
 | Canary passed | Engineering | Slack | "Canary phase complete, proceeding to rollout" |
-| Launch success | All stakeholders | Email | "ROM Platform pilot is live" |
+| Launch success | All stakeholders | Email | "PhysioLens pilot is live" |
 | Rollback executed | All stakeholders | Email + phone | "Deployment rolled back — investigating" |
 
 ## Post-Launch Monitoring (48h)

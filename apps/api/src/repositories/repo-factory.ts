@@ -13,6 +13,11 @@ import type {
     NoteRepo,
     AuditRepo,
     UserRepo,
+    OrgRepo,
+    SubscriptionRepo,
+    PatientLinkRepo,
+    StripeEventRepo,
+    ClinicInviteRepo,
 } from './interfaces';
 
 import {
@@ -21,6 +26,11 @@ import {
     createMemoryNoteRepo,
     createMemoryAuditRepo,
     createMemoryUserRepo,
+    createMemoryOrgRepo,
+    createMemorySubscriptionRepo,
+    createMemoryPatientLinkRepo,
+    createMemoryStripeEventRepo,
+    createMemoryClinicInviteRepo,
 } from './memory';
 
 export interface Repos {
@@ -29,6 +39,11 @@ export interface Repos {
     notes: NoteRepo;
     audit: AuditRepo;
     users: UserRepo;
+    orgs: OrgRepo;
+    subscriptions: SubscriptionRepo;
+    patientLinks: PatientLinkRepo;
+    stripeEvents: StripeEventRepo;
+    clinicInvites: ClinicInviteRepo;
 }
 
 let _instance: Repos | null = null;
@@ -45,6 +60,11 @@ function buildRepos(): Repos {
             notes: drizzle.createDrizzleNoteRepo(),
             audit: drizzle.createDrizzleAuditRepo(),
             users: drizzle.createDrizzleUserRepo(),
+            orgs: drizzle.createDrizzleOrgRepo(),
+            subscriptions: drizzle.createDrizzleSubscriptionRepo(),
+            patientLinks: drizzle.createDrizzlePatientLinkRepo(),
+            stripeEvents: drizzle.createDrizzleStripeEventRepo(),
+            clinicInvites: drizzle.createDrizzleClinicInviteRepo(),
         };
     }
 
@@ -54,6 +74,11 @@ function buildRepos(): Repos {
         notes: createMemoryNoteRepo(),
         audit: createMemoryAuditRepo(),
         users: createMemoryUserRepo(),
+        orgs: createMemoryOrgRepo(),
+        subscriptions: createMemorySubscriptionRepo(),
+        patientLinks: createMemoryPatientLinkRepo(),
+        stripeEvents: createMemoryStripeEventRepo(),
+        clinicInvites: createMemoryClinicInviteRepo(),
     };
 }
 

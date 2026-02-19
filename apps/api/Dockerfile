@@ -1,4 +1,4 @@
-# Multi-stage Dockerfile for ROM API
+# Multi-stage Dockerfile for PhysioLens API
 # Optimized for production deployment with minimal image size
 
 # ── Stage 1: Build ────────────────────────────────────────────────────

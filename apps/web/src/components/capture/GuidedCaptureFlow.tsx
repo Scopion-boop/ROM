@@ -25,17 +25,17 @@ import type {
     MovementType,
     BodySide,
     CapturedMeasurement,
-} from '@rom/shared-types';
+} from '@physiolens/shared-types';
 import {
     JOINT_MOVEMENT_MAP,
     getLandmarkTriple,
     getSidesForJoint,
-} from '@rom/shared-types';
+} from '@physiolens/shared-types';
 import type { WebcamCaptureHandle } from './WebcamCapture';
 import type { OverlayLandmark, AngleIndicator } from './PoseOverlay';
 
 // Re-export CapturedMeasurement from shared-types for backward compatibility
-export type { CapturedMeasurement } from '@rom/shared-types';
+export type { CapturedMeasurement } from '@physiolens/shared-types';
 
 // ─── Types ─────────────────────────────────────────────────────────
 
@@ -365,10 +365,10 @@ export function GuidedCaptureFlow({
 
     if (isComplete) {
         return (
-            <div className={`flex flex-col items-center gap-4 p-8 ${className}`}>
-                <CheckCircle className="h-16 w-16 text-green-400" />
-                <h2 className="text-xl font-bold text-white">Exam Complete</h2>
-                <p className="text-gray-400">
+            <div className={className} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-4)', padding: 'var(--space-8)' }}>
+                <CheckCircle size={64} style={{ color: 'var(--data-normal)' }} />
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)' }}>Exam Complete</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>
                     Captured {captured.length} of {steps.length} measurements.
                 </p>
             </div>
@@ -376,16 +376,16 @@ export function GuidedCaptureFlow({
     }
 
     return (
-        <div className={`flex flex-col gap-4 ${className}`}>
+        <div className={className} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             {/* Progress bar */}
-            <div className="relative h-2 rounded-full bg-gray-700">
+            <div style={{ position: 'relative', height: 8, borderRadius: 'var(--radius-full)', background: 'var(--bg-tertiary)' }}>
                 <motion.div
-                    className="absolute left-0 top-0 h-full rounded-full bg-blue-500"
+                    style={{ position: 'absolute', left: 0, top: 0, height: '100%', borderRadius: 'var(--radius-full)', background: 'var(--accent)' }}
                     animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.2 }}
                 />
             </div>
-            <p className="text-xs text-gray-500">
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 Step {currentIdx + 1} of {steps.length} · {captured.length} captured
             </p>
 
@@ -397,56 +397,87 @@ export function GuidedCaptureFlow({
                         initial={{ opacity: 0, x: 30 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -30 }}
-                        className="rounded-xl border border-gray-700 bg-gray-800 p-6"
+                        transition={{ duration: 0.2 }}
+                        style={{
+                            borderRadius: 'var(--radius-lg)',
+                            border: '1px solid var(--border-primary)',
+                            background: 'var(--bg-secondary)',
+                            padding: 'var(--space-6)',
+                        }}
                     >
-                        <div className="mb-2 flex items-center gap-2">
-                            <span className="rounded bg-blue-900/50 px-2 py-0.5 text-xs font-semibold text-blue-300 uppercase">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
+                            <span style={{
+                                borderRadius: 'var(--radius-sm)',
+                                background: 'rgba(14,205,186,0.1)',
+                                padding: '2px 8px',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                color: 'var(--accent)',
+                                textTransform: 'uppercase',
+                            }}>
                                 {currentStep.joint.replace('_', ' ')}
                             </span>
-                            <span className="text-xs text-gray-500">
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                                 {currentStep.movement.replace('_', ' ')} · {currentStep.side}
                             </span>
                         </div>
 
-                        <p className="text-lg font-medium text-white leading-snug">
+                        <p style={{ fontSize: '1.125rem', fontWeight: 500, color: 'var(--text-primary)', lineHeight: 1.4 }}>
                             {currentStep.instruction}
                         </p>
 
                         {/* Live measurement readout */}
                         {liveMeasurement && (
-                            <div className="mt-4 flex items-center gap-4">
-                                <div className="text-3xl font-bold tabular-nums text-white">
+                            <div style={{ marginTop: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                                <div style={{
+                                    fontSize: '2rem',
+                                    fontWeight: 700,
+                                    fontFamily: 'var(--font-mono)',
+                                    fontVariantNumeric: 'tabular-nums',
+                                    color: 'var(--text-primary)',
+                                }}>
                                     {Math.round(liveMeasurement.smoothed_rom_degrees)}°
                                 </div>
                                 {liveMeasurement.is_stable ? (
-                                    <span className="flex items-center gap-1 text-sm text-green-400">
-                                        <CheckCircle className="h-4 w-4" />
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.875rem', color: 'var(--data-normal)' }}>
+                                        <CheckCircle size={16} />
                                         Stable — capturing…
                                     </span>
                                 ) : (
-                                    <span className="flex items-center gap-1 text-sm text-yellow-400">
-                                        <Clock className="h-4 w-4" />
+                                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.875rem', color: 'var(--data-borderline)' }}>
+                                        <Clock size={16} />
                                         Hold position…
                                     </span>
                                 )}
                             </div>
                         )}
 
-                        <p className="mt-2 text-xs text-gray-500">
-                            Preferred camera angle: <span className="text-gray-400">{currentStep.preferredView}</span>
+                        <p style={{ marginTop: 'var(--space-2)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            Preferred camera angle: <span style={{ color: 'var(--text-secondary)' }}>{currentStep.preferredView}</span>
                         </p>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* Controls */}
-            <div className="flex items-center gap-3">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                 {mode === 'clinician_assisted' && (
                     <button
                         onClick={() => setIsPaused((p) => !p)}
-                        className="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-600 transition-colors"
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            borderRadius: 'var(--radius-md)',
+                            background: 'var(--bg-tertiary)',
+                            border: '1px solid var(--border-primary)',
+                            padding: '8px 16px',
+                            fontSize: '0.875rem',
+                            fontWeight: 500,
+                            color: 'var(--text-primary)',
+                            cursor: 'pointer',
+                            transition: 'background var(--duration-structural) ease',
+                        }}
                     >
-                        {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                        {isPaused ? <Play size={16} /> : <Pause size={16} />}
                         {isPaused ? 'Start Capture' : 'Pause'}
                     </button>
                 )}
@@ -454,26 +485,59 @@ export function GuidedCaptureFlow({
                 <button
                     onClick={manualCapture}
                     disabled={!liveMeasurement}
-                    className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        borderRadius: 'var(--radius-md)',
+                        background: 'var(--accent)',
+                        border: 'none',
+                        padding: '8px 16px',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: '#000',
+                        cursor: liveMeasurement ? 'pointer' : 'not-allowed',
+                        opacity: liveMeasurement ? 1 : 0.4,
+                        transition: 'opacity var(--duration-structural) ease',
+                    }}
                 >
-                    <CheckCircle className="h-4 w-4" />
+                    <CheckCircle size={16} />
                     Capture
                 </button>
 
                 <button
                     onClick={skip}
-                    className="flex items-center gap-1.5 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-600 transition-colors"
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        borderRadius: 'var(--radius-md)',
+                        background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--border-primary)',
+                        padding: '8px 16px',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        transition: 'background var(--duration-structural) ease',
+                    }}
                 >
-                    <SkipForward className="h-4 w-4" />
+                    <SkipForward size={16} />
                     Skip
                 </button>
 
                 {captured.length > 0 && (
                     <button
                         onClick={retakeLast}
-                        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: 6,
+                            borderRadius: 'var(--radius-md)',
+                            background: 'transparent',
+                            border: 'none',
+                            padding: '8px 12px',
+                            fontSize: '0.875rem',
+                            color: 'var(--text-muted)',
+                            cursor: 'pointer',
+                            transition: 'color var(--duration-structural) ease',
+                        }}
                     >
-                        <RotateCcw className="h-4 w-4" />
+                        <RotateCcw size={16} />
                         Retake
                     </button>
                 )}

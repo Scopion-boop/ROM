@@ -14,8 +14,8 @@
  * This is a stateless, per-frame function. No React, no hooks.
  */
 
-import { LANDMARK_MAP } from '@rom/shared-types';
-import type { JointType, MovementType, LandmarkTriple, Side } from '@rom/shared-types';
+import { LANDMARK_MAP } from '@physiolens/shared-types';
+import type { JointType, MovementType, LandmarkTriple, Side } from '@physiolens/shared-types';
 import type { PoseFrame } from './pose-estimator';
 
 // ─── Constants ─────────────────────────────────────────────────────

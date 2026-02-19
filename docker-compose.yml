@@ -7,11 +7,11 @@ services:
   # PostgreSQL database
   postgres:
     image: postgres:15-alpine
-    container_name: rom-postgres
+    container_name: physiolens-postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: rom_dev
+      POSTGRES_DB: physiolens_dev
     ports:
       - "5432:5432"
     volumes:
@@ -22,18 +22,18 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - rom_network
+      - physiolens_network
 
   # API service
   api:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-    container_name: rom-api
+    container_name: physiolens-api
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/rom_dev
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/physiolens_dev
       JWT_SECRET: dev-secret-for-docker-compose-only-change-in-production
       # Optional: Add OPENAI_API_KEY, ANTHROPIC_API_KEY if testing AI features
     ports:
@@ -48,7 +48,7 @@ services:
       start_period: 10s
       retries: 3
     networks:
-      - rom_network
+      - physiolens_network
     restart: unless-stopped
 
   # Web application (Next.js)
@@ -56,7 +56,7 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
-    container_name: rom-web
+    container_name: physiolens-web
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -77,7 +77,7 @@ services:
       start_period: 15s
       retries: 3
     networks:
-      - rom_network
+      - physiolens_network
     restart: unless-stopped
 
 volumes:
@@ -85,7 +85,7 @@ volumes:
     driver: local
 
 networks:
-  rom_network:
+  physiolens_network:
     driver: bridge
 
 # Usage:

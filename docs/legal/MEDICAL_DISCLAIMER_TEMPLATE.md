@@ -9,7 +9,7 @@
 
 ## Disclaimer Statement
 
-The ROM Platform ("Service") provides computer-vision-assisted musculoskeletal range-of-motion measurement and clinical documentation support. **This Service is not a medical device and is not intended to diagnose, treat, cure, or prevent any disease or medical condition.**
+PhysioLens ("Service") provides computer-vision-assisted musculoskeletal range-of-motion measurement and clinical documentation support. **This Service is not a medical device and is not intended to diagnose, treat, cure, or prevent any disease or medical condition.**
 
 ## Key Limitations
 

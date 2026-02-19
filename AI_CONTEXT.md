@@ -1,4 +1,4 @@
-# AI Session Context — Musculoskeletal ROM Platform
+# AI Session Context — PhysioLens
 
 > **Read this file first.** It gives you everything you need to understand the project, codebase, architecture, conventions, and current state before doing any work.
 
@@ -6,7 +6,7 @@
 
 ## 1. What This Project Is
 
-**Musculoskeletal ROM Assistant** — a web-based platform that helps physiotherapists, chiropractors, and sports medicine clinicians capture Range-of-Motion (ROM) measurements using computer vision and generate structured clinical exam notes automatically.
+**PhysioLens** — a web-based platform that helps physiotherapists, chiropractors, and sports medicine clinicians capture Range-of-Motion (ROM) measurements using computer vision and generate structured clinical exam notes automatically.
 
 ### Core Problem
 Manual ROM measurement with goniometers is slow, inconsistent, and documentation-heavy. Clinicians lose time to admin overhead and objective progression tracking is poor.
@@ -57,7 +57,7 @@ Manual ROM measurement with goniometers is slow, inconsistent, and documentation
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                        Monorepo (@rom/root)                      │
+│                        Monorepo (@physiolens/root)                      │
 │  pnpm 9.15 + Turborepo 2.8 workspace                            │
 │                                                                  │
 │  apps/                                                           │
@@ -103,12 +103,12 @@ Manual ROM measurement with goniometers is slow, inconsistent, and documentation
 | **Target Infra** | AWS managed services | Not yet provisioned |
 
 ### Package Names
-- `@rom/root` — monorepo root
-- `@rom/api` — backend API
-- `@rom/web` — frontend web app
-- `@rom/shared-types` — shared Zod domain schemas
-- `rom-cv-worker` — Python CV service
-- `rom-nlp-worker` — Python NLP service
+- `@physiolens/root` — monorepo root
+- `@physiolens/api` — backend API
+- `@physiolens/web` — frontend web app
+- `@physiolens/shared-types` — shared Zod domain schemas
+- `physiolens-cv-worker` — Python CV service
+- `physiolens-nlp-worker` — Python NLP service
 
 ---
 
@@ -760,7 +760,7 @@ turbo run typecheck # Type check all TS packages
 
 **Follow these conventions:**
 12. ✅ Security rules: org-scoping, audit logging, no PHI in logs
-13. ✅ Use existing Zod schemas from `@rom/shared-types` for validation
+13. ✅ Use existing Zod schemas from `@physiolens/shared-types` for validation
 14. ✅ Keep in-memory repos consistent with their interfaces (DB integration pending)
 15. ✅ Max cognitive complexity: 15, max nesting: 4 levels
 16. ✅ JSDoc comments for all functions
@@ -776,8 +776,8 @@ turbo run typecheck # Type check all TS packages
 ```bash
 # Development
 pnpm dev              # Start all services
-pnpm --filter @rom/web dev -p 4500   # Web app only (port 4500, NEVER 3000)
-pnpm --filter @rom/api dev           # API only
+pnpm --filter @physiolens/web dev -p 4500   # Web app only (port 4500, NEVER 3000)
+pnpm --filter @physiolens/api dev           # API only
 
 # Quality Checks
 pnpm test             # All tests

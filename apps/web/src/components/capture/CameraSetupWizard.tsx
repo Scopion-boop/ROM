@@ -25,7 +25,7 @@ import {
     JOINT_TYPES,
     JOINT_META,
     JOINT_MOVEMENT_MAP,
-} from '@rom/shared-types';
+} from '@physiolens/shared-types';
 import { WebcamCapture, type WebcamCaptureHandle } from './WebcamCapture';
 import { PoseOverlay, type OverlayLandmark, type AngleIndicator } from './PoseOverlay';
 import { PhoneCameraLink } from './PhoneCameraLink';
@@ -88,8 +88,11 @@ export default function CameraSetupWizard({
         return (
             <div data-testid="step-select-joint" className="card" style={{ padding: 28 }}>
                 <h2 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: 4 }}>
-                    Select Joints to Measure
+                    What are we measuring today?
                 </h2>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 4 }}>
+                    PhysioLens will automatically identify landmarks and calculate angles — no calibration needed.
+                </p>
                 <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 16 }}>
                     Choose the joints you&apos;d like to capture range-of-motion for.
                 </p>
@@ -309,8 +312,8 @@ export default function CameraSetupWizard({
 
     // ── Step 2b: Phone Pairing (optional) ────────────────────────
     if (step === 'phone_pair') {
-        const signalingHost = globalThis.window === undefined ? 'localhost' : globalThis.location.hostname;
-        const signalingUrl = `ws://${signalingHost}:${process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001'}/ws/signaling`;
+        const signalingUrl = process.env.NEXT_PUBLIC_SIGNAL_URL
+            ?? `ws://${globalThis.window === undefined ? 'localhost' : globalThis.location.hostname}:${process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001'}/ws/signaling`;
 
         return (
             <div data-testid="step-phone-pair" className="card" style={{ padding: 28 }}>

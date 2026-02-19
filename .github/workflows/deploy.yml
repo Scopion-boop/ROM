@@ -1,0 +1,74 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Pre-deploy checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo lint
+      - run: pnpm turbo test
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: deploy
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            cd /opt/physiolens
+
+            echo "Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "Building images..."
+            docker compose -f docker-compose.prod.yml build
+
+            echo "Rolling restart (api -> web -> signaling -> caddy)..."
+            docker compose -f docker-compose.prod.yml up -d --no-deps api
+            sleep 10
+            docker compose -f docker-compose.prod.yml up -d --no-deps web
+            sleep 5
+            docker compose -f docker-compose.prod.yml up -d --no-deps signaling
+            sleep 3
+            docker compose -f docker-compose.prod.yml up -d --no-deps caddy
+
+            echo "Waiting for services to stabilize..."
+            sleep 15
+
+            echo "Service status:"
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "Pruning old images..."
+            docker image prune -f
+
+            echo "Deploy complete."

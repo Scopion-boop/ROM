@@ -1,5 +1,5 @@
 /**
- * /camera/remote — Phone camera page for WebRTC streaming.
+ * /camera/remote - Phone camera page for WebRTC streaming.
  *
  * Accessed by scanning the QR code from PhoneCameraLink.
  * Opens the rear camera and streams video back to the host browser.
@@ -56,11 +56,10 @@ function RemoteCameraContent() {
                 return;
             }
 
-            // 2. Connect to signaling server (port 4001)
-            const signalingHost = globalThis.location.hostname;
-            const wsProtocol = globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const signalingPort = process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001';
-            const wsUrl = `${wsProtocol}//${signalingHost}:${signalingPort}/ws/signaling?session=${sessionId}&token=${token}&role=remote`;
+            // 2. Connect to signaling server
+            const baseSignalUrl = process.env.NEXT_PUBLIC_SIGNAL_URL
+                ?? `${globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${globalThis.location.hostname}:${process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001'}/ws/signaling`;
+            const wsUrl = `${baseSignalUrl}?session=${sessionId}&token=${token}&role=remote`;
 
             const ws = new WebSocket(wsUrl);
             wsRef.current = ws;
@@ -127,36 +126,72 @@ function RemoteCameraContent() {
         };
     }, [sessionId, token]);
 
-    const statusDisplay = {
-        initializing: { icon: Camera, text: 'Initializing…', color: 'text-gray-400' },
-        camera_ready: { icon: Camera, text: 'Camera ready', color: 'text-yellow-400' },
-        connecting: { icon: Wifi, text: 'Connecting to host…', color: 'text-blue-400' },
-        streaming: { icon: CheckCircle, text: 'Streaming to host', color: 'text-green-400' },
-        error: { icon: XCircle, text: errorMsg || 'Error', color: 'text-red-400' },
+    const statusConfig: Record<
+        ConnectionStatus,
+        { icon: typeof Camera; text: string; color: string }
+    > = {
+        initializing: { icon: Camera, text: 'Initializing...', color: 'var(--text-secondary)' },
+        camera_ready: { icon: Camera, text: 'Camera ready', color: 'var(--warning)' },
+        connecting: { icon: Wifi, text: 'Connecting to host...', color: 'var(--accent)' },
+        streaming: { icon: CheckCircle, text: 'Streaming to host', color: 'var(--success)' },
+        error: { icon: XCircle, text: errorMsg || 'Error', color: 'var(--error)' },
     };
 
-    const { icon: StatusIcon, text, color } = statusDisplay[status];
+    const { icon: StatusIcon, text, color } = statusConfig[status];
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-950">
+        <div
+            style={{
+                display: 'flex',
+                minHeight: '100vh',
+                flexDirection: 'column',
+                background: 'var(--bg-primary)',
+            }}
+        >
             {/* Camera preview */}
-            <div className="relative flex-1">
+            <div style={{ position: 'relative', flex: 1 }}>
                 <video
                     ref={videoRef}
                     autoPlay
                     playsInline
                     muted
-                    className="h-full w-full object-cover"
+                    style={{
+                        height: '100%',
+                        width: '100%',
+                        objectFit: 'cover',
+                    }}
                 />
 
                 {/* Status overlay */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-950/90 to-transparent p-6">
-                    <div className={`flex items-center gap-2 ${color}`}>
-                        <StatusIcon className="h-5 w-5" />
-                        <span className="text-sm font-medium">{text}</span>
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'linear-gradient(to top, rgba(9,9,11,0.9), transparent)',
+                        padding: '1.5rem',
+                    }}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            color: color,
+                        }}
+                    >
+                        <StatusIcon style={{ height: 20, width: 20 }} />
+                        <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{text}</span>
                     </div>
                     {status === 'streaming' && (
-                        <p className="mt-1 text-xs text-gray-500">
+                        <p
+                            style={{
+                                marginTop: '0.25rem',
+                                fontSize: '0.75rem',
+                                color: 'var(--text-muted)',
+                            }}
+                        >
                             Keep this screen open. Your camera feed is being used for ROM measurement.
                         </p>
                     )}
@@ -164,19 +199,66 @@ function RemoteCameraContent() {
 
                 {/* Recording indicator */}
                 {status === 'streaming' && (
-                    <div className="absolute right-4 top-4 flex items-center gap-1.5">
-                        <span className="h-3 w-3 animate-pulse rounded-full bg-red-500" />
-                        <span className="text-xs font-bold text-white">LIVE</span>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            right: '1rem',
+                            top: '1rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.375rem',
+                        }}
+                    >
+                        <span
+                            style={{
+                                height: 12,
+                                width: 12,
+                                borderRadius: '50%',
+                                background: 'var(--error)',
+                                animation: 'pulse 2s ease-in-out infinite',
+                            }}
+                        />
+                        <span
+                            style={{
+                                fontSize: '0.75rem',
+                                fontWeight: 700,
+                                color: 'var(--text-primary)',
+                            }}
+                        >
+                            LIVE
+                        </span>
                     </div>
                 )}
             </div>
+
+            <style>{`
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+            `}</style>
         </div>
     );
 }
 
 export default function RemoteCameraPage() {
     return (
-        <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-gray-950 text-gray-400">Loading…</div>}>
+        <Suspense
+            fallback={
+                <div
+                    style={{
+                        display: 'flex',
+                        minHeight: '100vh',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'var(--bg-primary)',
+                        color: 'var(--text-secondary)',
+                    }}
+                >
+                    Loading...
+                </div>
+            }
+        >
             <RemoteCameraContent />
         </Suspense>
     );

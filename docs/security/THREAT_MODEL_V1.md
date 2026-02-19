@@ -1,4 +1,4 @@
-# Threat Model V1 — ROM Platform
+# Threat Model V1 — PhysioLens
 
 **Document Status:** Draft
 **Last Updated:** 2026-02-08
@@ -8,7 +8,7 @@
 
 ## 1. System Overview
 
-The ROM Platform captures, processes, and stores musculoskeletal range-of-motion (ROM) measurements using computer vision. Components:
+PhysioLens captures, processes, and stores musculoskeletal range-of-motion (ROM) measurements using computer vision. Components:
 
 | Component | Purpose | Trust Level |
 |-----------|---------|-------------|

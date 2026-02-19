@@ -15,15 +15,18 @@ import {
     Search,
     Plus,
     LogOut,
-    HeartPulse,
+    CreditCard,
+    Building2,
 } from 'lucide-react';
+import { usePlan } from '@/lib/plan-context';
 
 const NAV_ITEMS = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/sessions/new', label: 'New Session', icon: Plus },
     { href: '#', label: 'Sessions', icon: FolderOpen },
     { href: '#', label: 'Measurements', icon: Activity },
     { href: '#', label: 'Reports', icon: FileText },
+    { href: '/dashboard/billing', label: 'Billing & Plan', icon: CreditCard },
 ];
 
 const BOTTOM_NAV = [
@@ -34,6 +37,7 @@ const BOTTOM_NAV = [
 export default function Sidebar() {
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
+    const { plan } = usePlan();
 
     return (
         <aside
@@ -68,7 +72,8 @@ export default function Sidebar() {
                     style={{
                         width: 36,
                         height: 36,
-                        background: 'linear-gradient(135deg, var(--accent), var(--accent-dark))',
+                        background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--border-primary)',
                         borderRadius: 'var(--radius-md)',
                         display: 'flex',
                         alignItems: 'center',
@@ -76,15 +81,18 @@ export default function Sidebar() {
                         flexShrink: 0,
                     }}
                 >
-                    <HeartPulse size={20} color="#000" strokeWidth={2.5} />
+                    {/* Angle arc mark — goniometer reference */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 20 L20 20" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeLinecap="round" />
+                        <path d="M4 20 L16 6" stroke="var(--text-tertiary)" strokeWidth="1.5" strokeLinecap="round" />
+                        <path d="M10 20 A6 6 0 0 1 12.4 14.4" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" fill="none" />
+                        <circle cx="11.6" cy="16.2" r="1" fill="var(--accent)" />
+                    </svg>
                 </div>
                 {!collapsed && (
                     <div style={{ overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                        <span style={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
-                            ROM
-                        </span>
-                        <span style={{ fontSize: '0.625rem', display: 'block', color: 'var(--text-muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                            Clinical Platform
+                        <span style={{ fontSize: '1rem', fontWeight: 600, letterSpacing: '-0.02em' }}>
+                            Physio<span style={{ fontWeight: 400, color: 'var(--text-secondary)' }}>Lens</span>
                         </span>
                     </div>
                 )}
@@ -174,6 +182,47 @@ export default function Sidebar() {
                         </Link>
                     );
                 })}
+                {plan === 'practice' && (() => {
+                    const isActive = pathname === '/dashboard/clinic';
+                    return (
+                        <Link
+                            href="/dashboard/clinic"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 'var(--space-3)',
+                                padding: collapsed ? 'var(--space-3)' : 'var(--space-2) var(--space-3)',
+                                borderRadius: 'var(--radius-md)',
+                                color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                                background: isActive ? 'var(--bg-card-hover)' : 'transparent',
+                                fontSize: '0.875rem',
+                                fontWeight: isActive ? 500 : 400,
+                                textDecoration: 'none',
+                                transition: 'all var(--duration-fast) var(--ease-out)',
+                                justifyContent: collapsed ? 'center' : 'flex-start',
+                                position: 'relative',
+                            }}
+                            title={collapsed ? 'Clinic' : undefined}
+                        >
+                            {isActive && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        width: 3,
+                                        height: 16,
+                                        background: 'var(--accent)',
+                                        borderRadius: 'var(--radius-full)',
+                                    }}
+                                />
+                            )}
+                            <Building2 size={18} strokeWidth={isActive ? 2 : 1.5} style={{ color: isActive ? 'var(--accent)' : undefined, flexShrink: 0 }} />
+                            {!collapsed && <span>Clinic</span>}
+                        </Link>
+                    );
+                })()}
             </nav>
 
             {/* Bottom Nav */}
@@ -242,6 +291,28 @@ export default function Sidebar() {
                                 Clinician
                             </div>
                         </div>
+                    )}
+                    {!collapsed && (
+                        <span style={{
+                            padding: '2px 6px',
+                            background: plan === 'pro'
+                                ? 'rgba(20,184,166,0.15)'
+                                : plan === 'practice'
+                                    ? 'rgba(167,139,250,0.15)'
+                                    : 'rgba(107,114,128,0.15)',
+                            color: plan === 'pro'
+                                ? '#14b8a6'
+                                : plan === 'practice'
+                                    ? '#a78bfa'
+                                    : '#6b7280',
+                            borderRadius: '20px',
+                            fontSize: '0.625rem',
+                            fontWeight: 600,
+                            letterSpacing: '0.04em',
+                            flexShrink: 0,
+                        }}>
+                            {plan === 'pro' ? 'PRO' : plan === 'practice' ? 'PRACTICE' : 'FREE'}
+                        </span>
                     )}
                     {!collapsed && <LogOut size={14} style={{ color: 'var(--text-muted)', cursor: 'pointer', flexShrink: 0 }} />}
                 </div>

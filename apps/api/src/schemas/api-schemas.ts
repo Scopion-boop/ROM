@@ -97,11 +97,24 @@ export const registerSchema = z.object({
         .max(128, { message: 'Password too long' })
         .describe('User password'),
     organizationId: sanitizeString(100).optional().describe('Organization ID for multi-tenancy'),
+    clinicName: sanitizeString(255).optional().describe('Clinic name for auto-org creation'),
+    inviteToken: z.string().optional().describe('Clinic invite token for joining an existing org'),
+    displayName: sanitizeString(255).optional().describe('User display name'),
     role: z
-        .enum(['clinician', 'admin', 'viewer'])
+        .enum([
+            'clinician',
+            'admin',
+            'viewer',
+            'clinic_admin',
+            'reviewer',
+            'support_readonly',
+        ])
         .default('clinician')
         .describe('User role'),
-});
+}).refine(
+    (data) => data.organizationId || data.clinicName || data.inviteToken,
+    { message: 'Either organizationId, clinicName, or inviteToken is required' },
+);
 
 export const loginSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }).describe('User email'),

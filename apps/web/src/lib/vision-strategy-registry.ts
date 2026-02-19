@@ -15,7 +15,7 @@ import type {
     CapturedMeasurement,
     VisionStrategyMeta,
     VisionStrategyKey,
-} from '@rom/shared-types';
+} from '@physiolens/shared-types';
 import type { WebcamCaptureHandle } from '../components/capture/WebcamCapture';
 
 // ─── Props contract every vision strategy must implement ───────────

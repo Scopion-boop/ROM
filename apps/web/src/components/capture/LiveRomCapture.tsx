@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, Loader2, Trash2, Camera as CameraIcon } from 'lucide-react';
 
-import type { CapturedMeasurement } from '@rom/shared-types';
+import type { CapturedMeasurement } from '@physiolens/shared-types';
 import type { VisionStrategyProps } from '../../lib/vision-strategy-registry';
 import {
     MovementDetector,
@@ -23,13 +23,13 @@ import {
 import { usePoseDetection } from '../../hooks/usePoseDetection';
 import { PoseOverlay, type OverlayLandmark } from './PoseOverlay';
 
-// ─── State badge colours ───────────────────────────────────────────
+// ─── State badge styles (dark-themed, 4-colour data system) ─────────
 
-const STATE_STYLES: Record<string, string> = {
-    idle: 'bg-gray-200 text-gray-600',
-    moving: 'bg-blue-100 text-blue-700 animate-pulse',
-    stabilising: 'bg-yellow-100 text-yellow-700',
-    captured: 'bg-green-100 text-green-700',
+const STATE_STYLES: Record<string, { bg: string; text: string }> = {
+    idle: { bg: 'rgba(75,85,99,0.1)', text: '#4B5563' },
+    moving: { bg: 'rgba(14,205,186,0.1)', text: '#0ECDBA' },
+    stabilising: { bg: 'rgba(245,158,11,0.1)', text: '#F59E0B' },
+    captured: { bg: 'rgba(74,222,128,0.1)', text: 'rgba(74,222,128,0.8)' },
 };
 
 // ─── Component ─────────────────────────────────────────────────────
@@ -127,13 +127,28 @@ export function LiveRomCapture({
     // ── Render ─────────────────────────────────────────────────────
 
     return (
-        <div className={`flex gap-4 ${className}`}>
-            {/* Camera + overlay */}
-            <div className="relative flex-1 min-h-[400px] rounded-xl overflow-hidden bg-black">
+        <div style={{ display: 'flex', gap: 'var(--space-4)' }} className={className}>
+            {/* Camera + overlay — sacred space */}
+            <div style={{
+                position: 'relative',
+                flex: 1,
+                minHeight: 400,
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+                background: '#000',
+            }}>
                 {loading && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60">
-                        <Loader2 className="w-8 h-8 text-white animate-spin" />
-                        <span className="ml-2 text-white text-sm">Loading pose model…</span>
+                    <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 10,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'rgba(0,0,0,0.6)',
+                    }}>
+                        <Loader2 size={32} style={{ color: '#fff', animation: 'spin 1s linear infinite' }} />
+                        <span style={{ marginLeft: 8, color: '#fff', fontSize: 13 }}>Loading pose model…</span>
                     </div>
                 )}
 
@@ -142,45 +157,96 @@ export function LiveRomCapture({
                     videoRef={videoRef}
                     landmarks={overlayLandmarks}
                     angles={[]}
-                    className="absolute inset-0 z-[5] pointer-events-none"
                 />
 
-                {/* FPS badge */}
+                {/* FPS badge — subdued */}
                 {ready && (
-                    <span className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded bg-black/50 text-white text-xs font-mono">
+                    <span style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        zIndex: 10,
+                        padding: '2px 8px',
+                        borderRadius: 'var(--radius-sm)',
+                        background: 'rgba(0,0,0,0.5)',
+                        color: 'var(--text-tertiary)',
+                        fontSize: 11,
+                        fontFamily: 'var(--font-mono)',
+                        fontVariantNumeric: 'tabular-nums',
+                    }}>
                         {fps} FPS
                     </span>
                 )}
             </div>
 
             {/* Sidebar: channels + captures */}
-            <div className="w-72 flex flex-col gap-3 overflow-y-auto max-h-[600px]">
+            <div style={{
+                width: 288,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 'var(--space-3)',
+                overflowY: 'auto',
+                maxHeight: 600,
+            }}>
                 {/* Live tracking channels */}
                 <section>
-                    <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">
+                    <h3 style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: 'var(--font-section-tracking)',
+                        color: 'var(--text-tertiary)',
+                        marginBottom: 'var(--space-1)',
+                    }}>
                         Live Tracking ({channels.length})
                     </h3>
                     {channels.length === 0 && ready && (
-                        <p className="text-xs text-gray-400 italic">Move a joint in front of the camera…</p>
+                        <p style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                            Move a joint in front of the camera…
+                        </p>
                     )}
-                    <div className="space-y-1">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {channels.map((ch) => {
                             const key = `${ch.joint}:${ch.movement}:${ch.side}`;
+                            const stateStyle = STATE_STYLES[ch.state] ?? STATE_STYLES.idle!;
                             return (
                                 <div
                                     key={key}
-                                    className="flex items-center justify-between rounded-lg border px-2 py-1.5 text-sm"
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        borderRadius: 'var(--radius-md)',
+                                        border: '1px solid var(--border-primary)',
+                                        padding: '6px 8px',
+                                        fontSize: 13,
+                                    }}
                                 >
-                                    <div className="truncate">
-                                        <span className="capitalize">{ch.side}</span>{' '}
-                                        <span className="font-medium capitalize">{ch.joint.replace('_', ' ')}</span>{' '}
-                                        <span className="text-gray-500 capitalize">{ch.movement.replace('_', ' ')}</span>
+                                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        <span style={{ textTransform: 'capitalize' }}>{ch.side}</span>{' '}
+                                        <span style={{ fontWeight: 500, textTransform: 'capitalize' }}>
+                                            {ch.joint.replace('_', ' ')}
+                                        </span>{' '}
+                                        <span style={{ color: 'var(--text-tertiary)', textTransform: 'capitalize' }}>
+                                            {ch.movement.replace('_', ' ')}
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <span className="font-mono text-xs">{ch.currentAngle.toFixed(0)}°</span>
-                                        <span
-                                            className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${STATE_STYLES[ch.state] ?? ''}`}
-                                        >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                                        <span style={{
+                                            fontFamily: 'var(--font-mono)',
+                                            fontVariantNumeric: 'tabular-nums',
+                                            fontSize: 12,
+                                        }}>
+                                            {ch.currentAngle.toFixed(0)}°
+                                        </span>
+                                        <span style={{
+                                            fontSize: 10,
+                                            padding: '2px 6px',
+                                            borderRadius: 'var(--radius-full)',
+                                            fontWeight: 500,
+                                            background: stateStyle.bg,
+                                            color: stateStyle.text,
+                                        }}>
                                             {ch.state}
                                         </span>
                                     </div>
@@ -192,33 +258,60 @@ export function LiveRomCapture({
 
                 {/* Auto-captured measurements */}
                 <section>
-                    <h3 className="text-xs font-semibold uppercase text-gray-500 mb-1">
+                    <h3 style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: 'var(--font-section-tracking)',
+                        color: 'var(--text-tertiary)',
+                        marginBottom: 'var(--space-1)',
+                    }}>
                         Captured ({captures.length})
                     </h3>
                     {captures.length === 0 && (
-                        <p className="text-xs text-gray-400 italic">
+                        <p style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
                             Measurements appear here once the angle stabilises.
                         </p>
                     )}
-                    <div className="space-y-1">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                         {captures.map((cap, i) => (
                             <div
                                 key={`${cap.joint}-${cap.movement}-${cap.side}-${cap.timestamp}`}
-                                className="flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-2 py-1.5 text-sm"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    borderRadius: 'var(--radius-md)',
+                                    border: '1px solid rgba(74,222,128,0.2)',
+                                    background: 'rgba(74,222,128,0.05)',
+                                    padding: '6px 8px',
+                                    fontSize: 13,
+                                }}
                             >
-                                <div className="flex items-center gap-1 truncate">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                                    <span className="capitalize">{cap.side}</span>{' '}
-                                    <span className="font-medium capitalize">{cap.joint.replace('_', ' ')}</span>
-                                    <span className="font-mono ml-1">{cap.romDegrees}°</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <CheckCircle2 size={14} style={{ color: 'rgba(74,222,128,0.8)', flexShrink: 0 }} />
+                                    <span style={{ textTransform: 'capitalize' }}>{cap.side}</span>{' '}
+                                    <span style={{ fontWeight: 500, textTransform: 'capitalize' }}>
+                                        {cap.joint.replace('_', ' ')}
+                                    </span>
+                                    <span style={{ fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums', marginLeft: 4 }}>
+                                        {cap.romDegrees}°
+                                    </span>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => removeCapture(i)}
-                                    className="text-gray-400 hover:text-red-500 p-0.5"
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: 'var(--text-muted)',
+                                        padding: 2,
+                                        display: 'flex',
+                                    }}
                                     aria-label="Remove capture"
                                 >
-                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <Trash2 size={14} />
                                 </button>
                             </div>
                         ))}
@@ -230,9 +323,21 @@ export function LiveRomCapture({
                     type="button"
                     onClick={finalize}
                     disabled={captures.length === 0}
-                    className="mt-auto flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="btn btn-primary"
+                    style={{
+                        marginTop: 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        padding: '10px 16px',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        opacity: captures.length === 0 ? 0.4 : 1,
+                        cursor: captures.length === 0 ? 'not-allowed' : 'pointer',
+                    }}
                 >
-                    <CameraIcon className="w-4 h-4" />
+                    <CameraIcon size={16} />
                     Complete ({captures.length} measurement{captures.length === 1 ? '' : 's'})
                 </button>
             </div>

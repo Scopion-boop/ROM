@@ -3,3 +3,8 @@ export { createDrizzleMeasurementRepo } from './measurement-repo';
 export { createDrizzleNoteRepo } from './note-repo';
 export { createDrizzleAuditRepo } from './audit-repo';
 export { createDrizzleUserRepo } from './user-repo';
+export { createDrizzleOrgRepo } from './org-repo';
+export { createDrizzleSubscriptionRepo } from './subscription-repo';
+export { createDrizzlePatientLinkRepo } from './patient-link-repo';
+export { createDrizzleStripeEventRepo } from './stripe-event-repo';
+export { createDrizzleClinicInviteRepo } from './clinic-invite-repo';

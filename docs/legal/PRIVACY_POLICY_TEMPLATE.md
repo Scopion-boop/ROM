@@ -9,7 +9,7 @@
 
 ## 1. Who We Are
 
-`[TBD — Company legal name]` ("we", "us", "our") operates the ROM Platform, a musculoskeletal range-of-motion measurement and clinical documentation tool.
+`[TBD — Company legal name]` ("we", "us", "our") operates the PhysioLens, a musculoskeletal range-of-motion measurement and clinical documentation tool.
 
 **Contact:** `[TBD — privacy@company.com, DPO name if applicable]`
 
