@@ -21,7 +21,7 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY apps/api ./apps/api
 COPY packages/shared-types ./packages/shared-types
-COPY tsconfig.json ./
+COPY tsconfig.base.json ./
 
 # Build TypeScript
 WORKDIR /app/apps/api
