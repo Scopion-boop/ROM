@@ -23,6 +23,11 @@ physiolens.com, www.physiolens.com {
 		reverse_proxy signaling:4001
 	}
 
+	# Next.js server-side API routes (must be before the /api/* catch-all)
+	handle /api/interpret {
+		reverse_proxy web:3000
+	}
+
 	# API requests — same-origin proxy to Express API
 	handle /api/* {
 		reverse_proxy api:4000
