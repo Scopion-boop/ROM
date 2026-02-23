@@ -70,6 +70,7 @@ describe('MeasurementPanel', () => {
                 deficitDegrees: 25,
                 withinNormal: false,
                 status: 'mild',
+                suspectAccuracy: false,
             },
         ];
         render(<MeasurementPanel measurements={measurements} />);
@@ -86,6 +87,7 @@ describe('NoteRenderer', () => {
             measurementCount: 2,
             deficitCount: 1,
             jointsCovered: ['shoulder'],
+            simplifiedText: 'Left Shoulder\n- Flexion 155°',
             sections: [
                 { id: 's1', type: 'header', title: 'ROM Examination', content: 'Header content' },
                 { id: 's2', type: 'summary', title: 'Summary', content: 'Overall summary' },
@@ -103,6 +105,7 @@ describe('NoteRenderer', () => {
             measurementCount: 1,
             deficitCount: 0,
             jointsCovered: ['shoulder'],
+            simplifiedText: '',
             sections: [
                 { id: 's1', type: 'interpretation', title: 'AI Interpretation', content: '[Placeholder: AI interpretation]' },
             ],

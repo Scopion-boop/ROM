@@ -137,7 +137,7 @@ export const commonSchemas = {
     confidenceScore: z.number().min(0).max(1, { message: 'Must be between 0 and 1' }),
 
     /** ROM degrees validation (0-360) */
-    romDegrees: z.number().min(0).max(360, { message: 'Must be between 0 and 360' }),
+    romDegrees: z.number().min(0).max(200, { message: 'Must be between 0 and 200' }),
 
     /** Side validation */
     side: z.enum(['left', 'right'], { message: 'Must be "left" or "right"' }),

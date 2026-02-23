@@ -16,6 +16,7 @@
  */
 
 import type { JointType, MovementType, CapturedMeasurement, Side } from '@physiolens/shared-types';
+import { getNormativeRange } from '@physiolens/shared-types';
 import { TemporalFilterBank } from './temporal-filter';
 import { computeMeasurement } from './joint-router';
 import type { PoseFrame } from './pose-estimator';
@@ -271,14 +272,25 @@ export class MovementDetector {
 
     /**
      * Emit an auto-capture event with a CapturedMeasurement.
+     * Clamps angle to physiological max if available — values beyond
+     * that are tracking errors.
      */
     private emitCapture(ch: ChannelInternal): void {
+        let romDegrees = Math.round(ch.peakAngle * 100) / 100;
+        let confidence = ch.confidence;
+
+        const range = getNormativeRange(ch.joint, ch.movement);
+        if (range && romDegrees > range.physiologicalMax) {
+            romDegrees = range.physiologicalMax;
+            confidence = Math.min(confidence, 0.5);
+        }
+
         const measurement: CapturedMeasurement = {
             joint: ch.joint,
             movement: ch.movement,
             side: ch.side as 'left' | 'right' | 'midline',
-            romDegrees: Math.round(ch.peakAngle * 100) / 100,
-            confidence: ch.confidence,
+            romDegrees,
+            confidence,
             timestamp: Date.now(),
         };
 

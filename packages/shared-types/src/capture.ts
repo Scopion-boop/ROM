@@ -29,7 +29,7 @@ export const CapturedMeasurementSchema = z.object({
     /** Body side */
     side: BodySide,
     /** Computed ROM angle in degrees */
-    romDegrees: z.number().min(0).max(360),
+    romDegrees: z.number().min(0).max(200),
     /** Confidence score 0–1 */
     confidence: z.number().min(0).max(1),
     /** Capture timestamp (Date.now()) */

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
     Activity,
     AlertTriangle,
@@ -11,10 +11,12 @@ import {
     Download,
     FileText,
     ListChecks,
+    RefreshCw,
     Shield,
     Sparkles,
     Stethoscope,
 } from 'lucide-react';
+import type { JointType } from '@physiolens/shared-types';
 import type { GeneratedNote, NoteSection } from '@/lib/note-generator';
 import { noteToPlainText } from '@/lib/note-generator';
 import type { EnrichedMeasurement } from '@/lib/rom-utils';
@@ -35,6 +37,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; track: string }>
 function sectionIcon(type: NoteSection['type']) {
     switch (type) {
         case 'header': return <FileText size={16} style={{ color: 'var(--accent)' }} />;
+        case 'gaps': return <AlertTriangle size={16} style={{ color: '#F59E0B' }} />;
         case 'joint_group': return <Activity size={16} style={{ color: 'var(--accent)' }} />;
         case 'summary': return <ListChecks size={16} style={{ color: 'var(--accent)' }} />;
         case 'interpretation': return <Brain size={16} style={{ color: '#a855f7' }} />;
@@ -182,16 +185,163 @@ function TextSection({ section }: Readonly<{ section: NoteSection }>) {
     );
 }
 
+// ─── Gaps Section with re-capture buttons ─────────────────────────
+
+function GapsSection({
+    section,
+    onRecapture,
+}: Readonly<{
+    section: NoteSection;
+    onRecapture?: (joint: JointType) => void;
+}>) {
+    // Extract joint names from the content lines (e.g. "  - Shoulder — not captured")
+    const jointPattern = /^\s+-\s+(.+?)\s+(?:—|–|-)/;
+
+    return (
+        <div style={{
+            padding: '12px 20px',
+            background: 'rgba(245,158,11,0.04)',
+            borderLeft: '3px solid #F59E0B',
+            borderRadius: 'var(--radius-sm)',
+            margin: '0 20px 8px',
+        }}>
+            {section.content.split('\n').map((line, i) => {
+                const match = line.match(jointPattern);
+                const isItemLine = line.startsWith('  -') || line.startsWith('  •');
+
+                // Try to extract a joint key for re-capture (convert "Shoulder" back to "shoulder")
+                const jointKey = match?.[1]
+                    ?.toLowerCase()
+                    .replace(/\s+/g, '_')
+                    .replace(/\s*\(.*\)/, '') as JointType | undefined;
+
+                return (
+                    <div key={i} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: isItemLine ? '4px 0' : '6px 0',
+                    }}>
+                        <pre style={{
+                            margin: 0,
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: 13,
+                            lineHeight: 1.6,
+                            whiteSpace: 'pre-wrap',
+                            color: isItemLine ? '#D97706' : 'var(--text-primary)',
+                            fontWeight: isItemLine ? 400 : 600,
+                        }}>
+                            {line}
+                        </pre>
+                        {isItemLine && jointKey && onRecapture && (
+                            <button
+                                type="button"
+                                onClick={() => onRecapture(jointKey)}
+                                className="btn-secondary"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                    fontSize: 11,
+                                    padding: '3px 10px',
+                                    flexShrink: 0,
+                                    marginLeft: 12,
+                                }}
+                            >
+                                <RefreshCw size={11} /> Re-capture
+                            </button>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+// ─── Simplified Text Box ──────────────────────────────────────────
+
+function SimplifiedTextBox({ text }: Readonly<{ text: string }>) {
+    const textRef = useRef<HTMLTextAreaElement>(null);
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = useCallback(async () => {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        globalThis.setTimeout(() => setCopied(false), 2000);
+    }, [text]);
+
+    return (
+        <div style={{
+            margin: '8px 20px 16px',
+            border: '1px solid var(--border-primary)',
+            borderRadius: 'var(--radius-md)',
+            overflow: 'hidden',
+        }}>
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                background: 'var(--bg-secondary)',
+                borderBottom: '1px solid var(--border-primary)',
+            }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                    Quick Copy — Paste into EMR
+                </span>
+                <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleCopy}
+                    style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        fontSize: 11,
+                        padding: '4px 10px',
+                    }}
+                >
+                    {copied
+                        ? (<><ClipboardCheck size={12} /> Copied!</>)
+                        : (<><Clipboard size={12} /> Copy</>)}
+                </button>
+            </div>
+            <textarea
+                ref={textRef}
+                readOnly
+                value={text}
+                onClick={() => textRef.current?.select()}
+                style={{
+                    width: '100%',
+                    minHeight: 140,
+                    padding: '12px 14px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: 13,
+                    lineHeight: 1.7,
+                    background: 'var(--bg-primary)',
+                    color: 'var(--text-primary)',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'vertical',
+                }}
+            />
+        </div>
+    );
+}
+
 // ─── Main NoteRenderer ─────────────────────────────────────────────
 
 export default function NoteRenderer({
     note,
+    measurements: _m,
     onRequestInterpretation,
+    onRecapture,
     isInterpreting,
     plan,
 }: Readonly<{
     note: GeneratedNote;
+    measurements?: EnrichedMeasurement[];
     onRequestInterpretation?: () => void;
+    onRecapture?: (joint: JointType) => void;
     isInterpreting?: boolean;
     plan?: string;
 }>) {
@@ -266,7 +416,9 @@ export default function NoteRenderer({
                         {/* Section body */}
                         {section.type === 'joint_group'
                             ? <div style={{ padding: '8px 20px 4px' }}><JointGroupCard section={section} /></div>
-                            : <TextSection section={section} />}
+                            : section.type === 'gaps'
+                                ? <GapsSection section={section} onRecapture={onRecapture} />
+                                : <TextSection section={section} />}
 
                         {/* AI interpretation button */}
                         {section.type === 'interpretation' && section.content.startsWith('[') && onRequestInterpretation && (
@@ -295,6 +447,11 @@ export default function NoteRenderer({
                     </div>
                 ))}
             </div>
+
+            {/* ─── Simplified Text Box ─── */}
+            {note.simplifiedText && (
+                <SimplifiedTextBox text={note.simplifiedText} />
+            )}
 
             {/* ─── Footer ─── */}
             <div style={{

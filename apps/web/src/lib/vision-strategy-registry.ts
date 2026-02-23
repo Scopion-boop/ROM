@@ -25,6 +25,8 @@ export interface VisionStrategyProps {
     joints?: JointType[];
     /** Ref to the shared WebcamCapture component for camera access */
     webcamRef: React.RefObject<WebcamCaptureHandle | null>;
+    /** Optional secondary (phone) camera stream for dual-camera fusion */
+    secondaryStream?: MediaStream | null;
     /** Called when all measurements are finalized */
     onComplete: (measurements: CapturedMeasurement[]) => void;
     /** Called on each individual capture event */

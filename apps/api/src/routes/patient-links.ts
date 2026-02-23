@@ -61,7 +61,7 @@ const measurementSchema = z.object({
     joint: z.string(),
     movement: z.string(),
     side: z.string(),
-    romDegrees: z.number().min(0).max(360),
+    romDegrees: z.number().min(0).max(200),
     confidence: z.number().min(0).max(1),
   })).min(1),
 });

@@ -20,6 +20,8 @@ export interface EnrichedMeasurement extends CapturedMeasurement {
     withinNormal: boolean | null;
     /** Status classification based on % of normal */
     status: 'normal' | 'mild' | 'moderate' | 'severe' | 'unknown';
+    /** True when measurement exceeds 120% of normal — likely a tracking error */
+    suspectAccuracy: boolean;
 }
 
 /**
@@ -83,16 +85,19 @@ export function enrichWithNormative(measurements: CapturedMeasurement[]): Enrich
                 deficitDegrees: null,
                 withinNormal: null,
                 status: 'unknown' as const,
+                suspectAccuracy: false,
             };
         }
 
+        const pct = comparison.percentOfNormal;
         return {
             ...m,
             normalRomDegrees: comparison.normativeRange.maxDegrees,
-            percentOfNormal: comparison.percentOfNormal,
+            percentOfNormal: pct,
             deficitDegrees: comparison.deficitDegrees,
             withinNormal: comparison.withinNormal,
-            status: classifyStatus(comparison.percentOfNormal),
+            status: classifyStatus(pct),
+            suspectAccuracy: pct > 120,
         };
     });
 }

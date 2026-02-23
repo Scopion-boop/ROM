@@ -43,6 +43,8 @@ interface PoseOverlayProps {
     className?: string;
     /** Visibility threshold — landmarks below this are dimmed */
     visibilityThreshold?: number;
+    /** When true, fills canvas with black background (skeleton-only mode, no video underneath) */
+    standalone?: boolean;
 }
 
 // MediaPipe Pose connections (pairs of landmark indices)
@@ -77,6 +79,7 @@ export function PoseOverlay({
     angles = [],
     className = '',
     visibilityThreshold = 0.5,
+    standalone = false,
 }: PoseOverlayProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animRef = useRef<number>(0);
@@ -90,11 +93,16 @@ export function PoseOverlay({
         if (!ctx) return;
 
         const draw = () => {
-            // Match canvas size to video
-            canvas.width = video.videoWidth || video.clientWidth;
-            canvas.height = video.videoHeight || video.clientHeight;
+            // Match canvas size to video (or parent container in standalone mode)
+            canvas.width = video.videoWidth || video.clientWidth || 640;
+            canvas.height = video.videoHeight || video.clientHeight || 480;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (standalone) {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
 
             if (!landmarks || landmarks.length < 33) {
                 animRef.current = requestAnimationFrame(draw);
@@ -188,12 +196,14 @@ export function PoseOverlay({
 
         draw();
         return () => cancelAnimationFrame(animRef.current);
-    }, [videoRef, landmarks, angles, visibilityThreshold]);
+    }, [videoRef, landmarks, angles, visibilityThreshold, standalone]);
 
     return (
         <canvas
             ref={canvasRef}
-            className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
+            className={standalone
+                ? `pointer-events-none h-full w-full ${className}`
+                : `pointer-events-none absolute inset-0 h-full w-full ${className}`}
             style={{ transform: 'scaleX(-1)' }}
         />
     );

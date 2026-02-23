@@ -3,9 +3,10 @@
  *
  * Takes an array of EnrichedMeasurement and produces:
  *   1. A header section with exam metadata
- *   2. Per-joint measurement tables with normative comparison
- *   3. A summary of deficits found
- *   4. Placeholder for clinical interpretation (filled by LLM later)
+ *   2. Gaps section highlighting unassessed joints or suspect data
+ *   3. Per-joint measurement tables with normative comparison
+ *   4. A summary of deficits found
+ *   5. Placeholder for clinical interpretation (filled by LLM later)
  */
 
 import type { EnrichedMeasurement } from './rom-utils';
@@ -14,7 +15,7 @@ import type { EnrichedMeasurement } from './rom-utils';
 
 export interface NoteSection {
     id: string;
-    type: 'header' | 'joint_group' | 'summary' | 'interpretation' | 'recommendations' | 'disclaimer';
+    type: 'header' | 'gaps' | 'joint_group' | 'summary' | 'interpretation' | 'recommendations' | 'disclaimer';
     title: string;
     content: string;
     measurements?: EnrichedMeasurement[];
@@ -26,6 +27,8 @@ export interface GeneratedNote {
     measurementCount: number;
     deficitCount: number;
     jointsCovered: string[];
+    /** Simplified copy-paste text grouped by joint */
+    simplifiedText: string;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────
@@ -76,6 +79,55 @@ function buildHeaderSection(
         content: [patientLine, providerLine, dateLine, `Measurements: ${count}`]
             .filter(Boolean)
             .join('\n'),
+    };
+}
+
+function buildGapsSection(
+    idx: number,
+    measurements: EnrichedMeasurement[],
+    selectedJoints?: string[],
+): NoteSection | null {
+    const lines: string[] = [];
+
+    // Flag joints that were selected but have no measurements
+    if (selectedJoints && selectedJoints.length > 0) {
+        const capturedJoints = new Set<string>(measurements.map((m) => m.joint));
+        const missing = selectedJoints.filter((j) => !capturedJoints.has(j));
+        if (missing.length > 0) {
+            lines.push('Joints not assessed:');
+            for (const j of missing) {
+                lines.push(`  - ${formatJoint(j)} — not captured`);
+            }
+        }
+    }
+
+    // Flag measurements with low confidence or suspect accuracy
+    const lowConfidence = measurements.filter((m) => m.confidence < 0.7);
+    const suspect = measurements.filter((m) => m.suspectAccuracy);
+
+    if (lowConfidence.length > 0) {
+        if (lines.length > 0) lines.push('');
+        lines.push('Inadequate data (low confidence):');
+        for (const m of lowConfidence) {
+            lines.push(`  - ${formatJoint(m.joint)} ${formatMovement(m.movement)} (${m.side}) — confidence ${Math.round(m.confidence * 100)}%, consider re-capture`);
+        }
+    }
+
+    if (suspect.length > 0) {
+        if (lines.length > 0) lines.push('');
+        lines.push('Suspect accuracy (exceeds physiological range):');
+        for (const m of suspect) {
+            lines.push(`  - ${formatJoint(m.joint)} ${formatMovement(m.movement)} (${m.side}) — ${m.romDegrees}° (${m.percentOfNormal}% of normal), likely tracking error`);
+        }
+    }
+
+    if (lines.length === 0) return null;
+
+    return {
+        id: `section-${idx}`,
+        type: 'gaps',
+        title: 'Data Quality Flags',
+        content: lines.join('\n'),
     };
 }
 
@@ -138,16 +190,59 @@ function buildSummaryContent(measurements: Readonly<EnrichedMeasurement[]>): str
     return lines.join('\n');
 }
 
+// ─── Simplified Text Generator ────────────────────────────────────
+
+/**
+ * Generate a simplified copy-paste text format:
+ *
+ * Left Shoulder
+ * - Flexion 155°
+ * - Extension 40°
+ *
+ * Right Knee
+ * - Flexion 130°
+ */
+export function generateSimplifiedText(measurements: EnrichedMeasurement[]): string {
+    // Group by (side + joint)
+    const groups = new Map<string, EnrichedMeasurement[]>();
+    for (const m of measurements) {
+        const key = `${m.side}:${m.joint}`;
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push(m);
+    }
+
+    const blocks: string[] = [];
+    for (const [, groupMeasurements] of groups) {
+        const first = groupMeasurements[0]!;
+        const side = first.side === 'midline' ? '' : `${first.side.charAt(0).toUpperCase() + first.side.slice(1)} `;
+        const header = `${side}${formatJoint(first.joint)}`;
+        const lines = groupMeasurements.map(
+            (m) => `- ${formatMovement(m.movement)} ${m.romDegrees}°`,
+        );
+        blocks.push(`${header}\n${lines.join('\n')}`);
+    }
+
+    return blocks.join('\n\n');
+}
+
 // ─── Generator ─────────────────────────────────────────────────────
 
 export function generateNote(
     measurements: EnrichedMeasurement[],
     patientContext?: { name?: string; dob?: string; provider?: string },
+    selectedJoints?: string[],
 ): GeneratedNote {
     const now = new Date().toISOString();
     let sectionIdx = 0;
 
     const sections: NoteSection[] = [buildHeaderSection(sectionIdx++, measurements.length, patientContext)];
+
+    // Gaps section (if any quality issues found)
+    const gapsSection = buildGapsSection(sectionIdx, measurements, selectedJoints);
+    if (gapsSection) {
+        sectionIdx++;
+        sections.push(gapsSection);
+    }
 
     // Group by joint
     const byJoint = new Map<string, EnrichedMeasurement[]>();
@@ -176,6 +271,7 @@ export function generateNote(
         measurementCount: measurements.length,
         deficitCount: totalDeficits.length,
         jointsCovered: [...byJoint.keys()].map(formatJoint),
+        simplifiedText: generateSimplifiedText(measurements),
     };
 }
 

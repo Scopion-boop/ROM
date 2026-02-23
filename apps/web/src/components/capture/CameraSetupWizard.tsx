@@ -54,11 +54,13 @@ const REGIONS = ['upper_extremity', 'lower_extremity', 'spine'] as const;
 
 export default function CameraSetupWizard({
     onComplete,
+    initialJoints,
 }: Readonly<{
     onComplete: (measurements: CapturedMeasurement[]) => void;
+    initialJoints?: JointType[];
 }>) {
-    const [step, setStep] = useState<Step>('select_joint');
-    const [selectedJoints, setSelectedJoints] = useState<JointType[]>([]);
+    const [step, setStep] = useState<Step>(initialJoints ? 'camera_setup' : 'select_joint');
+    const [selectedJoints, setSelectedJoints] = useState<JointType[]>(initialJoints ?? []);
     const [measurements, setMeasurements] = useState<CapturedMeasurement[]>([]);
     const [landmarks, setLandmarks] = useState<OverlayLandmark[] | null>(null);
     const [angles, setAngles] = useState<AngleIndicator[]>([]);
@@ -366,40 +368,46 @@ export default function CameraSetupWizard({
         );
     }
 
-    // ── Step 3: Capture (WebcamCapture + PoseOverlay + GuidedCaptureFlow)
+    // ── Step 3: Capture (hidden WebcamCapture + standalone PoseOverlay)
     if (step === 'capture') {
         return (
             <div
                 data-testid="step-capture"
                 style={{ display: 'flex', gap: 20, width: '100%' }}
             >
-                {/* Left: Camera feed with pose overlay */}
+                {/* Hidden webcam — still needed for pose detection */}
+                <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
+                    <WebcamCapture ref={webcamRef} />
+                </div>
+
+                {/* Skeleton-only view (black background, stick figure) */}
                 <div
                     style={{
                         flex: '0 0 60%',
-                        position: 'relative',
+                        minHeight: 480,
                         borderRadius: 'var(--radius-lg)',
                         overflow: 'hidden',
                         border: '1px solid var(--border-primary)',
                         background: '#000',
                     }}
                 >
-                    <WebcamCapture ref={webcamRef} />
                     {webcamRef.current?.videoRef && (
                         <PoseOverlay
                             videoRef={webcamRef.current.videoRef}
                             landmarks={landmarks}
                             angles={angles}
+                            standalone
                         />
                     )}
                 </div>
 
-                {/* Right: Active vision strategy panel */}
+                {/* Right: Vision strategy panel (simplified) */}
                 <div style={{ flex: '1 1 40%', minWidth: 300 }}>
                     {ActiveComponent ? (
                         <ActiveComponent
                             joints={selectedJoints.length > 0 ? selectedJoints : undefined}
                             webcamRef={webcamRef}
+                            secondaryStream={secondaryStream}
                             onComplete={handleCaptureComplete}
                             onLandmarksUpdate={setLandmarks}
                             onAngleUpdate={setAngles}

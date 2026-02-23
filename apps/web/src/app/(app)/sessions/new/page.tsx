@@ -3,16 +3,15 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraSetupWizard from '@/components/capture/CameraSetupWizard';
-import type { CapturedMeasurement } from '@physiolens/shared-types';
-import MeasurementPanel from '@/components/capture/MeasurementPanel';
+import type { CapturedMeasurement, JointType } from '@physiolens/shared-types';
 import NoteRenderer from '@/components/notes/NoteRenderer';
-import { ArrowRight, Camera, ClipboardList, FileText } from 'lucide-react';
+import { Camera, FileText } from 'lucide-react';
 import { processCaptures, type EnrichedMeasurement } from '@/lib/rom-utils';
 import { generateNote, type GeneratedNote, type NoteSection } from '@/lib/note-generator';
 import { usePlan } from '@/lib/plan-context';
 import { UpgradePrompt } from '@/components/billing/UpgradePrompt';
 
-type SessionPhase = 'setup' | 'results' | 'note';
+type SessionPhase = 'setup' | 'note';
 
 interface LlmRecommendation {
     name: string;
@@ -68,7 +67,6 @@ function applyInterpretationError(section: NoteSection, message: string): NoteSe
 
 const STEPS = [
     { key: 'setup', label: 'Capture', icon: Camera },
-    { key: 'results', label: 'Results', icon: ClipboardList },
     { key: 'note', label: 'Clinical Note', icon: FileText },
 ] as const;
 
@@ -85,20 +83,32 @@ export default function NewSessionPage() {
     const [isInterpreting, setIsInterpreting] = useState(false);
     const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
     const [sessionDurationMin, setSessionDurationMin] = useState<number | null>(null);
+    const [recaptureJoint, setRecaptureJoint] = useState<JointType | null>(null);
     const sessionStartRef = useRef(Date.now());
+    const allCapturesRef = useRef<CapturedMeasurement[]>([]);
     const { plan } = usePlan();
 
+    // Go directly from capture → clinical note (skip results)
     const handleWizardComplete = (measurements: CapturedMeasurement[]) => {
-        setEnrichedMeasurements(processCaptures(measurements));
-        setPhase('results');
-    };
+        // Merge with any previous captures (from re-capture flow)
+        const merged = [...allCapturesRef.current, ...measurements];
+        allCapturesRef.current = merged;
 
-    const handleProceedToNote = () => {
+        const enriched = processCaptures(merged);
+        setEnrichedMeasurements(enriched);
+
         const durationMin = Math.round((Date.now() - sessionStartRef.current) / 60000);
         setSessionDurationMin(durationMin);
-        setGeneratedNote(generateNote(enrichedMeasurements));
+        setGeneratedNote(generateNote(enriched));
+        setRecaptureJoint(null);
         setPhase('note');
     };
+
+    // Re-capture a specific joint — go back to capture pre-configured
+    const handleRecapture = useCallback((joint: JointType) => {
+        setRecaptureJoint(joint);
+        setPhase('setup');
+    }, []);
 
     const handleRequestInterpretation = useCallback(async () => {
         if (enrichedMeasurements.length === 0 || !generatedNote) return;
@@ -122,7 +132,6 @@ export default function NewSessionPage() {
 
             const data = await res.json() as InterpretationPayload;
 
-            // Update interpretation and recommendations sections
             setGeneratedNote((prev) => {
                 if (!prev) return prev;
                 return {
@@ -232,41 +241,17 @@ export default function NewSessionPage() {
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     >
                         <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 8, letterSpacing: '-0.03em' }}>
-                            New Examination Session
+                            {recaptureJoint ? 'Re-capture' : 'New Examination Session'}
                         </h1>
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
-                            Select joints, position camera, and capture measurements.
+                            {recaptureJoint
+                                ? `Re-capturing measurements for ${recaptureJoint.replace('_', ' ')}. Previous measurements for other joints are preserved.`
+                                : 'Select joints, position camera, and capture measurements.'}
                         </p>
-                        <CameraSetupWizard onComplete={handleWizardComplete} />
-                    </motion.div>
-                )}
-
-                {phase === 'results' && (
-                    <motion.div
-                        key="results"
-                        variants={pageVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                        <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 8, letterSpacing: '-0.03em' }}>
-                            Measurement Results
-                        </h1>
-                        <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
-                            Review captured ROM data before generating the clinical note.
-                        </p>
-                        <MeasurementPanel measurements={enrichedMeasurements} />
-                        <div style={{ marginTop: 24 }}>
-                            <button
-                                className="btn-primary btn-lg"
-                                onClick={handleProceedToNote}
-                                data-testid="btn-proceed-note"
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                            >
-                                Proceed to Note <ArrowRight size={16} />
-                            </button>
-                        </div>
+                        <CameraSetupWizard
+                            onComplete={handleWizardComplete}
+                            initialJoints={recaptureJoint ? [recaptureJoint] : undefined}
+                        />
                     </motion.div>
                 )}
 
@@ -288,12 +273,14 @@ export default function NewSessionPage() {
                             </p>
                         )}
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
-                            Edit, save, or finalize the auto-generated clinical note.
+                            Review the auto-generated clinical note. Flagged items can be re-captured.
                         </p>
                         {generatedNote && (
                             <NoteRenderer
                                 note={generatedNote}
+                                measurements={enrichedMeasurements}
                                 onRequestInterpretation={handleRequestInterpretation}
+                                onRecapture={handleRecapture}
                                 isInterpreting={isInterpreting}
                                 plan={plan}
                             />
