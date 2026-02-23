@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, FileText, TrendingUp, Check, ChevronDown, AlertCircle, Clock, FileX, Shield } from 'lucide-react';
 
@@ -113,7 +114,7 @@ export default function LandingPage() {
             >
               Sign In
             </a>
-            <a
+            <Link
               href="/sessions/new"
               style={{
                 padding: '0.5rem 1.5rem',
@@ -140,7 +141,7 @@ export default function LandingPage() {
               }}
             >
               Start Free
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
@@ -180,7 +181,7 @@ export default function LandingPage() {
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '2rem', flexWrap: 'wrap' }}>
-            <a
+            <Link
               href="/sessions/new"
               style={{
                 padding: '1rem 2.5rem',
@@ -207,7 +208,7 @@ export default function LandingPage() {
               }}
             >
               Start Free — No Card Required
-            </a>
+            </Link>
             <button
               onClick={() => scrollToSection('features')}
               style={{
@@ -569,7 +570,7 @@ export default function LandingPage() {
                   <span style={{ color: 'var(--text-secondary)' }}>Watermarked PDF exports</span>
                 </li>
               </ul>
-              <a
+              <Link
                 href="/sessions/new"
                 style={{
                   display: 'block',
@@ -595,7 +596,7 @@ export default function LandingPage() {
                 }}
               >
                 Start Free
-              </a>
+              </Link>
             </div>
 
             {/* Clinician (Pro) */}
@@ -660,7 +661,7 @@ export default function LandingPage() {
                   <span style={{ color: 'var(--text-secondary)' }}>PDF without watermark</span>
                 </li>
               </ul>
-              <a
+              <Link
                 href="/sessions/new"
                 style={{
                   display: 'block',
@@ -688,7 +689,7 @@ export default function LandingPage() {
                 }}
               >
                 Start Free Trial
-              </a>
+              </Link>
             </div>
 
             {/* Practice */}
