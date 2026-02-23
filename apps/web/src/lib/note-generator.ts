@@ -10,6 +10,7 @@
  */
 
 import type { EnrichedMeasurement } from './rom-utils';
+import { getNormativeRange } from '@physiolens/shared-types';
 
 // ─── Types ─────────────────────────────────────────────────────────
 
@@ -216,9 +217,11 @@ export function generateSimplifiedText(measurements: EnrichedMeasurement[]): str
         const first = groupMeasurements[0]!;
         const side = first.side === 'midline' ? '' : `${first.side.charAt(0).toUpperCase() + first.side.slice(1)} `;
         const header = `${side}${formatJoint(first.joint)}`;
-        const lines = groupMeasurements.map(
-            (m) => `- ${formatMovement(m.movement)} ${m.romDegrees}°`,
-        );
+        const lines = groupMeasurements.map((m) => {
+            const range = getNormativeRange(m.joint, m.movement);
+            const normalSuffix = range ? ` (normal: ${range.minDegrees}-${range.maxDegrees}\u00B0)` : '';
+            return `- ${formatMovement(m.movement)} ${m.romDegrees}\u00B0${normalSuffix}`;
+        });
         blocks.push(`${header}\n${lines.join('\n')}`);
     }
 

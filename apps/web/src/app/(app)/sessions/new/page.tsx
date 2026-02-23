@@ -1,69 +1,15 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraSetupWizard from '@/components/capture/CameraSetupWizard';
-import type { CapturedMeasurement, JointType } from '@physiolens/shared-types';
+import type { CapturedMeasurement } from '@physiolens/shared-types';
 import NoteRenderer from '@/components/notes/NoteRenderer';
-import { Camera, FileText } from 'lucide-react';
+import { Camera, FileText, Save, CheckCircle2 } from 'lucide-react';
 import { processCaptures, type EnrichedMeasurement } from '@/lib/rom-utils';
-import { generateNote, type GeneratedNote, type NoteSection } from '@/lib/note-generator';
-import { usePlan } from '@/lib/plan-context';
-import { UpgradePrompt } from '@/components/billing/UpgradePrompt';
+import { generateNote, type GeneratedNote } from '@/lib/note-generator';
 
 type SessionPhase = 'setup' | 'note';
-
-interface LlmRecommendation {
-    name: string;
-    purpose: string;
-    rationale: string;
-    priority: string;
-}
-
-interface JointTestGroup {
-    joint: string;
-    tests: { name: string; purpose: string; indication: string; evidence?: string }[];
-}
-
-function formatRecommendation(r: LlmRecommendation, idx: number): string {
-    return `${idx + 1}. ${r.name} [${r.priority.toUpperCase()}]\n   Purpose: ${r.purpose}\n   Rationale: ${r.rationale}`;
-}
-
-function formatTestEvidence(t: { name: string; purpose: string; evidence?: string }): string {
-    const suffix = t.evidence ? ` (${t.evidence})` : '';
-    return `  * ${t.name}: ${t.purpose}${suffix}`;
-}
-
-function formatTestGroup(jt: JointTestGroup): string {
-    const header = `\n-- ${jt.joint.charAt(0).toUpperCase() + jt.joint.slice(1)} Special Tests --`;
-    const tests = jt.tests.map((t) => formatTestEvidence(t)).join('\n');
-    return `${header}\n${tests}`;
-}
-
-interface InterpretationPayload {
-    interpretation: string;
-    recommendations: LlmRecommendation[];
-    clinicalTests: JointTestGroup[];
-}
-
-function applyInterpretation(section: NoteSection, payload: InterpretationPayload): NoteSection {
-    if (section.type === 'interpretation') {
-        return { ...section, content: payload.interpretation };
-    }
-    if (section.type === 'recommendations') {
-        const recLines = payload.recommendations.map((r, i) => formatRecommendation(r, i)).join('\n\n');
-        const testLines = payload.clinicalTests.map((g) => formatTestGroup(g)).join('\n');
-        return { ...section, content: `${recLines}\n${testLines}` };
-    }
-    return section;
-}
-
-function applyInterpretationError(section: NoteSection, message: string): NoteSection {
-    if (section.type === 'interpretation') {
-        return { ...section, content: `[Error: ${message}. Check console for details.]` };
-    }
-    return section;
-}
 
 const STEPS = [
     { key: 'setup', label: 'Capture', icon: Camera },
@@ -78,81 +24,67 @@ const pageVariants = {
 
 export default function NewSessionPage() {
     const [phase, setPhase] = useState<SessionPhase>('setup');
-    const [enrichedMeasurements, setEnrichedMeasurements] = useState<EnrichedMeasurement[]>([]);
     const [generatedNote, setGeneratedNote] = useState<GeneratedNote | null>(null);
-    const [isInterpreting, setIsInterpreting] = useState(false);
-    const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+    const [enrichedMeasurements, setEnrichedMeasurements] = useState<EnrichedMeasurement[]>([]);
     const [sessionDurationMin, setSessionDurationMin] = useState<number | null>(null);
-    const [recaptureJoint, setRecaptureJoint] = useState<JointType | null>(null);
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
     const sessionStartRef = useRef(Date.now());
-    const allCapturesRef = useRef<CapturedMeasurement[]>([]);
-    const { plan } = usePlan();
 
-    // Go directly from capture → clinical note (skip results)
     const handleWizardComplete = (measurements: CapturedMeasurement[]) => {
-        // Merge with any previous captures (from re-capture flow)
-        const merged = [...allCapturesRef.current, ...measurements];
-        allCapturesRef.current = merged;
-
-        const enriched = processCaptures(merged);
+        const enriched = processCaptures(measurements);
         setEnrichedMeasurements(enriched);
-
         const durationMin = Math.round((Date.now() - sessionStartRef.current) / 60000);
         setSessionDurationMin(durationMin);
         setGeneratedNote(generateNote(enriched));
-        setRecaptureJoint(null);
         setPhase('note');
     };
 
-    // Re-capture a specific joint — go back to capture pre-configured
-    const handleRecapture = useCallback((joint: JointType) => {
-        setRecaptureJoint(joint);
-        setPhase('setup');
-    }, []);
-
-    const handleRequestInterpretation = useCallback(async () => {
-        if (enrichedMeasurements.length === 0 || !generatedNote) return;
-        if (plan === 'free') {
-            setShowUpgradePrompt(true);
-            return;
-        }
-        setIsInterpreting(true);
-
+    const handleSave = async () => {
+        const name = window.prompt('Enter a name for this session:', 'Session ' + new Date().toLocaleDateString());
+        if (!name) return;
+        setSaving(true);
         try {
-            const res = await fetch('/api/interpret', {
+            const joints = [...new Set(enrichedMeasurements.map(m => m.joint))];
+            const res = await fetch('/api/sessions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ measurements: enrichedMeasurements }),
+                credentials: 'include',
+                body: JSON.stringify({ joints, patientId: name }),
             });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error ?? `API error ${res.status}`);
+            if (res.status === 402) {
+                alert('Free plan limited to 100 saved sessions. Upgrade to save more.');
+                return;
             }
+            if (!res.ok) throw new Error('Failed to create session');
+            const session = await res.json();
 
-            const data = await res.json() as InterpretationPayload;
-
-            setGeneratedNote((prev) => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    sections: prev.sections.map((s) => applyInterpretation(s, data)),
-                };
-            });
+            // Save each measurement
+            for (const m of enrichedMeasurements) {
+                await fetch(`/api/sessions/${session.id}/measurements`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        joint: m.joint,
+                        movement: m.movement,
+                        side: m.side,
+                        romDegrees: m.romDegrees,
+                        confidenceScore: m.confidence ?? 0,
+                        qualityFlags: [],
+                        algorithmVersion: 'v1.0',
+                        captureDurationMs: 0,
+                    }),
+                });
+            }
+            setSaved(true);
         } catch (err) {
-            console.error('Interpretation failed:', err);
-            const msg = err instanceof Error ? err.message : 'Failed to generate interpretation';
-            setGeneratedNote((prev) => {
-                if (!prev) return prev;
-                return {
-                    ...prev,
-                    sections: prev.sections.map((s) => applyInterpretationError(s, msg)),
-                };
-            });
+            console.error('Save failed:', err);
+            alert('Failed to save session. Please try again.');
         } finally {
-            setIsInterpreting(false);
+            setSaving(false);
         }
-    }, [enrichedMeasurements, generatedNote, plan]);
+    };
 
     const currentStep = STEPS.findIndex((s) => s.key === phase);
 
@@ -241,17 +173,12 @@ export default function NewSessionPage() {
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     >
                         <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: 8, letterSpacing: '-0.03em' }}>
-                            {recaptureJoint ? 'Re-capture' : 'New Examination Session'}
+                            New Examination Session
                         </h1>
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
-                            {recaptureJoint
-                                ? `Re-capturing measurements for ${recaptureJoint.replace('_', ' ')}. Previous measurements for other joints are preserved.`
-                                : 'Select joints, position camera, and capture measurements.'}
+                            Select joints, position camera, and capture measurements.
                         </p>
-                        <CameraSetupWizard
-                            onComplete={handleWizardComplete}
-                            initialJoints={recaptureJoint ? [recaptureJoint] : undefined}
-                        />
+                        <CameraSetupWizard onComplete={handleWizardComplete} />
                     </motion.div>
                 )}
 
@@ -273,29 +200,39 @@ export default function NewSessionPage() {
                             </p>
                         )}
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
-                            Review the auto-generated clinical note. Flagged items can be re-captured.
+                            Copy the note below into your EMR.
                         </p>
                         {generatedNote && (
-                            <NoteRenderer
-                                note={generatedNote}
-                                measurements={enrichedMeasurements}
-                                onRequestInterpretation={handleRequestInterpretation}
-                                onRecapture={handleRecapture}
-                                isInterpreting={isInterpreting}
-                                plan={plan}
-                            />
+                            <NoteRenderer note={generatedNote} />
                         )}
+                        <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+                            <button
+                                type="button"
+                                onClick={handleSave}
+                                disabled={saving || saved}
+                                className="btn btn-primary"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    padding: '12px 24px',
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    opacity: saved ? 0.6 : 1,
+                                }}
+                            >
+                                {saved ? (
+                                    <><CheckCircle2 size={16} /> Saved</>
+                                ) : saving ? (
+                                    <>Saving...</>
+                                ) : (
+                                    <><Save size={16} /> Save Session</>
+                                )}
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {showUpgradePrompt && (
-                <UpgradePrompt
-                    feature="AI Clinical Interpretation"
-                    requiredPlan="pro"
-                    onDismiss={() => setShowUpgradePrompt(false)}
-                />
-            )}
         </main>
     );
 }

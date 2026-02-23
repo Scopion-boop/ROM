@@ -16,7 +16,18 @@ sessionRouter.use(requireAuth);
 sessionRouter.post('/', validateBody(createSessionSchema), async (req: Request, res: Response): Promise<void> => {
     const { joints, patientId } = req.body;
 
-    const { sessions, audit } = getRepos();
+    // Check free-tier session limit
+    const { sessions, audit, subscriptions } = getRepos();
+    const sub = await subscriptions.getActiveByOrgId(req.user!.organizationId);
+    const isPaid = sub && ['solo', 'practice', 'enterprise'].includes(sub.plan);
+    if (!isPaid) {
+        const sessionCount = await sessions.countByOrg(req.user!.organizationId);
+        if (sessionCount >= 100) {
+            res.status(402).json({ error: 'SESSION_LIMIT_REACHED', message: 'Free plan limited to 100 sessions. Upgrade to continue.' });
+            return;
+        }
+    }
+
     const session = await sessions.create({
         organizationId: req.user!.organizationId,
         clinicianId: req.user!.userId,

@@ -66,6 +66,9 @@ export interface UserRecord {
     passwordHash: string;
     displayName?: string;
     role: string;
+    onboardingCompleted: boolean;
+    country?: string;
+    specialty?: string;
 }
 
 // ── V2 Commercial Record Types ──────────────────────────────────
@@ -130,6 +133,8 @@ export interface SessionRepo {
 
     updateStatus(id: string, status: string): Promise<SessionRecord | undefined>;
 
+    countByOrg(organizationId: string): Promise<number>;
+
     /** Test helper */
     _clear(): Promise<void>;
 }
@@ -190,6 +195,8 @@ export interface UserRepo {
     getByEmail(email: string): Promise<UserRecord | undefined>;
 
     listByOrg(organizationId: string): Promise<UserRecord[]>;
+
+    update(id: string, data: Partial<Pick<UserRecord, 'displayName' | 'onboardingCompleted' | 'country' | 'specialty'>>): Promise<UserRecord | undefined>;
 
     /** Test helper */
     _clear(): Promise<void>;

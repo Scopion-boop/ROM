@@ -34,6 +34,10 @@ export function createMemorySessionRepo(): SessionRepo {
             return session;
         },
 
+        async countByOrg(organizationId) {
+            return [...store.values()].filter((s) => s.organizationId === organizationId).length;
+        },
+
         async _clear() {
             store.clear();
         },

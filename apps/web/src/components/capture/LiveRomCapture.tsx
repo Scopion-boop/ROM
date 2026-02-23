@@ -187,24 +187,88 @@ export function LiveRomCapture({
                 </div>
             )}
 
-            {/* Dual Camera Active indicator */}
+            {/* Dual Camera status card */}
+            {secondaryStream && !dualActive && (
+                <>
+                    <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 14,
+                        padding: '14px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        background: 'rgba(245,158,11,0.08)',
+                        border: '1px solid rgba(245,158,11,0.25)',
+                    }}>
+                        <div style={{
+                            flexShrink: 0,
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            background: 'rgba(245,158,11,0.15)',
+                            border: '1px solid rgba(245,158,11,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            <Smartphone size={20} style={{ color: 'rgba(245,158,11,0.9)' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1 }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(245,158,11,0.95)' }}>
+                                Phone Connected — Waiting for Landmarks
+                            </span>
+                            <span style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                                Position the patient in view of both cameras to enable 3D fusion.
+                            </span>
+                        </div>
+                    </div>
+                </>
+            )}
             {dualActive && (
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    padding: '8px 14px',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'rgba(99,102,241,0.08)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: '#818cf8',
-                }}>
-                    <Smartphone size={14} />
-                    Dual Camera Active — fusing landmarks
-                </div>
+                <>
+                    <style>{`@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: 14,
+                        padding: '14px 16px',
+                        borderRadius: 'var(--radius-md)',
+                        background: 'rgba(34,197,94,0.08)',
+                        border: '1px solid rgba(34,197,94,0.25)',
+                    }}>
+                        <div style={{
+                            flexShrink: 0,
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            background: 'rgba(34,197,94,0.15)',
+                            border: '1px solid rgba(34,197,94,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                            <Smartphone size={20} style={{ color: 'rgba(34,197,94,0.9)' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1 }}>
+                            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(34,197,94,0.95)' }}>
+                                Dual Camera Active — 3D Triangulation
+                            </span>
+                            <span style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                                Phone camera landmarks are being fused for improved measurement accuracy.
+                            </span>
+                        </div>
+                        <div style={{
+                            flexShrink: 0,
+                            width: 10,
+                            height: 10,
+                            borderRadius: '50%',
+                            background: 'rgba(34,197,94,0.9)',
+                            animation: 'pulse 1.5s ease-in-out infinite',
+                        }} />
+                    </div>
+                </>
             )}
 
             {/* Capture count badge */}

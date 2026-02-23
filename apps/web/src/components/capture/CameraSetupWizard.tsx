@@ -5,7 +5,6 @@
  *   1. select_joint  – choose which joints (typed JointType) to measure
  *   2. camera_setup  – live WebcamCapture preview & positioning
  *   3. capture       – GuidedCaptureFlow with WebcamCapture + PoseOverlay
- *   4. review        – table of CapturedMeasurement[] before note generation
  */
 
 'use client';
@@ -17,7 +16,6 @@ import {
     ArrowRight,
     ArrowLeft,
     Play,
-    RotateCcw,
 } from 'lucide-react';
 import {
     type JointType,
@@ -40,7 +38,7 @@ import '../../lib/strategies';
 
 // ─── Constants ─────────────────────────────────────────────────────
 
-type Step = 'select_joint' | 'camera_setup' | 'phone_pair' | 'capture' | 'review';
+type Step = 'select_joint' | 'camera_setup' | 'phone_pair' | 'capture';
 
 const REGION_LABELS: Record<string, string> = {
     upper_extremity: 'Upper Extremity',
@@ -61,7 +59,6 @@ export default function CameraSetupWizard({
 }>) {
     const [step, setStep] = useState<Step>(initialJoints ? 'camera_setup' : 'select_joint');
     const [selectedJoints, setSelectedJoints] = useState<JointType[]>(initialJoints ?? []);
-    const [measurements, setMeasurements] = useState<CapturedMeasurement[]>([]);
     const [landmarks, setLandmarks] = useState<OverlayLandmark[] | null>(null);
     const [angles, setAngles] = useState<AngleIndicator[]>([]);
     const [strategyKey, setStrategyKey] = useState<string>(getDefaultStrategyKey());
@@ -81,9 +78,8 @@ export default function CameraSetupWizard({
     };
 
     const handleCaptureComplete = useCallback((captured: CapturedMeasurement[]) => {
-        setMeasurements(captured);
-        setStep('review');
-    }, []);
+        onComplete(captured);
+    }, [onComplete]);
 
     // ── Step 1: Select Joints + Strategy ───────────────────────────
     if (step === 'select_joint') {
@@ -315,7 +311,9 @@ export default function CameraSetupWizard({
     // ── Step 2b: Phone Pairing (optional) ────────────────────────
     if (step === 'phone_pair') {
         const signalingUrl = process.env.NEXT_PUBLIC_SIGNAL_URL
-            ?? `ws://${globalThis.window === undefined ? 'localhost' : globalThis.location.hostname}:${process.env.NEXT_PUBLIC_SIGNAL_PORT ?? '4001'}/ws/signaling`;
+            ?? (typeof window === 'undefined'
+                ? 'ws://localhost:4001/ws/signaling'
+                : `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws/signaling`);
 
         return (
             <div data-testid="step-phone-pair" className="card" style={{ padding: 28 }}>
@@ -422,127 +420,5 @@ export default function CameraSetupWizard({
         );
     }
 
-    // ── Step 4: Review ─────────────────────────────────────────────
-    return (
-        <div data-testid="step-review" className="card" style={{ padding: 28 }}>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: 4 }}>
-                Review &amp; Confirm
-            </h2>
-            <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 20 }}>
-                Verify captured measurements before generating the clinical note.
-            </p>
-
-            {measurements.length === 0 ? (
-                <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>
-                    No measurements captured.
-                </p>
-            ) : (
-                <div style={{ overflowX: 'auto', marginBottom: 20 }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                        <thead>
-                            <tr
-                                style={{
-                                    borderBottom: '2px solid var(--border-primary)',
-                                    textAlign: 'left',
-                                }}
-                            >
-                                <th style={{ padding: '8px 12px', fontWeight: 600 }}>Joint</th>
-                                <th style={{ padding: '8px 12px', fontWeight: 600 }}>Movement</th>
-                                <th style={{ padding: '8px 12px', fontWeight: 600 }}>Side</th>
-                                <th
-                                    style={{
-                                        padding: '8px 12px',
-                                        fontWeight: 600,
-                                        textAlign: 'right',
-                                    }}
-                                >
-                                    ROM°
-                                </th>
-                                <th
-                                    style={{
-                                        padding: '8px 12px',
-                                        fontWeight: 600,
-                                        textAlign: 'right',
-                                    }}
-                                >
-                                    Confidence
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {measurements.map((m) => (
-                                <tr
-                                    key={`${m.joint}-${m.movement}-${m.side}`}
-                                    style={{
-                                        borderBottom: '1px solid var(--border-primary)',
-                                    }}
-                                >
-                                    <td style={{ padding: '8px 12px' }}>
-                                        {JOINT_META[m.joint]?.label ?? m.joint}
-                                    </td>
-                                    <td
-                                        style={{
-                                            padding: '8px 12px',
-                                            textTransform: 'capitalize',
-                                        }}
-                                    >
-                                        {m.movement.replaceAll('_', ' ')}
-                                    </td>
-                                    <td
-                                        style={{
-                                            padding: '8px 12px',
-                                            textTransform: 'capitalize',
-                                        }}
-                                    >
-                                        {m.side}
-                                    </td>
-                                    <td
-                                        style={{
-                                            padding: '8px 12px',
-                                            textAlign: 'right',
-                                            fontVariantNumeric: 'tabular-nums',
-                                            fontWeight: 600,
-                                        }}
-                                    >
-                                        {m.romDegrees.toFixed(1)}°
-                                    </td>
-                                    <td
-                                        style={{
-                                            padding: '8px 12px',
-                                            textAlign: 'right',
-                                            fontVariantNumeric: 'tabular-nums',
-                                        }}
-                                    >
-                                        {(m.confidence * 100).toFixed(0)}%
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
-            <div style={{ display: 'flex', gap: 10 }}>
-                <button
-                    className="btn-primary"
-                    onClick={() => onComplete(measurements)}
-                    disabled={measurements.length === 0}
-                    data-testid="btn-confirm"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                >
-                    Confirm &amp; Generate Note <ArrowRight size={14} />
-                </button>
-                <button
-                    className="btn-ghost"
-                    onClick={() => {
-                        setMeasurements([]);
-                        setStep('select_joint');
-                    }}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                >
-                    <RotateCcw size={14} /> Start Over
-                </button>
-            </div>
-        </div>
-    );
+    return null;
 }

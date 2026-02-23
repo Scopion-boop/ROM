@@ -179,6 +179,9 @@ authRouter.get('/me', requireAuth, async (req: Request, res: Response): Promise<
 
 const updateMeSchema = z.object({
     displayName: z.string().min(1).max(255).optional(),
+    onboardingCompleted: z.boolean().optional(),
+    country: z.string().max(64).optional(),
+    specialty: z.string().max(128).optional(),
 });
 
 /**
@@ -188,8 +191,14 @@ const updateMeSchema = z.object({
 authRouter.patch('/me', requireAuth, validateBody(updateMeSchema), async (req: Request, res: Response): Promise<void> => {
     try {
         const { userId } = req.user!;
-        // MVP: successful no-op (full update requires userRepo.update method)
-        res.json({ success: true, userId });
+        const { users } = getRepos();
+        const updated = await users.update(userId, req.body);
+        if (!updated) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        const { passwordHash: _, ...userResponse } = updated;
+        res.json(userResponse);
     } catch (_err) {
         res.status(500).json({ error: 'Failed to update user' });
     }

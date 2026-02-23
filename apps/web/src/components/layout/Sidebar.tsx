@@ -23,7 +23,7 @@ import { usePlan } from '@/lib/plan-context';
 const NAV_ITEMS = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/sessions/new', label: 'New Session', icon: Plus },
-    { href: '#', label: 'Sessions', icon: FolderOpen },
+    { href: '/sessions', label: 'Sessions', icon: FolderOpen },
     { href: '#', label: 'Measurements', icon: Activity },
     { href: '#', label: 'Reports', icon: FileText },
     { href: '/dashboard/billing', label: 'Billing & Plan', icon: CreditCard },

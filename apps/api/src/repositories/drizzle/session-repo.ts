@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, count } from 'drizzle-orm';
 import { getDb, sessions } from '../../db';
 import type { SessionRepo, SessionRecord } from '../interfaces';
 
@@ -57,6 +57,12 @@ export function createDrizzleSessionRepo(): SessionRepo {
                 .where(eq(sessions.id, id))
                 .returning();
             return rows[0] ? rowToRecord(rows[0]) : undefined;
+        },
+
+        async countByOrg(organizationId) {
+            const db = getDb();
+            const result = await db.select({ count: count() }).from(sessions).where(eq(sessions.organizationId, organizationId));
+            return result[0]?.count ?? 0;
         },
 
         async _clear() {

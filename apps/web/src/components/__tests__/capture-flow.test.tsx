@@ -81,40 +81,32 @@ describe('MeasurementPanel', () => {
 });
 
 describe('NoteRenderer', () => {
-    it('renders note sections', () => {
+    it('renders toolbar and simplified text box', () => {
         const note: GeneratedNote = {
             generatedAt: new Date().toISOString(),
             measurementCount: 2,
             deficitCount: 1,
             jointsCovered: ['shoulder'],
-            simplifiedText: 'Left Shoulder\n- Flexion 155°',
-            sections: [
-                { id: 's1', type: 'header', title: 'ROM Examination', content: 'Header content' },
-                { id: 's2', type: 'summary', title: 'Summary', content: 'Overall summary' },
-            ],
+            simplifiedText: 'Left Shoulder\n- Flexion 155° (normal: 0-180°)',
+            sections: [],
         };
         render(<NoteRenderer note={note} />);
         expect(screen.getByTestId('note-renderer')).toBeDefined();
-        expect(screen.getByText('ROM Examination')).toBeDefined();
-        expect(screen.getByText('Summary')).toBeDefined();
+        expect(screen.getByText('Clinical Note')).toBeDefined();
+        expect(screen.getByTestId('btn-copy-note')).toBeDefined();
+        expect(screen.getByTestId('btn-print-note')).toBeDefined();
     });
 
-    it('renders AI button when interpretation is placeholder', () => {
+    it('shows measurement count badge', () => {
         const note: GeneratedNote = {
             generatedAt: new Date().toISOString(),
-            measurementCount: 1,
+            measurementCount: 3,
             deficitCount: 0,
-            jointsCovered: ['shoulder'],
-            simplifiedText: '',
-            sections: [
-                { id: 's1', type: 'interpretation', title: 'AI Interpretation', content: '[Placeholder: AI interpretation]' },
-            ],
+            jointsCovered: ['shoulder', 'knee'],
+            simplifiedText: 'Right Knee\n- Flexion 130°',
+            sections: [],
         };
-        const onRequest = vi.fn();
-        render(<NoteRenderer note={note} onRequestInterpretation={onRequest} />);
-        const btn = screen.getByTestId('btn-generate-interpretation');
-        expect(btn).toBeDefined();
-        fireEvent.click(btn);
-        expect(onRequest).toHaveBeenCalledTimes(1);
+        render(<NoteRenderer note={note} />);
+        expect(screen.getByText('3 measurements')).toBeDefined();
     });
 });
