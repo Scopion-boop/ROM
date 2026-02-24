@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import type { IRouter } from 'express';
 import { requireAuth } from '../middleware/authz';
+import { planGuard } from '../middleware/plan-guard';
 import { validateBody, validateParams } from '../middleware/validation';
 import { getRepos } from '../repositories/repo-factory';
 import { createSessionSchema, updateSessionStatusSchema, idParamSchema } from '../schemas/api-schemas';
 import type { SessionRecord } from '../repositories/interfaces';
+import { hasExceededSessionLimit } from '../lib/plan-utils';
 
 export const sessionRouter: IRouter = Router();
 
@@ -19,11 +21,12 @@ sessionRouter.post('/', validateBody(createSessionSchema), async (req: Request, 
     // Check free-tier session limit
     const { sessions, audit, subscriptions } = getRepos();
     const sub = await subscriptions.getActiveByOrgId(req.user!.organizationId);
-    const isPaid = sub && ['solo', 'practice', 'enterprise'].includes(sub.plan);
+    const isPaid = sub?.plan === 'solo';
     if (!isPaid) {
-        const sessionCount = await sessions.countByOrg(req.user!.organizationId);
-        if (sessionCount >= 100) {
-            res.status(402).json({ error: 'SESSION_LIMIT_REACHED', message: 'Free plan limited to 100 sessions. Upgrade to continue.' });
+        const org = await getRepos().orgs.getById(req.user!.organizationId);
+        const monthlyCount = org?.monthlySessionCount ?? 0;
+        if (hasExceededSessionLimit(null, monthlyCount)) {
+            res.status(402).json({ error: 'SESSION_LIMIT_REACHED', message: 'Free plan limited to 10 sessions/month. Upgrade to continue.' });
             return;
         }
     }
@@ -96,7 +99,7 @@ sessionRouter.patch('/:id/status', validateParams(idParamSchema), validateBody(u
 /**
  * GET /api/sessions/export/csv — export sessions as CSV
  */
-sessionRouter.get('/export/csv', async (req: Request, res: Response): Promise<void> => {
+sessionRouter.get('/export/csv', planGuard('solo'), async (req: Request, res: Response): Promise<void> => {
     const { sessions } = getRepos();
     const sessionList = await sessions.listByOrg(req.user!.organizationId);
 

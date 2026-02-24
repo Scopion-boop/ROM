@@ -8,11 +8,7 @@ import { Loader2 } from 'lucide-react';
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 const ROLES = [
-    { value: 'clinician', label: 'Physiotherapist' },
-    { value: 'clinician', label: 'Sports Medicine' },
-    { value: 'clinician', label: 'Chiropractor' },
-    { value: 'clinician', label: 'Orthopaedic Surgeon' },
-    { value: 'clinician', label: 'Other Clinician' },
+    { value: 'clinician', label: 'Clinician' },
     { value: 'clinic_admin', label: 'Clinic Administrator' },
 ];
 
@@ -33,6 +29,7 @@ function RegisterForm() {
     const [clinicName, setClinicName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [role, setRole] = useState('clinician');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -61,6 +58,11 @@ function RegisterForm() {
         e.preventDefault();
         setError('');
         setLoading(true);
+        if (password !== confirmPassword) {
+            setError('Passwords do not match');
+            setLoading(false);
+            return;
+        }
         try {
             const body: Record<string, string> = { email, password, displayName, role };
             if (inviteToken) {
@@ -116,8 +118,9 @@ function RegisterForm() {
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
-                    <label style={labelStyle}>Full name</label>
+                    <label htmlFor="reg-name" style={labelStyle}>Full name</label>
                     <input
+                        id="reg-name"
                         type="text"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
@@ -129,8 +132,9 @@ function RegisterForm() {
 
                 {!inviteToken && (
                     <div>
-                        <label style={labelStyle}>Clinic / Practice name</label>
+                        <label htmlFor="reg-clinic" style={labelStyle}>Clinic / Practice name</label>
                         <input
+                            id="reg-clinic"
                             type="text"
                             value={clinicName}
                             onChange={(e) => setClinicName(e.target.value)}
@@ -142,8 +146,9 @@ function RegisterForm() {
                 )}
 
                 <div>
-                    <label style={labelStyle}>Role</label>
+                    <label htmlFor="reg-role" style={labelStyle}>Role</label>
                     <select
+                        id="reg-role"
                         value={role}
                         onChange={(e) => setRole(e.target.value)}
                         style={{ ...inputStyle, cursor: 'pointer' }}
@@ -155,8 +160,9 @@ function RegisterForm() {
                 </div>
 
                 <div>
-                    <label style={labelStyle}>Email</label>
+                    <label htmlFor="reg-email" style={labelStyle}>Email</label>
                     <input
+                        id="reg-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -167,8 +173,9 @@ function RegisterForm() {
                 </div>
 
                 <div>
-                    <label style={labelStyle}>Password</label>
+                    <label htmlFor="reg-password" style={labelStyle}>Password</label>
                     <input
+                        id="reg-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -179,10 +186,24 @@ function RegisterForm() {
                     />
                 </div>
 
+                <div>
+                    <label htmlFor="reg-confirm-password" style={labelStyle}>Confirm password</label>
+                    <input
+                        id="reg-confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        style={inputStyle}
+                        placeholder="Re-enter your password"
+                        minLength={8}
+                        required
+                    />
+                </div>
+
                 <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary"
+                    className="btn btn-primary"
                     style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4 }}
                 >
                     {loading ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Creating account...</> : 'Create free account'}

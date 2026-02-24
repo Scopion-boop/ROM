@@ -12,7 +12,7 @@ export const clinicRouter: IRouter = Router();
 clinicRouter.use(requireAuth);
 
 // GET /api/clinic/clinicians — Practice tier
-clinicRouter.get('/clinicians', planGuard('practice'), async (req, res, next) => {
+clinicRouter.get('/clinicians', planGuard('solo'), async (req, res, next) => {
   try {
     const { organizationId } = req.user!;
     const { users } = getRepos();
@@ -22,7 +22,7 @@ clinicRouter.get('/clinicians', planGuard('practice'), async (req, res, next) =>
 });
 
 // GET /api/clinic/stats — Practice tier
-clinicRouter.get('/stats', planGuard('practice'), async (req, res, next) => {
+clinicRouter.get('/stats', planGuard('solo'), async (req, res, next) => {
   try {
     const { organizationId } = req.user!;
     const { orgs } = getRepos();
@@ -42,7 +42,7 @@ const inviteSchema = z.object({
 });
 
 // POST /api/clinic/invite — Practice tier + admin role
-clinicRouter.post('/invite', requireRole('clinic_admin'), planGuard('practice'), validateBody(inviteSchema), async (req, res, next) => {
+clinicRouter.post('/invite', requireRole('clinic_admin'), planGuard('solo'), validateBody(inviteSchema), async (req, res, next) => {
   try {
     const { organizationId, email: inviterEmail, userId } = req.user!;
     const { email, role } = req.body as { email: string; role: string };
@@ -70,7 +70,7 @@ clinicRouter.post('/invite', requireRole('clinic_admin'), planGuard('practice'),
 });
 
 // DELETE /api/clinic/clinicians/:id — Practice tier + admin role
-clinicRouter.delete('/clinicians/:id', requireRole('clinic_admin'), planGuard('practice'), async (_req, res, next) => {
+clinicRouter.delete('/clinicians/:id', requireRole('clinic_admin'), planGuard('solo'), async (_req, res, next) => {
   try {
     // MVP stub — full implementation requires user deletion logic
     res.status(204).send();

@@ -8,6 +8,38 @@ import NoteRenderer from '../notes/NoteRenderer';
 import type { EnrichedMeasurement } from '@/lib/rom-utils';
 import type { GeneratedNote } from '@/lib/note-generator';
 
+// Mock WebRTC and WebSocket APIs for jsdom/happy-dom environment
+globalThis.RTCPeerConnection = vi.fn().mockImplementation(() => ({
+    ontrack: null,
+    onicecandidate: null,
+    onconnectionstatechange: null,
+    connectionState: 'new',
+    addTrack: vi.fn(),
+    createOffer: vi.fn().mockResolvedValue({ type: 'offer', sdp: '' }),
+    createAnswer: vi.fn().mockResolvedValue({ type: 'answer', sdp: '' }),
+    setLocalDescription: vi.fn().mockResolvedValue(undefined),
+    setRemoteDescription: vi.fn().mockResolvedValue(undefined),
+    addIceCandidate: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn(),
+})) as unknown as typeof RTCPeerConnection;
+
+globalThis.RTCSessionDescription = vi.fn().mockImplementation((init) => init) as unknown as typeof RTCSessionDescription;
+globalThis.RTCIceCandidate = vi.fn().mockImplementation((init) => init) as unknown as typeof RTCIceCandidate;
+
+const mockWsSend = vi.fn();
+const mockWsClose = vi.fn();
+globalThis.WebSocket = vi.fn().mockImplementation(() => ({
+    readyState: 1,
+    send: mockWsSend,
+    close: mockWsClose,
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+    onclose: null,
+    OPEN: 1,
+})) as unknown as typeof WebSocket;
+Object.assign(globalThis.WebSocket, { OPEN: 1, CLOSED: 3, CONNECTING: 0, CLOSING: 2 });
+
 describe('CameraSetupWizard', () => {
     it('renders joint selection step by default', () => {
         render(<CameraSetupWizard onComplete={vi.fn()} />);

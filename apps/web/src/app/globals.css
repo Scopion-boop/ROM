@@ -65,6 +65,7 @@
 
     /* Radius */
     --radius-sm: 6px;
+    --radius-default: 8px;
     --radius-md: 10px;
     --radius-lg: 16px;
     --radius-xl: 24px;
@@ -700,9 +701,20 @@ legend {
 }
 
 @keyframes dot-pulse {
-    0% { transform: scale(1); box-shadow: 0 0 0 2px currentColor; }
-    50% { transform: scale(1.4); box-shadow: 0 0 8px currentColor; }
-    100% { transform: scale(1); box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1); }
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 2px currentColor;
+    }
+
+    50% {
+        transform: scale(1.4);
+        box-shadow: 0 0 8px currentColor;
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
 }
 
 /* Deficit chip — inline pill showing deficit value */
@@ -727,9 +739,17 @@ legend {
 
 /* Measurement moment — brief glow when angle is committed */
 @keyframes measurement-commit {
-    0% { box-shadow: none; }
-    30% { box-shadow: 0 0 16px var(--accent-glow-strong); }
-    100% { box-shadow: none; }
+    0% {
+        box-shadow: none;
+    }
+
+    30% {
+        box-shadow: 0 0 16px var(--accent-glow-strong);
+    }
+
+    100% {
+        box-shadow: none;
+    }
 }
 
 .measurement-commit {
@@ -773,5 +793,43 @@ legend {
 
     pre {
         color: #111 !important;
+    }
+}
+
+/* ── Accessibility: Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ── Mobile Responsive ── */
+@media (max-width: 768px) {
+    .sidebar-desktop {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .mobile-menu-trigger {
+        display: flex !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-menu-trigger {
+        display: none !important;
+    }
+
+    .sidebar-mobile-backdrop {
+        display: none !important;
     }
 }

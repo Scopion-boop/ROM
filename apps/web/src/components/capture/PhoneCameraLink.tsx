@@ -5,18 +5,24 @@
  * video back to the browser over a peer-to-peer WebRTC connection.
  * This provides a secondary camera angle for 3D triangulation or
  * a more ergonomic capture position.
+ *
+ * Connection protocol:
+ *   1. Host (desktop) connects to signaling server immediately on mount
+ *   2. Phone scans QR → connects as remote → both get "room-ready"
+ *   3. Host sends "ready-for-offer" → phone creates & sends WebRTC offer
+ *   4. Host receives offer, creates answer, exchange ICE → connected
  */
 
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Smartphone, Wifi, CheckCircle, XCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export type PairingStatus = 'idle' | 'waiting' | 'connecting' | 'connected' | 'error';
 
 interface PhoneCameraLinkProps {
-    /** WebSocket signaling URL (e.g. ws://localhost:4000/ws/signaling) */
+    /** WebSocket signaling URL (e.g. ws://localhost:4001/ws/signaling) */
     signalingUrl: string;
     /** Session ID for pairing */
     sessionId: string;
@@ -38,8 +44,15 @@ export function PhoneCameraLink({
     const [pairingToken, setPairingToken] = useState<string>('');
     const pcRef = useRef<RTCPeerConnection | null>(null);
     const wsRef = useRef<WebSocket | null>(null);
+    const statusRef = useRef<PairingStatus>('idle');
+    const onRemoteStreamRef = useRef(onRemoteStream);
+    const onDisconnectRef = useRef(onDisconnect);
 
-    // Generate a short random pairing token
+    // Keep callback refs current without triggering reconnect
+    useEffect(() => { onRemoteStreamRef.current = onRemoteStream; }, [onRemoteStream]);
+    useEffect(() => { onDisconnectRef.current = onDisconnect; }, [onDisconnect]);
+
+    // Generate a short random pairing token once on mount
     useEffect(() => {
         const token = Array.from(crypto.getRandomValues(new Uint8Array(6)))
             .map((b) => b.toString(36))
@@ -50,15 +63,26 @@ export function PhoneCameraLink({
 
     // URL the phone will open
     const phoneUrl =
-        typeof window !== 'undefined'
+        typeof window !== 'undefined' && pairingToken
             ? `${window.location.origin}/camera/remote?session=${sessionId}&token=${pairingToken}`
             : '';
 
-    // Start signaling connection
-    const startPairing = useCallback(() => {
-        setStatus('waiting');
+    /** Connect to signaling server and set up WebRTC */
+    useEffect(() => {
+        if (!pairingToken || !signalingUrl || !sessionId) return;
 
-        const ws = new WebSocket(`${signalingUrl}?session=${sessionId}&token=${pairingToken}&role=host`);
+        // Auto-start: connect to signaling immediately so host is ready
+        // before phone scans QR
+        const updateStatus = (s: PairingStatus) => {
+            statusRef.current = s;
+            setStatus(s);
+        };
+
+        updateStatus('waiting');
+
+        const ws = new WebSocket(
+            `${signalingUrl}?session=${sessionId}&token=${pairingToken}&role=host`,
+        );
         wsRef.current = ws;
 
         const pc = new RTCPeerConnection({
@@ -66,15 +90,15 @@ export function PhoneCameraLink({
         });
         pcRef.current = pc;
 
-        // Handle remote stream
+        // Handle remote stream arriving over WebRTC
         pc.ontrack = (e) => {
             if (e.streams[0]) {
-                setStatus('connected');
-                onRemoteStream?.(e.streams[0]);
+                updateStatus('connected');
+                onRemoteStreamRef.current?.(e.streams[0]);
             }
         };
 
-        // Send ICE candidates to remote
+        // Send ICE candidates to remote via signaling
         pc.onicecandidate = (e) => {
             if (e.candidate && ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({ type: 'ice-candidate', candidate: e.candidate }));
@@ -83,16 +107,21 @@ export function PhoneCameraLink({
 
         pc.onconnectionstatechange = () => {
             if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-                setStatus('error');
-                onDisconnect?.();
+                updateStatus('error');
+                onDisconnectRef.current?.();
             }
         };
 
         ws.onmessage = async (event) => {
-            const msg = JSON.parse(event.data);
+            const msg = JSON.parse(event.data as string);
+
+            if (msg.type === 'room-ready') {
+                // Both peers connected — tell phone we're ready
+                ws.send(JSON.stringify({ type: 'ready-for-offer' }));
+            }
 
             if (msg.type === 'offer') {
-                setStatus('connecting');
+                updateStatus('connecting');
                 await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
                 const answer = await pc.createAnswer();
                 await pc.setLocalDescription(answer);
@@ -104,19 +133,30 @@ export function PhoneCameraLink({
             }
         };
 
-        ws.onerror = () => setStatus('error');
+        ws.onerror = () => updateStatus('error');
         ws.onclose = () => {
-            if (status !== 'connected') setStatus('idle');
+            // Use ref to avoid stale closure
+            if (statusRef.current !== 'connected') {
+                updateStatus('error');
+            }
         };
-    }, [signalingUrl, sessionId, pairingToken, onRemoteStream, onDisconnect, status]);
 
-    // Cleanup on unmount
-    useEffect(() => {
         return () => {
-            pcRef.current?.close();
-            wsRef.current?.close();
+            pc.close();
+            ws.close();
         };
-    }, []);
+    }, [signalingUrl, sessionId, pairingToken]);
+
+    /** Retry by generating a fresh pairing token (triggers reconnect) */
+    const handleRetry = () => {
+        pcRef.current?.close();
+        wsRef.current?.close();
+        const token = Array.from(crypto.getRandomValues(new Uint8Array(6)))
+            .map((b) => b.toString(36))
+            .join('')
+            .slice(0, 8);
+        setPairingToken(token);
+    };
 
     const statusConfig = {
         idle: { icon: Smartphone, color: 'text-gray-400', label: 'Ready to pair' },
@@ -137,7 +177,7 @@ export function PhoneCameraLink({
             {/* QR Code */}
             <div className="flex h-48 w-48 items-center justify-center rounded-lg bg-white p-3">
                 {phoneUrl ? (
-                    <QRCodeSVG value={phoneUrl} size={168} level="M" />
+                    <QRCodeSVG value={phoneUrl} size={168} level="M" role="img" aria-label="QR code to pair phone camera" />
                 ) : (
                     <p className="text-xs text-gray-400">Generating…</p>
                 )}
@@ -149,18 +189,10 @@ export function PhoneCameraLink({
                 <span className="text-sm">{label}</span>
             </div>
 
-            {/* Action buttons */}
-            {status === 'idle' && (
-                <button
-                    onClick={startPairing}
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition-colors"
-                >
-                    Start Pairing
-                </button>
-            )}
+            {/* Retry on error */}
             {status === 'error' && (
                 <button
-                    onClick={startPairing}
+                    onClick={handleRetry}
                     className="rounded-lg bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-500 transition-colors"
                 >
                     Retry

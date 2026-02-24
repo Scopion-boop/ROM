@@ -35,12 +35,12 @@ billingRouter.get('/subscription', requireAuth, async (req: Request, res: Respon
     ]);
     const internalPlan = sub?.plan ?? null;
     res.json({
-      plan: internalPlan ? internalToDisplay(internalPlan as 'solo' | 'practice' | 'enterprise') : 'free',
+      plan: internalPlan ? internalToDisplay(internalPlan) : 'free',
       status: sub?.status ?? 'active',
       currentPeriodEnd: sub?.currentPeriodEnd ?? null,
       trialEnd: sub?.trialEndsAt ?? null,
       sessionsThisMonth: org?.monthlySessionCount ?? 0,
-      sessionLimit: getSessionLimit(internalPlan as 'solo' | 'practice' | 'enterprise' | null),
+      sessionLimit: getSessionLimit(internalPlan),
     });
   } catch (err) { next(err); }
 });

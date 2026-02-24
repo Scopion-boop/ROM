@@ -2,9 +2,10 @@
 import { useState, useEffect } from 'react';
 import { CreditCard, Check, AlertCircle, RefreshCw } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { usePlan } from '@/lib/plan-context';
 
 interface Subscription {
-  plan: 'free' | 'pro' | 'practice';
+  plan: 'free' | 'pro';
   status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete';
   currentPeriodEnd: string | null;
   trialEnd: string | null;
@@ -12,21 +13,24 @@ interface Subscription {
   sessionLimit: number | null;
 }
 
-const PLAN_LABELS: Record<string, string> = { free: 'FREE PLAN', pro: 'PRO PLAN', practice: 'PRACTICE PLAN' };
-const PLAN_COLORS: Record<string, string> = { free: 'var(--text-muted)', pro: 'var(--accent)', practice: '#a855f7' };
+const PLAN_LABELS: Record<string, string> = { free: 'FREE PLAN', pro: 'PRO PLAN' };
+const PLAN_COLORS: Record<string, string> = { free: 'var(--text-muted)', pro: 'var(--accent)' };
 const STATUS_COLORS: Record<string, string> = {
-  active: '#22c55e',
+  active: 'var(--success)',
   trialing: 'var(--accent)',
-  past_due: '#f97316',
-  canceled: '#ef4444',
-  incomplete: '#f97316',
+  past_due: 'var(--warning)',
+  canceled: 'var(--error)',
+  incomplete: 'var(--warning)',
 };
 
 export default function BillingPage() {
+  const { refresh } = usePlan();
   const [sub, setSub] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => { refresh(); }, [refresh]);
 
   async function fetchSub() {
     setLoading(true);
@@ -114,7 +118,7 @@ export default function BillingPage() {
     return (
       <div style={{ maxWidth: '640px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '24px' }}>Billing & Subscription</h1>
-        <div style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: '12px', color: '#ef4444' }}>
+        <div style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--error)' }}>
           <AlertCircle size={20} />
           <span style={{ flex: 1 }}>{error}</span>
           <button
@@ -144,7 +148,7 @@ export default function BillingPage() {
   const sessions = sub?.sessionsThisMonth ?? 0;
   const limit = sub?.sessionLimit ?? 10;
   const usagePercent = sub?.sessionLimit ? Math.min(100, (sessions / limit) * 100) : 0;
-  const statusColor = STATUS_COLORS[status] ?? '#22c55e';
+  const statusColor = STATUS_COLORS[status] ?? 'var(--success)';
   const planColor = PLAN_COLORS[plan] ?? 'var(--text-muted)';
 
   return (
@@ -160,7 +164,7 @@ export default function BillingPage() {
           background: 'rgba(239,68,68,0.1)',
           border: '1px solid rgba(239,68,68,0.2)',
           borderRadius: '8px',
-          color: '#ef4444',
+          color: 'var(--error)',
           marginBottom: '16px',
           fontSize: '0.875rem',
         }}>
@@ -205,7 +209,7 @@ export default function BillingPage() {
               <div style={{
                 height: '100%',
                 width: `${usagePercent}%`,
-                background: usagePercent >= 90 ? '#ef4444' : 'var(--accent)',
+                background: usagePercent >= 90 ? 'var(--error)' : 'var(--accent)',
                 borderRadius: '4px',
                 transition: 'width 0.3s ease',
               }} />
@@ -215,7 +219,7 @@ export default function BillingPage() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#22c55e' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--success)' }}>
             <Check size={18} />
             <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Unlimited sessions</span>
           </div>

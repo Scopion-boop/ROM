@@ -1,9 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Menu, Search } from 'lucide-react';
 
-export default function TopBar() {
+interface TopBarProps {
+    onMenuOpen?: () => void;
+}
+
+export default function TopBar({ onMenuOpen }: TopBarProps) {
     return (
         <header
             style={{
@@ -22,6 +26,16 @@ export default function TopBar() {
             }}
         >
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                {onMenuOpen && (
+                    <button
+                        className="btn btn-ghost btn-icon mobile-menu-trigger"
+                        aria-label="Open menu"
+                        onClick={onMenuOpen}
+                        style={{ display: 'none' }}
+                    >
+                        <Menu size={20} />
+                    </button>
+                )}
                 <span style={{
                     margin: 0,
                     fontSize: '0.6875rem',

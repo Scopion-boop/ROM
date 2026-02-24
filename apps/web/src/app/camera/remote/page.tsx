@@ -3,6 +3,12 @@
  *
  * Accessed by scanning the QR code from PhoneCameraLink.
  * Opens the rear camera and streams video back to the host browser.
+ *
+ * Connection protocol:
+ *   1. Phone gets camera access, connects to signaling as "remote"
+ *   2. Waits for "ready-for-offer" from host (sent after both peers join)
+ *   3. Creates WebRTC offer with camera tracks and sends to host
+ *   4. Receives answer, exchanges ICE candidates → streaming
  */
 
 'use client';
@@ -92,17 +98,29 @@ function RemoteCameraContent() {
                 }
             };
 
-            ws.onopen = async () => {
+            /** Create and send WebRTC offer to host */
+            const sendOffer = async () => {
                 setStatus('connecting');
-                // Create and send offer
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
                 ws.send(JSON.stringify({ type: 'offer', sdp: offer }));
             };
 
-            ws.onmessage = async (event) => {
-                const msg = JSON.parse(event.data);
+            ws.onopen = () => {
+                // Don't send offer yet — wait for host to signal readiness.
+                // The host sends "ready-for-offer" after both peers join the
+                // signaling room, which prevents the offer from being dropped
+                // if the phone connects before the desktop.
+                setStatus('camera_ready');
+            };
 
+            ws.onmessage = async (event) => {
+                const msg = JSON.parse(event.data as string);
+
+                if (msg.type === 'ready-for-offer') {
+                    // Host is ready — now create and send the offer
+                    await sendOffer();
+                }
                 if (msg.type === 'answer') {
                     await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
                 }

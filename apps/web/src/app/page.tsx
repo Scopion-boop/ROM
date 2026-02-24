@@ -7,7 +7,6 @@ import { Zap, FileText, TrendingUp, Check, ChevronDown, AlertCircle, Clock, File
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
@@ -484,60 +483,8 @@ export default function LandingPage() {
             All prices in NZD. Start free, upgrade anytime.
           </p>
 
-          {/* Billing Toggle */}
-          <div
-            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', marginBottom: '3rem' }}
-          >
-            <span style={{ color: billingPeriod === 'monthly' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>
-              Monthly
-            </span>
-            <button
-              onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'annual' : 'monthly')}
-              style={{
-                width: '60px',
-                height: '32px',
-                background: billingPeriod === 'annual' ? 'var(--accent)' : 'var(--bg-tertiary)',
-                border: '1px solid var(--border-primary)',
-                borderRadius: '16px',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-              }}
-            >
-              <div
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  background: '#fff',
-                  borderRadius: '50%',
-                  position: 'absolute',
-                  top: '3px',
-                  left: billingPeriod === 'annual' ? '32px' : '3px',
-                  transition: 'left 0.3s',
-                }}
-              />
-            </button>
-            <span style={{ color: billingPeriod === 'annual' ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>
-              Annual
-            </span>
-            {billingPeriod === 'annual' && (
-              <span
-                style={{
-                  padding: '4px 12px',
-                  background: 'var(--accent-glow)',
-                  color: 'var(--accent)',
-                  borderRadius: '12px',
-                  fontSize: '0.85rem',
-                  fontWeight: 600,
-                }}
-              >
-                Save 30%
-              </span>
-            )}
-          </div>
-
           {/* Pricing Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', maxWidth: '740px', margin: '0 auto' }}>
             {/* Starter */}
             <div
               style={{
@@ -564,10 +511,6 @@ export default function LandingPage() {
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                   <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
                   <span style={{ color: 'var(--text-secondary)' }}>Basic ROM measurement</span>
-                </li>
-                <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>Watermarked PDF exports</span>
                 </li>
               </ul>
               <Link
@@ -631,14 +574,8 @@ export default function LandingPage() {
               <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Clinician</h3>
               <p style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Pro</p>
               <div style={{ fontSize: '3rem', fontWeight: 700, marginBottom: '1.5rem' }}>
-                ${billingPeriod === 'monthly' ? '49' : '34'}
-                <span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span>
+                {'$49'}<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span>
               </div>
-              {billingPeriod === 'annual' && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}>
-                  Billed annually at $408/year
-                </p>
-              )}
               <ul style={{ listStyle: 'none', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                   <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
@@ -654,11 +591,11 @@ export default function LandingPage() {
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                   <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>90-day history</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>CSV data export</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                   <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>PDF without watermark</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>Save &amp; revisit past sessions</span>
                 </li>
               </ul>
               <Link
@@ -691,75 +628,6 @@ export default function LandingPage() {
                 Start Free Trial
               </Link>
             </div>
-
-            {/* Practice */}
-            <div
-              style={{
-                padding: '2.5rem',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-primary)',
-                borderRadius: '16px',
-              }}
-            >
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Practice</h3>
-              <p style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Enterprise</p>
-              <div style={{ fontSize: '3rem', fontWeight: 700, marginBottom: '1.5rem' }}>
-                ${billingPeriod === 'monthly' ? '129' : '91'}
-                <span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span>
-              </div>
-              {billingPeriod === 'annual' && (
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}>
-                  Billed annually at $1,092/year
-                </p>
-              )}
-              <ul style={{ listStyle: 'none', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>Up to 8 seats</span>
-                </li>
-                <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>Everything in Pro</span>
-                </li>
-                <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>Clinic admin dashboard</span>
-                </li>
-                <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>Patient home assessment portal</span>
-                </li>
-                <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>CSV data export</span>
-                </li>
-              </ul>
-              <button
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  background: 'var(--bg-tertiary)',
-                  color: 'var(--text-primary)',
-                  border: '1px solid var(--border-primary)',
-                  borderRadius: '8px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: 600,
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--bg-card-hover)';
-                  e.currentTarget.style.borderColor = 'var(--text-tertiary)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--bg-tertiary)';
-                  e.currentTarget.style.borderColor = 'var(--border-primary)';
-                }}
-              >
-                Contact Sales
-              </button>
-            </div>
           </div>
         </div>
       </section>
@@ -773,7 +641,7 @@ export default function LandingPage() {
             {[
               {
                 q: 'Is PhysioLens HIPAA/HITECH compliant?',
-                a: 'Yes. All data is encrypted at rest and in transit. We offer BAA agreements on Practice plans and above.',
+                a: 'Yes. All data is encrypted at rest and in transit. We offer BAA agreements on Pro plans.',
               },
               {
                 q: 'Does it work on any device?',
@@ -785,7 +653,7 @@ export default function LandingPage() {
               },
               {
                 q: 'Can I export data for insurance audits?',
-                a: 'Pro and Practice plans include PDF export and CSV data export for audit trail.',
+                a: 'Pro plan includes CSV data export for audit trail.',
               },
               {
                 q: 'What joints can PhysioLens measure?',

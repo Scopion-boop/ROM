@@ -66,14 +66,10 @@ export function constructWebhookEvent(rawBody: Buffer, signature: string): Strip
   );
 }
 
-export function getPlanFromPriceId(priceId: string): 'solo' | 'practice' | 'enterprise' | null {
+export function getPlanFromPriceId(priceId: string): 'solo' | null {
   if (
     priceId === process.env.STRIPE_PRICE_ID_PRO_MONTHLY ||
     priceId === process.env.STRIPE_PRICE_ID_PRO_YEARLY
   ) return 'solo';
-  if (
-    priceId === process.env.STRIPE_PRICE_ID_PRACTICE_MONTHLY ||
-    priceId === process.env.STRIPE_PRICE_ID_PRACTICE_YEARLY
-  ) return 'practice';
   return null;
 }

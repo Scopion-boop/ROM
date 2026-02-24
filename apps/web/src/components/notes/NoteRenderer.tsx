@@ -42,7 +42,7 @@ function SimplifiedTextBox({ text }: Readonly<{ text: string }>) {
                 </span>
                 <button
                     type="button"
-                    className="btn-secondary"
+                    className="btn btn-secondary"
                     onClick={handleCopy}
                     style={{
                         display: 'inline-flex',
@@ -122,7 +122,7 @@ export default function NoteRenderer({
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                     <button
-                        className="btn-secondary"
+                        className="btn btn-secondary"
                         onClick={handleCopy}
                         data-testid="btn-copy-note"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 12px' }}
@@ -132,7 +132,7 @@ export default function NoteRenderer({
                             : (<><Clipboard size={13} /> Copy</>)}
                     </button>
                     <button
-                        className="btn-secondary"
+                        className="btn btn-secondary"
                         onClick={handlePrint}
                         data-testid="btn-print-note"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, padding: '6px 12px' }}

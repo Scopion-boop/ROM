@@ -334,7 +334,7 @@ export default function PatientPage({ params }: { params: Promise<{ token: strin
                                     width: 12,
                                     height: 12,
                                     borderRadius: 'var(--radius-full)',
-                                    background: '#ef4444',
+                                    background: 'var(--error)',
                                     animation: 'pulse 2s infinite',
                                 }}
                             />

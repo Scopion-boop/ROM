@@ -2,12 +2,12 @@
  * Plan mapping utilities for reconciling internal DB plan names
  * with Stripe/display plan names.
  *
- * Internal plans (DB enum): 'solo' | 'practice' | 'enterprise'
- * Display plans (user-facing): 'free' | 'pro' | 'practice'
+ * Internal plans (DB enum): 'solo'
+ * Display plans (user-facing): 'free' | 'pro'
  */
 
-export type InternalPlan = 'solo' | 'practice' | 'enterprise';
-export type DisplayPlan = 'free' | 'pro' | 'practice';
+export type InternalPlan = 'solo';
+export type DisplayPlan = 'free' | 'pro';
 
 /**
  * Convert internal DB plan to user-facing display plan name.
@@ -15,8 +15,6 @@ export type DisplayPlan = 'free' | 'pro' | 'practice';
 export function internalToDisplay(plan: InternalPlan): DisplayPlan {
     const map: Record<InternalPlan, DisplayPlan> = {
         solo: 'pro', // solo = individual pro subscription
-        practice: 'practice',
-        enterprise: 'practice', // enterprise maps to practice display
     };
     return map[plan] ?? 'free';
 }
@@ -29,8 +27,8 @@ export function getSessionLimit(plan: InternalPlan | null): number | null {
     // Free tier (no subscription) = 10 sessions/month
     if (!plan) return 10;
 
-    // All paid plans have unlimited sessions
-    if (plan === 'solo' || plan === 'practice' || plan === 'enterprise') {
+    // Solo (paid) plan has unlimited sessions
+    if (plan === 'solo') {
         return null;
     }
 

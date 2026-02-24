@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { Download, Clipboard } from 'lucide-react';
 import NoteRenderer from '@/components/notes/NoteRenderer';
 import { processCaptures } from '@/lib/rom-utils';
 import { generateNote, type GeneratedNote } from '@/lib/note-generator';
@@ -37,6 +38,23 @@ export default function SessionViewPage() {
     const [note, setNote] = useState<GeneratedNote | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    const handleCopyNote = async () => {
+        if (!note) return;
+        const noteText = note.sections.map(s => `${s.title}\n${s.content}`).join('\n\n');
+        try {
+            await navigator.clipboard.writeText(noteText);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    };
 
     useEffect(() => {
         if (!id) return;
@@ -105,16 +123,37 @@ export default function SessionViewPage() {
             )}
 
             {error && (
-                <div style={{ padding: 24, background: 'rgba(239,68,68,0.08)', borderRadius: 8, color: '#dc2626', fontSize: 14 }}>
+                <div style={{ padding: 24, background: 'rgba(239,68,68,0.08)', borderRadius: 8, color: 'var(--error)', fontSize: 14 }}>
                     {error}
                 </div>
             )}
 
             {!loading && !error && session && (
                 <>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: 700, letterSpacing: '-0.03em', marginBottom: 8, color: 'var(--text-primary)' }}>
-                        {session.patientId || 'Unnamed Session'}
-                    </h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                        <h1 style={{ flex: 1, fontSize: '1.8rem', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', margin: 0 }}>
+                            {session.patientId || 'Unnamed Session'}
+                        </h1>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handlePrint}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                        >
+                            <Download size={16} />
+                            Print / PDF
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={handleCopyNote}
+                            disabled={!note}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                        >
+                            <Clipboard size={16} />
+                            {copied ? 'Copied!' : 'Copy Note'}
+                        </button>
+                    </div>
                     <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 14 }}>
                         {new Date(session.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>

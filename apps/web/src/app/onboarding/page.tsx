@@ -17,6 +17,19 @@ const SPECIALTIES = [
   'Other',
 ];
 
+const COUNTRIES = [
+  'New Zealand',
+  'Australia',
+  'United Kingdom',
+  'United States',
+  'Canada',
+  'Ireland',
+  'South Africa',
+  'Singapore',
+  'India',
+  'Other',
+];
+
 const USE_CASES = [
   'Individual practice',
   'Multi-clinician clinic',
@@ -88,7 +101,7 @@ export default function OnboardingPage() {
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#14b8a6', '#ffffff', '#0ea5e9'],
+        colors: ['#0ECDBA', '#ffffff', '#0ECDBA'],
       });
     });
 
@@ -97,7 +110,7 @@ export default function OnboardingPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
       body: JSON.stringify({ onboardingCompleted: true }),
-    }).catch(() => {/* non-critical */});
+    }).catch(() => {/* non-critical */ });
   }, [step]);
 
   async function handleStep1() {
@@ -178,23 +191,26 @@ export default function OnboardingPage() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Specialty</label>
-                  <select value={specialty} onChange={(e) => setSpecialty(e.target.value)} style={{ ...inputStyle }}>
+                  <label htmlFor="onboard-specialty" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Specialty</label>
+                  <select id="onboard-specialty" value={specialty} onChange={(e) => setSpecialty(e.target.value)} style={{ ...inputStyle }}>
                     <option value="">Select your specialty</option>
                     {SPECIALTIES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Country</label>
-                  <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. New Zealand" style={inputStyle} />
+                  <label htmlFor="onboard-country" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Country</label>
+                  <select id="onboard-country" value={country} onChange={(e) => setCountry(e.target.value)} style={inputStyle}>
+                    <option value="">Select your country</option>
+                    {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px' }}>Primary use case</label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {USE_CASES.map((uc) => (
-                      <label key={uc} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '8px', border: `1px solid ${useCase === uc ? 'var(--accent)' : 'var(--border-primary)'}`, background: useCase === uc ? 'rgba(20,184,166,0.08)' : 'var(--bg-tertiary)', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <label key={uc} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '8px', border: `1px solid ${useCase === uc ? 'var(--accent)' : 'var(--border-primary)'}`, background: useCase === uc ? 'rgba(14,205,186,0.08)' : 'var(--bg-tertiary)', cursor: 'pointer', transition: 'all 0.2s' }}>
                         <input type="radio" name="useCase" value={uc} checked={useCase === uc} onChange={() => setUseCase(uc)} style={{ accentColor: 'var(--accent)' }} />
                         <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{uc}</span>
                       </label>
@@ -203,7 +219,7 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {error && <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '16px' }}>{error}</p>}
+              {error && <p style={{ color: 'var(--error)', fontSize: '0.875rem', marginBottom: '16px' }}>{error}</p>}
 
               <button onClick={handleStep1} disabled={loading} style={{ ...btnPrimaryStyle, width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
                 {loading ? 'Saving...' : 'Continue'} <ArrowRight size={16} />
@@ -228,13 +244,13 @@ export default function OnboardingPage() {
                     <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>$0<span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}>/mo</span></div>
                   </div>
                   <ul style={{ listStyle: 'none', marginBottom: '16px' }}>
-                    {PLAN_FEATURES.free.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: '#22c55e', flexShrink: 0 }} />{f}</li>)}
+                    {PLAN_FEATURES.free.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: 'var(--success)', flexShrink: 0 }} />{f}</li>)}
                   </ul>
                   <button onClick={() => setStep(3)} style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center' }}>Continue Free →</button>
                 </div>
 
                 {/* Pro */}
-                <div style={{ padding: '20px', border: '2px solid var(--accent)', borderRadius: '12px', background: 'rgba(20,184,166,0.03)', position: 'relative' }}>
+                <div style={{ padding: '20px', border: '2px solid var(--accent)', borderRadius: '12px', background: 'rgba(14,205,186,0.03)', position: 'relative' }}>
                   <div style={{ position: 'absolute', top: '-11px', left: '20px', padding: '2px 12px', background: 'var(--accent)', color: '#000', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Most Popular</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <div>
@@ -261,20 +277,24 @@ export default function OnboardingPage() {
                     <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>$129<span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}>/mo NZD</span></div>
                   </div>
                   <ul style={{ listStyle: 'none', marginBottom: '16px' }}>
-                    {PLAN_FEATURES.practice.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: '#a855f7', flexShrink: 0 }} />{f}</li>)}
+                    {PLAN_FEATURES.practice.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />{f}</li>)}
                   </ul>
                   <a href="mailto:sales@physiolens.io" style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center', textDecoration: 'none', display: 'flex' }}>Contact Sales</a>
                 </div>
               </div>
 
-              {error && <p style={{ color: '#ef4444', fontSize: '0.875rem' }}>{error}</p>}
+              {error && <p style={{ color: 'var(--error)', fontSize: '0.875rem' }}>{error}</p>}
+
+              <button onClick={() => setStep(1)} style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center', marginTop: '8px' }}>
+                &larr; Back
+              </button>
             </motion.div>
           )}
 
           {step === 3 && (
             <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} style={{ ...cardStyle, textAlign: 'center' }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(20,184,166,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--accent)' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(14,205,186,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--accent)' }}>
                   <Check size={40} style={{ color: 'var(--accent)' }} />
                 </div>
               </div>

@@ -5,14 +5,13 @@ import { Lock, X } from 'lucide-react';
 
 interface UpgradePromptProps {
   feature: string;
-  requiredPlan: 'pro' | 'practice';
   onDismiss: () => void;
   compact?: boolean;
 }
 
-export function UpgradePrompt({ feature, requiredPlan, onDismiss, compact }: UpgradePromptProps) {
+export function UpgradePrompt({ feature, onDismiss, compact }: UpgradePromptProps) {
   const router = useRouter();
-  const planLabel = requiredPlan === 'pro' ? 'Pro' : 'Practice';
+  const planLabel = 'Pro';
 
   useEffect(() => {
     if (compact) return;
@@ -32,7 +31,7 @@ export function UpgradePrompt({ feature, requiredPlan, onDismiss, compact }: Upg
           alignItems: 'center',
           gap: '4px',
           padding: '4px 10px',
-          background: 'rgba(20,184,166,0.1)',
+          background: 'rgba(14,205,186,0.1)',
           border: '1px solid var(--accent)',
           borderRadius: '20px',
           fontSize: '0.75rem',
@@ -110,7 +109,7 @@ export function UpgradePrompt({ feature, requiredPlan, onDismiss, compact }: Upg
               width: '56px',
               height: '56px',
               borderRadius: '50%',
-              background: 'rgba(20,184,166,0.1)',
+              background: 'rgba(14,205,186,0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

@@ -76,7 +76,7 @@ export default function NoteEditor({
 
             <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
                 <button
-                    className="btn-secondary"
+                    className="btn btn-secondary"
                     onClick={() => onSave(blocks)}
                     data-testid="btn-save-note"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
@@ -84,7 +84,7 @@ export default function NoteEditor({
                     <Save size={15} /> Save Draft
                 </button>
                 <button
-                    className="btn-primary"
+                    className="btn btn-primary"
                     onClick={onFinalize}
                     data-testid="btn-finalize-note"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}

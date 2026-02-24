@@ -1,12 +1,10 @@
 import type { RequestHandler } from 'express';
 import { getRepos } from '../repositories/repo-factory';
 
-type InternalPlan = 'solo' | 'practice' | 'enterprise';
+type InternalPlan = 'solo';
 const PLAN_RANK: Record<InternalPlan | 'free', number> = {
   free: 0,
   solo: 1,
-  practice: 2,
-  enterprise: 3,
 };
 
 const cache = new Map<string, { plan: InternalPlan | 'free'; expiresAt: number }>();
@@ -31,7 +29,7 @@ async function getOrgPlan(orgId: string): Promise<InternalPlan | 'free'> {
   return plan;
 }
 
-export function planGuard(required: 'solo' | 'practice'): RequestHandler {
+export function planGuard(required: 'solo'): RequestHandler {
   return async (req, res, next) => {
     try {
       const user = req.user;
@@ -43,8 +41,8 @@ export function planGuard(required: 'solo' | 'practice'): RequestHandler {
       if (PLAN_RANK[plan] < PLAN_RANK[required]) {
         res.status(402).json({
           error: 'PLAN_UPGRADE_REQUIRED',
-          requiredPlan: required === 'solo' ? 'pro' : 'practice',
-          currentPlan: plan === 'free' ? 'free' : plan === 'solo' ? 'pro' : 'practice',
+          requiredPlan: 'pro',
+          currentPlan: plan === 'free' ? 'free' : 'pro',
           upgradeUrl: '/dashboard/billing',
         });
         return;

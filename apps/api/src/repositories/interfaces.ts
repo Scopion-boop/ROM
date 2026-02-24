@@ -90,7 +90,7 @@ export interface SubscriptionRecord {
     stripeCustomerId: string;
     stripeSubscriptionId?: string;
     stripePriceId?: string;
-    plan: 'solo' | 'practice' | 'enterprise';
+    plan: 'solo';
     status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete';
     trialEndsAt?: string;
     currentPeriodEnd?: string;

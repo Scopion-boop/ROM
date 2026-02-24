@@ -1,8 +1,8 @@
 'use client';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authClient } from './auth-client';
 
-export type PlanName = 'free' | 'pro' | 'practice';
+export type PlanName = 'free' | 'pro';
 
 interface PlanState {
     plan: PlanName;
@@ -10,6 +10,7 @@ interface PlanState {
     sessionsThisMonth: number;
     sessionLimit: number;
     loading: boolean;
+    refresh: () => void;
 }
 
 const PlanContext = createContext<PlanState>({
@@ -18,6 +19,7 @@ const PlanContext = createContext<PlanState>({
     sessionsThisMonth: 0,
     sessionLimit: 10,
     loading: true,
+    refresh: () => {},
 });
 
 export function PlanProvider({ children }: { children: React.ReactNode }) {
@@ -27,9 +29,10 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
         sessionsThisMonth: 0,
         sessionLimit: 10,
         loading: true,
+        refresh: () => {},
     });
 
-    useEffect(() => {
+    const fetchPlan = useCallback(() => {
         const headers = authClient.getAuthHeaders();
         if (!headers.Authorization) {
             setState((s) => ({ ...s, loading: false }));
@@ -39,19 +42,25 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
             .then((r) => (r.ok ? r.json() : null))
             .then((data) => {
                 if (data) {
-                    setState({
+                    setState((s) => ({
+                        ...s,
                         plan: data.plan ?? 'free',
                         status: data.status ?? 'active',
                         sessionsThisMonth: data.sessionsThisMonth ?? 0,
                         sessionLimit: data.sessionLimit ?? 10,
                         loading: false,
-                    });
+                    }));
                 } else {
                     setState((s) => ({ ...s, loading: false }));
                 }
             })
             .catch(() => setState((s) => ({ ...s, loading: false })));
     }, []);
+
+    useEffect(() => {
+        setState((s) => ({ ...s, refresh: fetchPlan }));
+        fetchPlan();
+    }, [fetchPlan]);
 
     return <PlanContext.Provider value={state}>{children}</PlanContext.Provider>;
 }

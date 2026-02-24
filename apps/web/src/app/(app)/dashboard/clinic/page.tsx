@@ -35,10 +35,11 @@ export default function ClinicDashboardPage() {
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [patientLinkMap, setPatientLinkMap] = useState<Record<string, string>>({});
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState<string | null>(null);
 
   useEffect(() => {
-    if (plan !== 'practice') return;
+    if (plan !== 'pro') return;
 
     const fetchData = async () => {
       try {
@@ -102,8 +103,10 @@ export default function ClinicDashboardPage() {
     }
   };
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, clinicianId: string) => {
     navigator.clipboard.writeText(text);
+    setCopiedLink(clinicianId);
+    setTimeout(() => setCopiedLink(null), 2000);
   };
 
   const formatDate = (dateString: string) => {
@@ -112,20 +115,7 @@ export default function ClinicDashboardPage() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Plan guard
-  if (!loading && plan !== 'practice') {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <UpgradePrompt
-          feature="Clinic Admin Dashboard"
-          requiredPlan="practice"
-          onDismiss={() => undefined}
-        />
-      </div>
-    );
-  }
-
-  // Loading state
+  // Loading state — must come before plan guard to avoid flash of UpgradePrompt
   if (loading) {
     return (
       <div style={{ padding: 'var(--space-6)' }}>
@@ -134,6 +124,18 @@ export default function ClinicDashboardPage() {
             <ShimmerCard key={i} />
           ))}
         </div>
+      </div>
+    );
+  }
+
+  // Plan guard
+  if (plan !== 'pro') {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <UpgradePrompt
+          feature="Clinic Admin Dashboard"
+          onDismiss={() => undefined}
+        />
       </div>
     );
   }
@@ -168,7 +170,7 @@ export default function ClinicDashboardPage() {
             gap: 'var(--space-2)',
             padding: 'var(--space-2) var(--space-4)',
             backgroundColor: 'var(--accent)',
-            color: 'white',
+            color: '#000',
             border: 'none',
             borderRadius: 'var(--radius-md)',
             fontSize: '0.875rem',
@@ -256,7 +258,7 @@ export default function ClinicDashboardPage() {
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                 {['Name', 'Email', 'Role', 'Sessions', 'Last Active', 'Status', 'Action'].map(header => (
-                  <th key={header} style={{
+                  <th key={header} scope="col" style={{
                     padding: 'var(--space-3) var(--space-4)',
                     textAlign: 'left',
                     fontWeight: 500,
@@ -294,8 +296,8 @@ export default function ClinicDashboardPage() {
                       <span style={{
                         display: 'inline-block',
                         padding: '2px 8px',
-                        backgroundColor: clinician.role === 'clinic_admin' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(20, 184, 166, 0.15)',
-                        color: clinician.role === 'clinic_admin' ? '#8b5cf6' : 'var(--accent)',
+                        backgroundColor: clinician.role === 'clinic_admin' ? 'rgba(14, 205, 186, 0.15)' : 'rgba(14, 205, 186, 0.15)',
+                        color: clinician.role === 'clinic_admin' ? 'var(--accent)' : 'var(--accent)',
                         borderRadius: 'var(--radius-full)',
                         fontSize: '0.75rem',
                         fontWeight: 500,
@@ -315,7 +317,7 @@ export default function ClinicDashboardPage() {
                         display: 'inline-block',
                         padding: '2px 8px',
                         backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                        color: '#22c55e',
+                        color: 'var(--success)',
                         borderRadius: 'var(--radius-full)',
                         fontSize: '0.75rem',
                         fontWeight: 500,
@@ -325,36 +327,26 @@ export default function ClinicDashboardPage() {
                     </td>
                     <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
                       {patientLinkMap[clinician.id] ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <button
-                            onClick={() => copyToClipboard(patientLinkMap[clinician.id]!)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              padding: '4px 8px',
-                              backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                              color: '#22c55e',
-                              border: 'none',
-                              borderRadius: 'var(--radius-md)',
-                              fontSize: '0.75rem',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <Check size={14} />
-                            Copy Link
-                          </button>
-                          <span style={{
-                            fontSize: '0.625rem',
-                            color: 'var(--text-muted)',
-                            maxWidth: '150px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}>
-                            {patientLinkMap[clinician.id]}
-                          </span>
-                        </div>
+                        <button
+                          onClick={() => copyToClipboard(patientLinkMap[clinician.id]!, clinician.id)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            backgroundColor: copiedLink === clinician.id ? 'rgba(34, 197, 94, 0.15)' : 'rgba(14, 205, 186, 0.1)',
+                            color: copiedLink === clinician.id ? 'var(--success)' : 'var(--accent)',
+                            border: `1px solid ${copiedLink === clinician.id ? 'rgba(34, 197, 94, 0.3)' : 'rgba(14, 205, 186, 0.2)'}`,
+                            borderRadius: 'var(--radius-md)',
+                            fontSize: '0.8125rem',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          <Check size={14} />
+                          {copiedLink === clinician.id ? 'Copied!' : 'Copy Patient Link'}
+                        </button>
                       ) : (
                         <button
                           onClick={() => generatePatientLink(clinician.id)}
@@ -432,7 +424,7 @@ export default function ClinicDashboardPage() {
                   color: 'var(--text-primary)',
                 }}
               />
-              <Bar dataKey="sessions" fill="#14b8a6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="sessions" fill="#0ECDBA" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -498,7 +490,7 @@ export default function ClinicDashboardPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  <Check size={32} color="#22c55e" />
+                  <Check size={32} color="var(--success)" />
                 </div>
                 <span style={{
                   fontSize: '1.125rem',
@@ -521,7 +513,7 @@ export default function ClinicDashboardPage() {
                 </h2>
 
                 <div style={{ marginBottom: 'var(--space-4)' }}>
-                  <label style={{
+                  <label htmlFor="invite-email" style={{
                     display: 'block',
                     fontSize: '0.875rem',
                     fontWeight: 500,
@@ -531,6 +523,7 @@ export default function ClinicDashboardPage() {
                     Email Address
                   </label>
                   <input
+                    id="invite-email"
                     type="email"
                     value={inviteEmail}
                     onChange={e => setInviteEmail(e.target.value)}
@@ -550,7 +543,7 @@ export default function ClinicDashboardPage() {
                 </div>
 
                 <div style={{ marginBottom: 'var(--space-6)' }}>
-                  <label style={{
+                  <label htmlFor="invite-role" style={{
                     display: 'block',
                     fontSize: '0.875rem',
                     fontWeight: 500,
@@ -560,6 +553,7 @@ export default function ClinicDashboardPage() {
                     Role
                   </label>
                   <select
+                    id="invite-role"
                     value={inviteRole}
                     onChange={e => setInviteRole(e.target.value)}
                     style={{
@@ -587,7 +581,7 @@ export default function ClinicDashboardPage() {
                     width: '100%',
                     padding: 'var(--space-3)',
                     backgroundColor: !inviteEmail || inviteLoading ? 'var(--text-muted)' : 'var(--accent)',
-                    color: 'white',
+                    color: '#000',
                     border: 'none',
                     borderRadius: 'var(--radius-md)',
                     fontSize: '0.875rem',
@@ -622,7 +616,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
         width: 48,
         height: 48,
         borderRadius: 'var(--radius-md)',
-        backgroundColor: 'rgba(20, 184, 166, 0.15)',
+        backgroundColor: 'rgba(14, 205, 186, 0.15)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

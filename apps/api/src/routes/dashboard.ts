@@ -47,7 +47,7 @@ dashboardRouter.get('/stats', async (req, res, next) => {
       totalMeasurements,
       avgConfidenceScore,
       sessionsThisMonth: org?.monthlySessionCount ?? thisMonthSessions,
-      sessionLimit: getSessionLimit(sub?.plan as 'solo' | 'practice' | 'enterprise' | null),
+      sessionLimit: getSessionLimit(sub?.plan ?? null),
       sessionChange,
     });
   } catch (err) { next(err); }

@@ -14,7 +14,7 @@ const createLinkSchema = z.object({
 });
 
 // POST /api/patient-links
-patientLinksRouter.post('/', requireAuth, planGuard('practice'), validateBody(createLinkSchema), async (req, res, next) => {
+patientLinksRouter.post('/', requireAuth, planGuard('solo'), validateBody(createLinkSchema), async (req, res, next) => {
   try {
     const { organizationId } = req.user!;
     const { sessionId, joints = [] } = req.body as { sessionId?: string; joints?: string[] };

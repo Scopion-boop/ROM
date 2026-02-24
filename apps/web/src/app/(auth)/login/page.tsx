@@ -99,8 +99,9 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
-                    <label style={labelStyle}>Email</label>
+                    <label htmlFor="login-email" style={labelStyle}>Email</label>
                     <input
+                        id="login-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -111,8 +112,9 @@ export default function LoginPage() {
                     />
                 </div>
                 <div>
-                    <label style={labelStyle}>Password</label>
+                    <label htmlFor="login-password" style={labelStyle}>Password</label>
                     <input
+                        id="login-password"
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -124,12 +126,30 @@ export default function LoginPage() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="btn-primary"
+                    className="btn btn-primary"
                     style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                     {loading ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Signing in...</> : 'Sign in'}
                 </button>
             </form>
+
+            <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-tertiary)', marginTop: 12 }}>
+                <button
+                    type="button"
+                    onClick={() => {
+                        const resetEmail = window.prompt('Enter your email to receive a password reset link:');
+                        if (resetEmail) {
+                            alert('If an account exists for ' + resetEmail + ', you will receive a reset link shortly.');
+                        }
+                    }}
+                    style={{
+                        background: 'none', border: 'none', color: 'var(--accent)',
+                        cursor: 'pointer', fontSize: 13, fontWeight: 500, padding: 0,
+                    }}
+                >
+                    Forgot your password?
+                </button>
+            </p>
 
             <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-tertiary)', marginTop: 20 }}>
                 Don&apos;t have an account?{' '}

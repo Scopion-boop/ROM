@@ -118,7 +118,7 @@ export default function CameraSetupWizard({
                                     key={s.meta.key}
                                     data-testid={`strategy-${s.meta.key}`}
                                     onClick={() => setStrategyKey(s.meta.key)}
-                                    className={strategyKey === s.meta.key ? 'btn-primary' : 'btn-ghost'}
+                                    className={strategyKey === s.meta.key ? 'btn btn-primary' : 'btn btn-ghost'}
                                     style={{
                                         fontSize: 13,
                                         padding: '8px 16px',
@@ -241,7 +241,7 @@ export default function CameraSetupWizard({
 
                 <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
                     <button
-                        className="btn-primary"
+                        className="btn btn-primary"
                         disabled={activeStrategy?.meta.requiresJointSelection && selectedJoints.length === 0}
                         onClick={() => setStep('camera_setup')}
                         data-testid="btn-next-camera"
@@ -289,14 +289,14 @@ export default function CameraSetupWizard({
                 </div>
                 <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
                     <button
-                        className="btn-ghost"
+                        className="btn btn-ghost"
                         onClick={() => setStep('select_joint')}
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                     >
                         <ArrowLeft size={14} /> Back
                     </button>
                     <button
-                        className="btn-primary"
+                        className="btn btn-primary"
                         onClick={() => setStep('phone_pair')}
                         data-testid="btn-start-capture"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
@@ -339,7 +339,7 @@ export default function CameraSetupWizard({
                         padding: '12px 16px', borderRadius: 'var(--radius-md)',
                         background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
                         marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8,
-                        color: '#16a34a', fontSize: 14, fontWeight: 500,
+                        color: 'var(--success)', fontSize: 14, fontWeight: 500,
                     }}>
                         ✓ Phone camera connected — dual camera mode active
                     </div>
@@ -347,14 +347,14 @@ export default function CameraSetupWizard({
 
                 <div style={{ display: 'flex', gap: 10 }}>
                     <button
-                        className="btn-ghost"
+                        className="btn btn-ghost"
                         onClick={() => setStep('camera_setup')}
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                     >
                         <ArrowLeft size={14} /> Back
                     </button>
                     <button
-                        className="btn-primary"
+                        className="btn btn-primary"
                         onClick={() => setStep('capture')}
                         data-testid="btn-start-capture-after-pair"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}

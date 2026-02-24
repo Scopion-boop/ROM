@@ -3,6 +3,7 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CameraSetupWizard from '@/components/capture/CameraSetupWizard';
+import { CaptureErrorBoundary } from '@/components/capture/CaptureErrorBoundary';
 import type { CapturedMeasurement } from '@physiolens/shared-types';
 import NoteRenderer from '@/components/notes/NoteRenderer';
 import { Camera, FileText, Save, CheckCircle2 } from 'lucide-react';
@@ -107,7 +108,7 @@ export default function NewSessionPage() {
 
                     function stepBg() {
                         if (isActive) return 'var(--accent-glow)';
-                        if (isDone) return 'rgba(20,184,166,0.06)';
+                        if (isDone) return 'rgba(14,205,186,0.06)';
                         return 'transparent';
                     }
 
@@ -178,7 +179,9 @@ export default function NewSessionPage() {
                         <p style={{ color: 'var(--text-tertiary)', marginBottom: 24, fontSize: 15 }}>
                             Select joints, position camera, and capture measurements.
                         </p>
-                        <CameraSetupWizard onComplete={handleWizardComplete} />
+                        <CaptureErrorBoundary onReset={() => setPhase('setup')}>
+                            <CameraSetupWizard onComplete={handleWizardComplete} />
+                        </CaptureErrorBoundary>
                     </motion.div>
                 )}
 
