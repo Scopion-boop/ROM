@@ -97,10 +97,10 @@ Manual ROM measurement with goniometers is slow, inconsistent, and documentation
 | **Signaling** | ws (WebSocket), Node.js | Port 4001 — relays WebRTC offer/answer/ICE |
 | **Shared Types** | Zod schemas, TypeScript | Domain contracts + 46 normative ROM ranges |
 | **Build** | Turborepo, pnpm workspaces | `turbo run build/test/lint` |
-| **Testing** | Vitest (TS), pytest (Python) | 29 web tests + API/CV/NLP tests |
+| **Testing** | Vitest (TS), pytest (Python) | 223 tests across 23+ files (api: 106, web: 62, signaling: 5, shared-types: 50) |
 | **Linting** | ESLint 9 flat config (strict), Ruff | Max cognitive complexity 15, max nesting 4 |
-| **Target DB** | PostgreSQL (planned) | Currently **in-memory Maps** as placeholders |
-| **Target Infra** | AWS managed services | Not yet provisioned |
+| **Database** | PostgreSQL 15 (Drizzle ORM) | Programmatic migrations on startup; in-memory fallback for dev/test |
+| **Infra** | DigitalOcean (Docker Compose + Caddy) | CI/CD via GitHub Actions (ci.yml, pr-checks.yml, deploy.yml) |
 
 ### Package Names
 - `@physiolens/root` — monorepo root
@@ -162,11 +162,14 @@ Base path: `/api`
 | `GET` | `/sessions/:sessionId/audit` | Yes | Audit trail for session |
 
 ### Auth Model
-- JWT Bearer tokens (`Authorization: Bearer <token>`)
+- **Dual auth**: Bearer token (`Authorization: Bearer <token>`) + httpOnly cookie (`pl_token`)
+- Cookie config: `httpOnly`, `SameSite=Lax`, `Secure` in production
+- CSRF protection: `X-Requested-With` header required for mutating requests with cookie auth
 - Payload: `{ userId, organizationId, role, email }`
-- Token expiry: 8 hours
+- Token expiry: 24 hours (configurable via `JWT_EXPIRES_IN`)
 - Passwords: bcrypt with 12 salt rounds
-- Middleware: `requireAuth` → `requireRole(...roles)`
+- Middleware: `requireAuth` (tries Bearer then cookie) → `requireRole(...roles)`
+- Frontend: `credentials: 'include'` on all fetch calls; no localStorage token storage
 
 ---
 
@@ -289,13 +292,18 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 
 ### Implemented Controls
 - Helmet security headers
-- CORS enabled
+- CORS with explicit origin allowlist (comma-separated `CORS_ORIGIN` env)
 - Rate limiting: 100 requests/minute per IP
 - Custom security headers middleware
-- JWT auth with bcrypt password hashing
+- **Cookie-only browser auth** — httpOnly, SameSite=Lax, Secure in prod
+- **CSRF protection** — `X-Requested-With` header required for mutating cookie-auth requests
+- **Dual Bearer/cookie auth middleware** on all protected routes
+- JWT auth with bcrypt password hashing (12 salt rounds)
 - Organization-scoped data access (all queries filter by `organizationId`)
 - Audit logging (append-only immutable event trail)
 - PHI-safe structured JSON logging (never logs patient names, measurements, or note content)
+- **Signaling origin validation** — WebSocket upgrade rejected for unlisted origins
+- **Signaling rate limiting + ping/pong** — connection keepalive with stale connection cleanup
 
 ### Compliance Posture
 - HIPAA-aligned controls from V1
@@ -314,13 +322,16 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 ## 9. Current State & What's Built
 
 ### Branch
-Active development branch: **`feat/vision-auto-detect`** (branched from `main`)
+Active development branch: **`main`**
 
-### Status: MVP v0.1.0 Complete ✅
-**All 5 core phases complete** — February 8, 2026
-- 29/29 tests passing
+### Status: Production-Ready MVP ✅
+**Waves 1 & 2 complete** — March 6, 2026
+- 223 tests passing across 23+ test files (api: 106 in 15 files, web: 62 in 6 files, signaling: 5 in 1 file, shared-types: 50 in 1 file)
 - TypeScript: 0 compilation errors
-- All infrastructure documentation updated
+- PostgreSQL persistence active with Drizzle ORM
+- Cookie-based auth hardened and enforced
+- DigitalOcean deployment pipeline complete
+- CI/CD with 3 GitHub Actions workflows
 
 ### Completed Phases
 
@@ -373,7 +384,7 @@ Active development branch: **`feat/vision-auto-detect`** (branched from `main`)
 - `.env.local.example` — API keys, signaling port config
 - `vitest.config.ts` — @/ path alias for tests
 
-**Test Status: ✅ 29/29 web tests passing** | ✅ TypeScript compiles clean (0 errors)
+**Test Status: ✅ 223 tests passing across all packages** | ✅ TypeScript compiles clean (0 errors)
 
 ### Key Schemas (Frontned-Side)
 
@@ -384,17 +395,15 @@ Active development branch: **`feat/vision-auto-detect`** (branched from `main`)
 | `NoteSection` | `note-generator.ts` | `id`, `type` (header/joint_group/summary/interpretation/recommendations/disclaimer), `title`, `content`, `measurements?` |
 | `GeneratedNote` | `note-generator.ts` | `sections`, `generatedAt`, `measurementCount`, `deficitCount`, `jointsCovered` |
 
-### Known Limitations (MVP v0.1.0)
-- **Database:** API repositories use **in-memory `Map`s** — PostgreSQL schemas ready, not integrated
-- **Authentication:** Infrastructure implemented but **not enforced** (development mode)
-- **PDF export:** Uses browser print (Cmd/Ctrl+P) — server-side PDF generation planned for v1.1
-- **NLP service:** Skeleton only (health endpoint) — V1.1 scope
-- **Environments:** Local development only — no staging/prod yet
-- **CI/CD:** No GitHub Actions pipeline yet
+### Known Limitations & V1.1 Deferred Items
+- **PDF export:** Not started — uses browser print (Cmd/Ctrl+P); server-side PDF generation deferred to V1.1
+- **NLP/OpenAI note enrichment:** Stubbed — Python NLP service skeleton only
+- **Feature flags:** Not implemented
+- **CV pipeline integration tests:** Not yet written
+- **Load testing:** Not yet performed
 - **SSO/MFA:** Not implemented — basic email/password only
 - **Patient mode:** V1.1 scope (shell page exists)
-- **Feature flags:** Not implemented
-- **WebRTC signaling:** Runs separately on port 4001 — needs production deployment strategy
+- **EHR integration:** Not started (FHIR/HL7 export V1.1+)
 
 ---
 
@@ -468,17 +477,21 @@ turbo run typecheck # Type check all TS packages
 /
 ├── apps/
 │   ├── api/src/
-│   │   ├── app.ts                    # Express app setup & middleware
-│   │   ├── server.ts                 # Server entry point
+│   │   ├── app.ts                    # Express app setup & middleware (CORS, CSRF, cookie-parser)
+│   │   ├── server.ts                 # Server entry point (env validation + auto-migrate + listen)
 │   │   ├── auth/jwt.ts               # JWT sign/verify, bcrypt helpers
+│   │   ├── db/
+│   │   │   ├── connection.ts         # PostgreSQL connection (Drizzle + postgres.js)
+│   │   │   ├── migrate.ts            # Programmatic migration runner (auto-runs on startup)
+│   │   │   └── schema.ts             # Drizzle table definitions
 │   │   ├── middleware/
-│   │   │   ├── authz.ts              # requireAuth, requireRole middleware
+│   │   │   ├── authz.ts              # requireAuth (Bearer + cookie), requireRole middleware
 │   │   │   ├── rate-limit.ts         # Rate limiting (100 req/min)
 │   │   │   ├── security-headers.ts   # Security headers middleware
 │   │   │   └── request-logger.ts     # Request logging middleware
 │   │   ├── repositories/
-│   │   │   ├── session-repo.ts       # Session CRUD (in-memory)
-│   │   │   ├── measurement-repo.ts   # Measurement CRUD (in-memory)
+│   │   │   ├── session-repo.ts       # Session CRUD (PostgreSQL / in-memory fallback)
+│   │   │   ├── measurement-repo.ts   # Measurement CRUD (PostgreSQL / in-memory fallback)
 │   │   │   └── audit-repo.ts         # Audit event storage
 │   │   ├── routes/
 │   │   │   ├── auth.ts               # /api/auth (register, login)
@@ -586,6 +599,18 @@ turbo run typecheck # Type check all TS packages
 │   ├── security/                     # Threat model, security checklist
 │   ├── release/                      # Release checklist, go-live runbook
 │   └── ops/                          # Support model
+├── deploy/
+│   ├── Caddyfile                     # Caddy reverse proxy config (auto-TLS)
+│   ├── .env.api.template             # API production env vars
+│   ├── .env.web.template             # Web production env vars
+│   ├── .env.db.template              # DB + build-arg env vars
+│   ├── initial-setup.sh              # Server provisioning script
+│   └── pre-deploy-check.sh           # Pre-deploy validation script
+├── .github/workflows/
+│   ├── ci.yml                        # CI: test, lint, typecheck (Turbo cached)
+│   ├── pr-checks.yml                 # PR gate checks
+│   └── deploy.yml                    # Production deploy to DigitalOcean
+├── docker-compose.prod.yml           # Production stack (Caddy + Postgres + API + Web + Signaling)
 ├── turbo.json                        # Turborepo pipeline config
 ├── pnpm-workspace.yaml               # Workspace package declarations
 ├── package.json                      # Root scripts & dev dependencies
@@ -609,27 +634,34 @@ turbo run typecheck # Type check all TS packages
 - [x] AI interpretation (OpenAI GPT-4o / Anthropic Claude)
 - [x] Clinical special tests database (23 tests)
 - [x] Print-ready reports with CSS
-- [x] Comprehensive documentation (README, SETUP, API, DEPLOYMENT, Architecture)
-- [x] 29 passing tests, 0 TypeScript errors
+- [x] Comprehensive documentation
 
-### 🚧 Phase 6: Production Readiness (Next Priority)
-1. **Database Integration** — Enable PostgreSQL persistence (Drizzle ORM schemas ready)
-2. **Authentication Enforcement** — Activate JWT middleware on all protected routes
-3. **Session Persistence** — Wire frontend session flow to backend API
-4. **Rate Limiting** — Implement API rate limits (100 req/min per user)
-5. **Input Validation** — Add comprehensive Zod validation on all endpoints
-6. **Audit Logging** — Enable immutable audit trail for all sensitive operations
-7. **Error Handling** — Standardize error responses and logging
-8. **Performance Testing** — Load testing, optimization, caching strategy
+### ✅ Completed: Wave 1 — Production Hardening
+- [x] PostgreSQL persistence with Drizzle ORM (programmatic migration on startup)
+- [x] Cookie-based auth hardening (httpOnly, SameSite=Lax, Secure in prod)
+- [x] CSRF protection via X-Requested-With header
+- [x] Dual Bearer/cookie auth middleware on all protected routes
+- [x] Dashboard, billing, clinic management, patient links APIs
+- [x] Stripe billing integration (subscriptions, webhooks, portal)
+- [x] Onboarding flow
+- [x] 106 API tests, 62 web tests, 50 shared-types tests
 
-### 📋 Phase 7: Hardening & Deployment
-9. **CI/CD Pipeline** — GitHub Actions (lint, test, build, deploy)
-10. **Environment Setup** — dev → staging → prod with secrets management
-11. **Deployment** — Vercel (Next.js) + AWS ECS (API) + RDS (PostgreSQL)
-12. **Monitoring** — Datadog/CloudWatch dashboards, alerting
-13. **Security Audit** — SAST/DAST scanning, penetration testing
-14. **Backup/Restore** — Automated backups, tested restore procedures
-15. **Server-side PDF Export** — Replace browser print with proper PDF generation
+### ✅ Completed: Wave 2 — Deploy & CI/CD
+- [x] 3 Docker multi-stage builds (api, web, signaling) with non-root users
+- [x] docker-compose.prod.yml with Caddy reverse proxy + auto-TLS
+- [x] CI/CD: ci.yml (test/lint/typecheck), pr-checks.yml, deploy.yml
+- [x] Pre-deploy validation script
+- [x] Turbo caching in CI
+- [x] Deploy env templates (.env.api, .env.web, .env.db)
+- [x] Signaling origin validation + rate limiting + ping/pong
+- [x] E2E smoke tests
+- [x] 223 total tests passing across 23+ files
+
+### 📋 Phase 8: Remaining Hardening (Deferred)
+- [ ] **Server-side PDF Export** — Replace browser print with proper PDF generation
+- [ ] **Load Testing** — Performance benchmarks and optimization
+- [ ] **Feature Flags** — Runtime feature toggles
+- [ ] **CV Pipeline Integration Tests** — End-to-end CV validation
 
 ### 🏥 Phase 8: Pilot Launch
 16. **Clinic Onboarding Kit** — Training materials, SOPs, admin guides
@@ -727,10 +759,8 @@ turbo run typecheck # Type check all TS packages
 
 - **Repo:** `Scopion-boop/ROM`
 - **Main branch:** `main`
-- **Active dev branch:** `feat/vision-auto-detect`
 - **Owner:** `@Scopion-boop`
-- **Latest commit:** `93a7738` — feat(cv): add auto-detect vision strategy with body/movement detection
-- **Status:** MVP v0.1.0 complete (all 5 phases committed), infrastructure docs updated
+- **Status:** Production-ready MVP — Waves 1 & 2 complete (223 tests, CI/CD, deployment pipeline)
 
 ---
 
@@ -788,5 +818,12 @@ pnpm lint             # ESLint + Prettier
 pnpm build            # Build all packages
 
 # Signaling Server (for dual-camera)
-cd apps/web && node src/lib/signaling/server.mjs  # Port 4001
+cd services/signaling && node server.js  # Port 4001
+
+# Database
+pnpm --filter @physiolens/api db:migrate  # Run migrations
+pnpm --filter @physiolens/api db:studio    # Open Drizzle Studio
+
+# Docker (production)
+docker compose -f docker-compose.prod.yml up --build
 ```

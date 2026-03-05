@@ -1,8 +1,8 @@
 # PhysioLens — Clinical ROM Measurement Platform
 AI-assisted range of motion measurement and clinical documentation system
 
-✅ **Status**: MVP Complete - All Core Features Implemented
-📅 **Last Updated**: February 8, 2026
+✅ **Status**: Production-Ready MVP - Waves 1 & 2 Complete
+📅 **Last Updated**: March 6, 2026
 🎯 **Current Version**: v0.1.0 (Pre-Production)
 
 ## Project Overview
@@ -96,15 +96,18 @@ physiolens/
 # Run all quality checks
 pnpm typecheck  # TypeScript compilation (0 errors)
 pnpm lint       # ESLint checks
-pnpm test       # All test suites
+pnpm test       # All test suites (223 tests across 23+ files)
 ```
 
 ### Current Status
 - ✅ TypeScript: 0 compilation errors
-- ✅ Tests: 29/29 passing
-- ✅ All 5 MVP features implemented
-- 🚧 Database persistence (schema ready, not integrated)
-- 🚧 Authentication (infrastructure ready, not enabled)
+- ✅ Tests: 223 passing (api: 106, web: 62, signaling: 5, shared-types: 50)
+- ✅ PostgreSQL persistence active (Drizzle ORM, auto-migrate on startup)
+- ✅ Cookie-based auth hardened (httpOnly, CSRF protection)
+- ✅ CI/CD pipeline (3 GitHub Actions workflows)
+- ✅ Docker production stack (Caddy + Postgres + API + Web + Signaling)
+- 🚧 PDF export (uses browser print — server-side deferred)
+- 🚧 NLP summarization (stubbed)
 
 ## Quick Start
 
@@ -143,9 +146,12 @@ pnpm --filter @physiolens/web dev       # Next.js on http://localhost:2000
 pnpm --filter @physiolens/api dev       # Express API on http://localhost:3000
 
 # Run tests
-pnpm test                        # All tests
+pnpm test                        # All tests (223 across all packages)
 pnpm --filter @physiolens/web test      # Web app tests only
 pnpm --filter @physiolens/api test      # API tests only
+
+# Database migrations (auto-runs on server start, or manually)
+pnpm --filter @physiolens/api db:migrate
 
 # TypeScript type checking
 pnpm typecheck
@@ -199,20 +205,22 @@ pnpm format
 - [x] Special tests database (23 tests)
 - [x] Print-ready reports
 
-### 🚧 Phase 6: Production Readiness (Planned)
-- [ ] Database persistence integration
-- [ ] User authentication & authorization
-- [ ] Multi-tenant support
-- [ ] Session history & patient tracking
-- [ ] Audit logging
-- [ ] Performance optimization
+### ✅ Wave 1: Production Hardening
+- [x] PostgreSQL persistence (Drizzle ORM)
+- [x] Cookie-based auth (httpOnly, SameSite, CSRF)
+- [x] Dashboard, billing, clinic, patient links APIs
+- [x] Stripe billing integration
 
-### 📋 Phase 7: Clinical Integration (Future)
-- [ ] EHR/FHIR export
-- [ ] HL7 messaging
-- [ ] Clinical validation studies
-- [ ] HIPAA compliance audit
-- [ ] FDA 510(k) preparation
+### ✅ Wave 2: Deploy & CI/CD
+- [x] Docker multi-stage builds (api, web, signaling)
+- [x] docker-compose.prod.yml with Caddy + auto-TLS
+- [x] GitHub Actions CI/CD (ci.yml, pr-checks.yml, deploy.yml)
+- [x] 223 tests passing
+
+### 🚧 Next: Remaining Hardening
+- [ ] Server-side PDF export
+- [ ] Load testing
+- [ ] Feature flags
 
 ## Documentation
 
@@ -246,11 +254,14 @@ pnpm format
 - **Clinical Validation**: Pending
 
 ### Security Features
-- 🔒 JWT-based authentication (ready, not enabled)
-- 🔒 bcryptjs password hashing
+- 🔒 Cookie-based auth (httpOnly, SameSite=Lax, Secure in prod)
+- 🔒 CSRF protection via X-Requested-With header
+- 🔒 Dual Bearer/cookie auth on all protected routes
+- 🔒 bcryptjs password hashing (12 rounds)
 - 🔒 Helmet.js security headers
-- 🔒 CORS protection
+- 🔒 CORS with explicit origin allowlist
 - 🔒 Structured audit logging (Pino)
+- 🔒 Signaling origin validation + rate limiting
 
 ## Contributing
 
