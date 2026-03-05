@@ -5,6 +5,10 @@
 # Usage: bash deploy/initial-setup.sh
 set -euo pipefail
 
+# Check prerequisites
+command -v docker >/dev/null 2>&1 || { echo "ERROR: docker not found. Install Docker first."; exit 1; }
+docker compose version >/dev/null 2>&1 || { echo "ERROR: docker compose not found. Install Docker Compose plugin."; exit 1; }
+
 APP_DIR=/opt/physiolens
 
 cd "$APP_DIR"
@@ -57,9 +61,9 @@ until docker compose -f docker-compose.prod.yml exec -T postgres pg_isready -U p
 done
 echo "PostgreSQL is ready."
 
-# Push database schema
-echo "Pushing database schema via Drizzle..."
-docker compose -f docker-compose.prod.yml exec -T api npx drizzle-kit push
+# Run database migrations
+echo "Running database migrations..."
+docker compose -f docker-compose.prod.yml exec -T api node dist/db/migrate.js
 
 echo ""
 echo "============================================"

@@ -56,6 +56,10 @@ jobs:
             echo "Rolling restart (api -> web -> signaling -> caddy)..."
             docker compose -f docker-compose.prod.yml up -d --no-deps api
             sleep 10
+
+            echo "Running database migrations..."
+            docker compose -f docker-compose.prod.yml exec -T api node dist/db/migrate.js || echo "Migration skipped (fresh schema)"
+
             docker compose -f docker-compose.prod.yml up -d --no-deps web
             sleep 5
             docker compose -f docker-compose.prod.yml up -d --no-deps signaling
@@ -64,6 +68,9 @@ jobs:
 
             echo "Waiting for services to stabilize..."
             sleep 15
+
+            echo "Verifying service health..."
+            docker compose -f docker-compose.prod.yml exec -T api node -e "require('http').get('http://localhost:4000/api/health', (r) => { let d=''; r.on('data',c=>d+=c); r.on('end',()=>{ console.log(d); process.exit(r.statusCode===200?0:1) }) })"
 
             echo "Service status:"
             docker compose -f docker-compose.prod.yml ps

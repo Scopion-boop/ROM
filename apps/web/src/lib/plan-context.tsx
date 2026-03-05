@@ -19,7 +19,7 @@ const PlanContext = createContext<PlanState>({
     sessionsThisMonth: 0,
     sessionLimit: 10,
     loading: true,
-    refresh: () => {},
+    refresh: () => { },
 });
 
 export function PlanProvider({ children }: { children: React.ReactNode }) {
@@ -29,7 +29,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
         sessionsThisMonth: 0,
         sessionLimit: 10,
         loading: true,
-        refresh: () => {},
+        refresh: () => { },
     });
 
     const fetchPlan = useCallback(() => {

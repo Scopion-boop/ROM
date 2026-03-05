@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, 'feat/**']
+    branches: [main, develop, "feat/**"]
   pull_request:
     branches: [main, develop]
 
@@ -23,7 +23,38 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
       - run: pnpm turbo lint
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
+      - run: pnpm turbo build
 
   test:
     name: Test (Node)
@@ -38,6 +69,14 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
       - run: pnpm turbo test
 
   test-cv:
@@ -118,9 +157,17 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Push Drizzle schema
+      - name: Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
+      - name: Run database migrations
         working-directory: apps/api
-        run: npx drizzle-kit push
+        run: npx tsx src/db/migrate.ts
       - name: Run integration tests
         working-directory: apps/api
         run: pnpm test:integration
@@ -148,4 +195,9 @@ jobs:
           docker run --rm -d --name web-check physiolens-web
           sleep 5
           docker exec web-check node -e "require('http').get('http://localhost:3000/',(r)=>{process.exit(r.statusCode===200?0:1)})"
-          docker stop web-check
+      - name: Build Signaling image
+        run: docker build -t physiolens-signaling -f services/signaling/Dockerfile .
+      - name: Cleanup containers
+        if: always()
+        run: |
+          docker stop api-check web-check 2>/dev/null || true

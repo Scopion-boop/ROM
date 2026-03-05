@@ -105,6 +105,7 @@ services:
     environment:
       NODE_ENV: production
       SIGNAL_PORT: 4001
+      ALLOWED_ORIGINS: "https://physiolens.com,https://www.physiolens.com,https://api.physiolens.com"
     healthcheck:
       test: ["CMD", "node", "-e", "try{require('net').createConnection(4001,'localhost',()=>process.exit(0)).on('error',()=>process.exit(1))}catch(e){process.exit(1)}"]
       interval: 30s

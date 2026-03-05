@@ -94,7 +94,7 @@ describe('Signaling Server', () => {
 
         const closeCode = await new Promise((resolve) => {
             ws.on('close', (code) => resolve(code));
-            ws.on('error', () => {}); // suppress error event
+            ws.on('error', () => { }); // suppress error event
         });
 
         expect(closeCode).toBe(4000);

@@ -26,8 +26,8 @@ const PORT = Number(process.env.SIGNAL_PORT ?? 4001);
 const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS ?? 'http://localhost:4500,http://localhost:3000').split(',').map(o => o.trim()));
 const MAX_MESSAGE_SIZE = 16 * 1024;          // 16 KB
 const RATE_LIMIT_WINDOW = 10_000;            // 10 seconds
-const RATE_LIMIT_MAX    = 100;               // messages per window
-const PING_INTERVAL     = 30_000;            // 30 seconds
+const RATE_LIMIT_MAX = 100;               // messages per window
+const PING_INTERVAL = 30_000;            // 30 seconds
 
 /** @type {Map<string, Map<string, import('ws').WebSocket>>} room → role → ws */
 const rooms = new Map();

@@ -18,8 +18,8 @@ jobs:
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v19
         with:
-          globs: '**/*.md'
-          config: '.markdownlint.json'
+          globs: "**/*.md"
+          config: ".markdownlint.json"
 
       - name: Lint YAML
         run: |
@@ -33,20 +33,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check for test files
-        id: check_tests
-        run: |
-          if find . -name "*.test.*" -o -name "test_*.py" -o -name "*_test.go" | grep -q .; then
-            echo "has_tests=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_tests=false" >> $GITHUB_OUTPUT
-            echo "No test files found yet — skipping test run."
-          fi
-
-      - name: Run tests (placeholder)
-        if: steps.check_tests.outputs.has_tests == 'true'
-        run: echo "Tests would run here once source code exists"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo test
 
   security-scan:
     name: security-scan
@@ -57,10 +52,10 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '0'
+          scan-type: "fs"
+          scan-ref: "."
+          severity: "HIGH,CRITICAL"
+          exit-code: "0"
 
       - name: Check for secrets
         uses: trufflesecurity/trufflehog@main
