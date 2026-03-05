@@ -49,7 +49,7 @@ export default function NewSessionPage() {
             const joints = [...new Set(enrichedMeasurements.map(m => m.joint))];
             const res = await fetch('/api/sessions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 credentials: 'include',
                 body: JSON.stringify({ joints, patientId: name }),
             });
@@ -64,7 +64,7 @@ export default function NewSessionPage() {
             for (const m of enrichedMeasurements) {
                 await fetch(`/api/sessions/${session.id}/measurements`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                     credentials: 'include',
                     body: JSON.stringify({
                         joint: m.joint,

@@ -109,6 +109,7 @@ export default function OnboardingPage() {
     fetch(`${authClient.apiUrl}/api/auth/me`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
+      credentials: 'include',
       body: JSON.stringify({ onboardingCompleted: true }),
     }).catch(() => {/* non-critical */ });
   }, [step]);
@@ -120,6 +121,7 @@ export default function OnboardingPage() {
       await fetch(`${authClient.apiUrl}/api/auth/me`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
+        credentials: 'include',
         body: JSON.stringify({ specialty, country }),
       });
       setStep(2);
@@ -137,6 +139,7 @@ export default function OnboardingPage() {
       const res = await fetch(`${authClient.apiUrl}/api/billing/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
+        credentials: 'include',
         body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ?? 'price_pro_monthly' }),
       });
       const { checkoutUrl } = await res.json();

@@ -1,4 +1,5 @@
 import { app } from './app';
+import { runMigrations } from './db/migrate';
 
 const PORT = process.env.PORT ?? 4000;
 
@@ -44,6 +45,14 @@ function validateEnvironment(): void {
 // Validate environment before starting server
 validateEnvironment();
 
-app.listen(PORT, () => {
-    console.log(`[api] listening on port ${PORT}`);
+// Run database migrations then start listening
+/* eslint-disable unicorn/prefer-top-level-await */
+void runMigrations().then(() => {
+    app.listen(PORT, () => {
+        console.log(`[api] listening on port ${PORT}`);
+    });
+}, (err) => {
+    console.error('[api] Migration failed, aborting startup:', err);
+    process.exit(1);
 });
+/* eslint-enable unicorn/prefer-top-level-await */

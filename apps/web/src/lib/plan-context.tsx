@@ -33,12 +33,12 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     });
 
     const fetchPlan = useCallback(() => {
-        const headers = authClient.getAuthHeaders();
-        if (!headers.Authorization) {
+        if (!authClient.isAuthenticated()) {
             setState((s) => ({ ...s, loading: false }));
             return;
         }
-        fetch(`${authClient.apiUrl}/api/billing/subscription`, { headers })
+        const headers = authClient.getAuthHeaders();
+        fetch(`${authClient.apiUrl}/api/billing/subscription`, { headers, credentials: 'include' })
             .then((r) => (r.ok ? r.json() : null))
             .then((data) => {
                 if (data) {

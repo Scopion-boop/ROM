@@ -55,6 +55,7 @@ export default function LoginPage() {
             // Check onboarding status
             const meRes = await fetch(`${API_URL}/api/auth/me`, {
                 headers: authClient.getAuthHeaders(),
+                credentials: 'include',
             });
             if (meRes.ok) {
                 const me = await meRes.json();

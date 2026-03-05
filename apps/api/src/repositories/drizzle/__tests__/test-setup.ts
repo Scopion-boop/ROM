@@ -82,8 +82,12 @@ export async function clearAllTables() {
     // Clear in reverse dependency order
     await db.delete(schema.measurements);
     await db.delete(schema.notes);
+    await db.delete(schema.clinicInvites);
+    await db.delete(schema.patientLinks);
     await db.delete(schema.auditEvents);
     await db.delete(schema.sessions);
+    await db.delete(schema.subscriptions);
+    await db.delete(schema.stripeWebhookEvents);
     await db.delete(schema.users);
     await db.delete(schema.organizations);
 }

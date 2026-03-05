@@ -15,23 +15,34 @@ declare global {
 }
 
 /**
- * Middleware: require a valid Bearer token in the Authorization header.
+ * Middleware: require a valid JWT.
+ *
+ * Resolution order:
+ *   1. Authorization: Bearer <token>  (API / test clients)
+ *   2. pl_token httpOnly cookie       (browser sessions)
+ *
  * Populates req.user on success, returns 401 on failure.
  */
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+    // 1. Try Authorization header first
     const header = req.headers.authorization;
-    if (!header?.startsWith('Bearer ')) {
-        res.status(401).json({ error: 'Missing or invalid authorization header' });
-        return;
+    if (header?.startsWith('Bearer ')) {
+        try {
+            req.user = verifyToken(header.slice(7));
+            return next();
+        } catch { /* fall through to cookie */ }
     }
 
-    try {
-        const token = header.slice(7);
-        req.user = verifyToken(token);
-        next();
-    } catch {
-        res.status(401).json({ error: 'Invalid or expired token' });
+    // 2. Fallback: check httpOnly cookie
+    const cookieToken = req.cookies?.pl_token;
+    if (cookieToken) {
+        try {
+            req.user = verifyToken(cookieToken);
+            return next();
+        } catch { /* invalid cookie */ }
     }
+
+    res.status(401).json({ error: 'Missing or invalid authorization' });
 }
 
 /**

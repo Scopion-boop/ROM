@@ -60,9 +60,9 @@ export default function DashboardPage() {
         try {
             const headers = authClient.getAuthHeaders();
             const [statsRes, trendRes, sessionsRes] = await Promise.all([
-                fetch(`${API}/api/dashboard/stats`, { headers }),
-                fetch(`${API}/api/dashboard/rom-trend?days=30`, { headers }),
-                fetch(`${API}/api/sessions?limit=5`, { headers }),
+                fetch(`${API}/api/dashboard/stats`, { headers, credentials: 'include' }),
+                fetch(`${API}/api/dashboard/rom-trend?days=30`, { headers, credentials: 'include' }),
+                fetch(`${API}/api/sessions?limit=5`, { headers, credentials: 'include' }),
             ]);
 
             if (statsRes.ok) setStats(await statsRes.json());

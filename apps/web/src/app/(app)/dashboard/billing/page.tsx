@@ -38,6 +38,7 @@ export default function BillingPage() {
     try {
       const res = await fetch(`${authClient.apiUrl}/api/billing/subscription`, {
         headers: authClient.getAuthHeaders(),
+        credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch');
       setSub(await res.json());
@@ -57,6 +58,7 @@ export default function BillingPage() {
       const res = await fetch(`${authClient.apiUrl}/api/billing/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
+        credentials: 'include',
         body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ?? 'price_pro_monthly' }),
       });
       const { checkoutUrl } = await res.json();
@@ -75,6 +77,7 @@ export default function BillingPage() {
       const res = await fetch(`${authClient.apiUrl}/api/billing/portal`, {
         method: 'POST',
         headers: authClient.getAuthHeaders(),
+        credentials: 'include',
       });
       const { portalUrl } = await res.json();
       if (portalUrl) window.location.href = portalUrl;

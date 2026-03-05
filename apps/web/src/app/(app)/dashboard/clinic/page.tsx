@@ -45,8 +45,8 @@ export default function ClinicDashboardPage() {
       try {
         const headers = authClient.getAuthHeaders();
         const [clinRes, statsRes] = await Promise.all([
-          fetch(`${API}/api/clinic/clinicians`, { headers }),
-          fetch(`${API}/api/clinic/stats`, { headers }),
+          fetch(`${API}/api/clinic/clinicians`, { headers, credentials: 'include' }),
+          fetch(`${API}/api/clinic/stats`, { headers, credentials: 'include' }),
         ]);
         if (clinRes.ok) setClinicians(await clinRes.json());
         if (statsRes.ok) setStats(await statsRes.json());
@@ -66,6 +66,7 @@ export default function ClinicDashboardPage() {
       const res = await fetch(`${API}/api/clinic/invite`, {
         method: 'POST',
         headers: { ...authClient.getAuthHeaders(), 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
       });
       if (res.ok) {
@@ -89,6 +90,7 @@ export default function ClinicDashboardPage() {
       const res = await fetch(`${API}/api/patient-links`, {
         method: 'POST',
         headers: { ...authClient.getAuthHeaders(), 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ joints: [] }),
       });
       if (res.ok) {

@@ -10,11 +10,24 @@
  *   Messages: { type: 'offer'|'answer'|'ice-candidate', ...payload }
  *
  * Each (session, token) pair forms a room of exactly 2 peers.
+ *
+ * Hardening (Session B):
+ *   - Origin validation via ALLOWED_ORIGINS env var
+ *   - 16 KB max message payload
+ *   - Per-connection rate limiting (100 msgs / 10 s)
+ *   - Ping/pong keep-alive (30 s) with dead-connection reaping
  */
 
 import { WebSocketServer } from 'ws';
 
 const PORT = Number(process.env.SIGNAL_PORT ?? 4001);
+
+// ── Hardening constants ────────────────────────────────────────────
+const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS ?? 'http://localhost:4500,http://localhost:3000').split(',').map(o => o.trim()));
+const MAX_MESSAGE_SIZE = 16 * 1024;          // 16 KB
+const RATE_LIMIT_WINDOW = 10_000;            // 10 seconds
+const RATE_LIMIT_MAX    = 100;               // messages per window
+const PING_INTERVAL     = 30_000;            // 30 seconds
 
 /** @type {Map<string, Map<string, import('ws').WebSocket>>} room → role → ws */
 const rooms = new Map();
@@ -23,13 +36,48 @@ function roomKey(session, token) {
     return `${session}:${token}`;
 }
 
-const wss = new WebSocketServer({ port: PORT, path: '/ws/signaling' });
+const wss = new WebSocketServer({
+    port: PORT,
+    path: '/ws/signaling',
+    maxPayload: MAX_MESSAGE_SIZE,
+    verifyClient: (info, cb) => {
+        const origin = info.origin;
+        if (!origin || ALLOWED_ORIGINS.has(origin)) {
+            cb(true);
+        } else {
+            console.warn(`[signaling] rejected connection from origin: ${origin}`);
+            cb(false, 403, 'Origin not allowed');
+        }
+    },
+});
+
+// ── Ping/pong keep-alive ───────────────────────────────────────────
+const pingInterval = setInterval(() => {
+    wss.clients.forEach((ws) => {
+        if (ws._isAlive === false) {
+            ws.terminate();
+            return;
+        }
+        ws._isAlive = false;
+        ws.ping();
+    });
+}, PING_INTERVAL);
+
+wss.on('close', () => clearInterval(pingInterval));
 
 wss.on('listening', () => {
     console.log(`[signaling] listening on ws://0.0.0.0:${PORT}/ws/signaling`);
 });
 
 wss.on('connection', (ws, req) => {
+    // ── Keep-alive bookkeeping ─────────────────────────────────────
+    ws._isAlive = true;
+    ws.on('pong', () => { ws._isAlive = true; });
+
+    // ── Rate-limit bookkeeping ─────────────────────────────────────
+    ws._msgCount = 0;
+    ws._msgWindowStart = Date.now();
+
     const url = new URL(req.url ?? '', `http://localhost:${PORT}`);
     const session = url.searchParams.get('session');
     const token = url.searchParams.get('token');
@@ -66,11 +114,23 @@ wss.on('connection', (ws, req) => {
     }
 
     ws.on('message', (data) => {
+        // ── Rate-limit check ───────────────────────────────────────
+        const now = Date.now();
+        if (now - ws._msgWindowStart > RATE_LIMIT_WINDOW) {
+            ws._msgCount = 0;
+            ws._msgWindowStart = now;
+        }
+        ws._msgCount++;
+        if (ws._msgCount > RATE_LIMIT_MAX) {
+            ws.close(4029, 'Rate limit exceeded');
+            return;
+        }
+
         // Relay to the other peer in the room
         const peerRole = role === 'host' ? 'remote' : 'host';
         const peer = room.get(peerRole);
-        if (peer && peer.readyState === 1) {
-            peer.send(data.toString());
+        if (peer?.readyState === 1) {
+            peer.send(String(data));
         }
     });
 
@@ -80,7 +140,7 @@ wss.on('connection', (ws, req) => {
 
         // Notify remaining peer
         const remaining = room.get(role === 'host' ? 'remote' : 'host');
-        if (remaining && remaining.readyState === 1) {
+        if (remaining?.readyState === 1) {
             remaining.send(JSON.stringify({ type: 'peer-disconnected' }));
         }
 
