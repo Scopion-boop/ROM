@@ -32,6 +32,7 @@ Complete guide for provisioning production-ready AWS infrastructure for the Phys
 1. **AWS Account** with billing enabled
 2. **IAM User** with AdministratorAccess (or specific permissions)
 3. **AWS CLI configured**:
+
    ```bash
    aws configure
    # AWS Access Key ID: [your-key]
@@ -298,6 +299,7 @@ aws rds create-db-instance \
 ```
 
 **Key Settings:**
+
 - **Multi-AZ**: Enabled for high availability (automatic failover)
 - **Encryption**: AES-256 at rest via KMS
 - **Backup Retention**: 30 days
@@ -388,8 +390,8 @@ Create `task-definition.json`:
         }
       ],
       "environment": [
-        {"name": "NODE_ENV", "value": "production"},
-        {"name": "PORT", "value": "4000"}
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "4000" }
       ],
       "secrets": [
         {
@@ -584,6 +586,7 @@ aws s3api put-bucket-lifecycle-configuration \
 ```
 
 `s3-lifecycle.json`:
+
 ```json
 {
   "Rules": [
@@ -722,10 +725,7 @@ aws secretsmanager rotate-secret \
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject"
-      ],
+      "Action": ["s3:GetObject", "s3:PutObject"],
       "Resource": "arn:aws:s3:::rom-production-backups/*"
     }
   ]
@@ -736,18 +736,18 @@ aws secretsmanager rotate-secret \
 
 ## Cost Estimation
 
-| Service | Configuration | Monthly Cost (USD) |
-|---------|--------------|-------------------|
-| VPC | Standard (NAT Gateway) | $32 |
-| RDS PostgreSQL | db.t3.medium, Multi-AZ, 100GB | $150 |
-| ECS Fargate | 2 tasks, 0.5 vCPU, 1GB RAM | $30 |
-| ALB | Standard, ~1M requests | $25 |
-| S3 | 100GB Standard + lifecycle | $3 |
-| CloudWatch | Logs + Dashboards | $10 |
-| Secrets Manager | 2 secrets | $0.80 |
-| **Total** | | **~$250/month** |
+| Service         | Configuration                 | Monthly Cost (USD) |
+| --------------- | ----------------------------- | ------------------ |
+| VPC             | Standard (NAT Gateway)        | $32                |
+| RDS PostgreSQL  | db.t3.medium, Multi-AZ, 100GB | $150               |
+| ECS Fargate     | 2 tasks, 0.5 vCPU, 1GB RAM    | $30                |
+| ALB             | Standard, ~1M requests        | $25                |
+| S3              | 100GB Standard + lifecycle    | $3                 |
+| CloudWatch      | Logs + Dashboards             | $10                |
+| Secrets Manager | 2 secrets                     | $0.80              |
+| **Total**       |                               | **~$250/month**    |
 
-*Costs vary based on actual usage. Add 20% buffer for production traffic.*
+_Costs vary based on actual usage. Add 20% buffer for production traffic._
 
 ---
 
@@ -830,10 +830,12 @@ aws secretsmanager rotate-secret \
 ## Support
 
 For AWS-specific issues:
+
 - AWS Support (if subscribed)
 - AWS Documentation: https://docs.aws.amazon.com/
 - AWS re:Post: https://repost.aws/
 
 For platform issues:
+
 - See [DEPLOYMENT.md](../../DEPLOYMENT.md)
 - See [Troubleshooting Guide](./TROUBLESHOOTING.md)

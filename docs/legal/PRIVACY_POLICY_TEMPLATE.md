@@ -15,15 +15,15 @@
 
 ## 2. What Data We Collect
 
-| Data Category | Examples | Retention |
-|--------------|----------|-----------|
-| Account data | Email, name, role, organization | Duration of account |
-| Session data | Joint selections, timestamps, clinician ID | `[TBD — counsel to define]` |
-| Measurement data | ROM angles, confidence scores, quality flags | `[TBD]` |
-| Clinical notes | Generated and edited note content | `[TBD]` |
-| Video frames | Camera captures during measurement | Processed in-memory only; **never stored** |
-| Audit logs | Action type, user ID, timestamp | `[TBD — minimum 7 years suggested for HIPAA]` |
-| Technical logs | IP address, browser type, correlation IDs | 90 days |
+| Data Category    | Examples                                     | Retention                                     |
+| ---------------- | -------------------------------------------- | --------------------------------------------- |
+| Account data     | Email, name, role, organization              | Duration of account                           |
+| Session data     | Joint selections, timestamps, clinician ID   | `[TBD — counsel to define]`                   |
+| Measurement data | ROM angles, confidence scores, quality flags | `[TBD]`                                       |
+| Clinical notes   | Generated and edited note content            | `[TBD]`                                       |
+| Video frames     | Camera captures during measurement           | Processed in-memory only; **never stored**    |
+| Audit logs       | Action type, user ID, timestamp              | `[TBD — minimum 7 years suggested for HIPAA]` |
+| Technical logs   | IP address, browser type, correlation IDs    | 90 days                                       |
 
 ## 3. Legal Basis for Processing
 
@@ -43,10 +43,10 @@
 
 ## 5. Data Sharing and Subprocessors
 
-| Subprocessor | Purpose | Location |
-|-------------|---------|----------|
+| Subprocessor             | Purpose                | Location         |
+| ------------------------ | ---------------------- | ---------------- |
 | `[TBD — cloud provider]` | Infrastructure hosting | `[TBD — region]` |
-| `[TBD — if applicable]` | `[Purpose]` | `[Location]` |
+| `[TBD — if applicable]`  | `[Purpose]`            | `[Location]`     |
 
 We do not sell personal data. We do not share PHI for marketing purposes.
 
@@ -72,6 +72,7 @@ We do not sell personal data. We do not share PHI for marketing purposes.
 ## 9. User Rights
 
 Depending on applicable jurisdiction:
+
 - Right to access, rectify, delete personal data
 - Right to data portability (JSON/text export available)
 - Right to withdraw consent
@@ -87,6 +88,7 @@ Depending on applicable jurisdiction:
 ---
 
 **Review Checklist:**
+
 - [ ] Legal counsel has reviewed all `[TBD]` fields
 - [ ] Applicable jurisdiction(s) confirmed
 - [ ] Subprocessor list finalized

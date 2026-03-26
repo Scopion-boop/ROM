@@ -86,10 +86,12 @@ For clinicians and healthcare professionals using the Platform:
 We may disclose PHI only in the following situations:
 
 #### 4.2.1 Within Your Healthcare Organization
+
 - PHI is accessible to authorized clinicians within your organization for treatment purposes
 - Organization administrators may access audit logs for compliance
 
 #### 4.2.2 Business Associates
+
 We may share PHI with third-party service providers who assist in Platform operations:
 
 - **Cloud Infrastructure**: AWS (database hosting, storage, networking)
@@ -99,17 +101,20 @@ We may share PHI with third-party service providers who assist in Platform opera
 **All Business Associates execute HIPAA-compliant Business Associate Agreements (BAAs).**
 
 #### 4.2.3 Legal Requirements
+
 - **Law Enforcement**: When required by valid subpoena, court order, or warrant
 - **Public Health**: Mandatory reporting of communicable diseases (if applicable)
 - **Legal Proceedings**: Response to lawsuits or legal claims involving the Platform
 
 #### 4.2.4 With Your Explicit Consent
+
 - Research collaborations (after de-identification)
 - Third-party integrations you explicitly authorize
 
 ### 4.3 De-Identified Data
 
 We may use de-identified data (with all 18 HIPAA identifiers removed) for:
+
 - Product improvement and AI model training
 - Research and clinical validation studies
 - Aggregate analytics and reporting
@@ -144,6 +149,7 @@ De-identified data is NOT considered PHI and is not subject to HIPAA restriction
 ### 5.4 Breach Notification
 
 In the event of a data breach affecting PHI:
+
 - We will notify affected individuals within **72 hours** of discovery
 - We will notify the U.S. Department of Health and Human Services (HHS)
 - We will provide details on the breach, data affected, and remediation steps
@@ -154,18 +160,19 @@ In the event of a data breach affecting PHI:
 
 ### 6.1 Retention Periods
 
-| Data Type | Retention Period | Legal Basis |
-|-----------|-----------------|-------------|
-| Patient Assessment Data | **7 years** | HIPAA minimum, state medical records laws |
-| Clinical Notes | **7 years** | Professional liability, malpractice statutes |
-| User Account Data | Account lifetime + **2 years** | Business necessity, audit requirements |
-| Audit Logs | **6 years** | HIPAA audit requirements |
-| System Logs | **90 days** | Operational necessity |
-| Backups | **30 days** (rolling) | Disaster recovery |
+| Data Type               | Retention Period               | Legal Basis                                  |
+| ----------------------- | ------------------------------ | -------------------------------------------- |
+| Patient Assessment Data | **7 years**                    | HIPAA minimum, state medical records laws    |
+| Clinical Notes          | **7 years**                    | Professional liability, malpractice statutes |
+| User Account Data       | Account lifetime + **2 years** | Business necessity, audit requirements       |
+| Audit Logs              | **6 years**                    | HIPAA audit requirements                     |
+| System Logs             | **90 days**                    | Operational necessity                        |
+| Backups                 | **30 days** (rolling)          | Disaster recovery                            |
 
 ### 6.2 Deletion Requests
 
 Patients may request deletion of their PHI by contacting their healthcare provider. We will:
+
 - Delete PHI within **30 days** of verified request
 - Retain audit logs showing deletion occurred (HIPAA requirement)
 - Notify the requesting party upon completion
@@ -175,6 +182,7 @@ Patients may request deletion of their PHI by contacting their healthcare provid
 ### 6.3 Account Termination
 
 When a clinician account is terminated:
+
 - Access is immediately revoked
 - Account data is retained for 2 years (audit compliance)
 - PHI remains accessible to organization administrators
@@ -241,11 +249,13 @@ If patient data includes information about minors, it is provided by their healt
 ## 10. Changes to This Policy
 
 We may update this Privacy Policy to reflect:
+
 - Changes in legal requirements (new laws or regulations)
 - Platform feature updates or new services
 - Feedback from users or regulators
 
 **Notice of Changes:**
+
 - Updated policy will be posted on our website with new "Last Updated" date
 - Material changes will be announced via email to registered users
 - Continued use after changes constitutes acceptance
@@ -255,6 +265,7 @@ We may update this Privacy Policy to reflect:
 ## 11. Contact Information
 
 ### Privacy Officer
+
 **[YOUR COMPANY NAME]**
 [YOUR ADDRESS]
 Email: privacy@[YOUR DOMAIN].com
@@ -277,6 +288,7 @@ If you believe your privacy rights have been violated, you may file a complaint 
 ### GDPR Data Protection Authority
 
 EU/EEA individuals may lodge a complaint with their local supervisory authority:
+
 - **List of authorities:** https://edpb.europa.eu/about-edpb/board/members_en
 
 ---
@@ -284,9 +296,11 @@ EU/EEA individuals may lodge a complaint with their local supervisory authority:
 ## 12. Additional State-Specific Disclosures
 
 ### Nevada Residents
+
 Nevada law allows you to opt out of the sale of personal information. We do not sell PHI. To exercise Nevada rights: privacy@[YOUR DOMAIN].com
 
 ### Virginia, Colorado, Connecticut, Utah Residents
+
 These states have enacted comprehensive privacy laws. Contact privacy@[YOUR DOMAIN].com to exercise your rights.
 
 ---

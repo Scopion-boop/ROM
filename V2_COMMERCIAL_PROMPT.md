@@ -1,4 +1,5 @@
 # PhysioLens V2 — Commercial Transformation Brief
+
 ## Paste this entire file as your opening prompt in the project VS Code session
 
 ---
@@ -12,6 +13,7 @@ measure joint Range-of-Motion (ROM) using a webcam, powered by Google MediaPipe
 running fully in-browser.
 
 **What is already built and working (do not rebuild these):**
+
 - Next.js 15 + React 19 frontend (`apps/web/`) running on port 4500
 - Express 4 TypeScript REST API (`apps/api/`) with JWT auth, rate limiting, HIPAA-aligned audit trail
 - MediaPipe Pose CV pipeline (in-browser, no server cost) — real-time joint angle measurement
@@ -44,6 +46,7 @@ copy, pricing tiers, and UI microcopy.
 ### Validated Pain Points (that PhysioLens directly solves)
 
 **#1 — PT Workflow Disruption from AI-Generated Patient Questions** (r/physicaltherapy, 394+ upvotes)
+
 > "Patient came in with 4 pages of AI-generated questions — I barely had time to take measurements during their evaluation."
 
 PhysioLens saves clinicians time by measuring faster and generating notes
@@ -57,7 +60,7 @@ core ROI message: **"Save 20 minutes per patient. That's 2 extra patients per da
 **#3 — No Lightweight Clinical Tool for Independent Clinics**
 Competitors (Jane App: CAD $79/mo, SimplePractice: $79/mo) are practice
 management suites that don't do CV measurement. Epic/Cerner are enterprise-only.
-PhysioLens fills a narrow but deep gap: **AI measurement + note generation, 
+PhysioLens fills a narrow but deep gap: **AI measurement + note generation,
 nothing else, under $100/month.** Independent physiotherapists will pay for this.
 
 **#4 — No Consumer-Facing Post-Surgery ROM Tracker**
@@ -68,6 +71,7 @@ CV tool exists for this. V2 should introduce a **Patient Self-Assessment mode**
 or patient add-on sold through clinics.
 
 ### Competitive Gaps (why PhysioLens wins)
+
 - **Hinge Health ($6B):** 100% locked behind employer contracts. Individuals cannot buy.
 - **Kaia Health:** Abandoned the US/NZ/AU market. EU-only DiGA model.
 - **RecoveryOne:** B2B only, no real-time CV, no clinician tooling.
@@ -75,6 +79,7 @@ or patient add-on sold through clinics.
 - **No competitor** offers: browser-based CV + clinical notes + AI interpretation + patient self-assessment in one tool under $100/month.
 
 ### Target Market (Primary: NZ/AU, Secondary: US/UK)
+
 - ~8,000 physiotherapy clinics in Australia, ~3,000 in NZ
 - Independent and small-group clinics (1–5 clinicians) are the sweet spot — no IT
   department, no long procurement cycles, credit card purchase decisions
@@ -104,13 +109,14 @@ cd apps/api && pnpm add stripe
 Create these exact three tiers. All prices in NZD (display USD equivalent for
 international visitors using a static rate of 1 NZD = 0.60 USD):
 
-| Tier | Name | Price | Who it's for |
-|------|------|-------|-------------|
-| Free | Starter | NZD $0/month | Solo physios wanting to trial |
-| Pro | Clinician | NZD $49/month or $420/year | Independent physiotherapists |
-| Clinic | Practice | NZD $129/month or $1,100/year | Clinics with 2–8 clinicians |
+| Tier   | Name      | Price                         | Who it's for                  |
+| ------ | --------- | ----------------------------- | ----------------------------- |
+| Free   | Starter   | NZD $0/month                  | Solo physios wanting to trial |
+| Pro    | Clinician | NZD $49/month or $420/year    | Independent physiotherapists  |
+| Clinic | Practice  | NZD $129/month or $1,100/year | Clinics with 2–8 clinicians   |
 
 **Starter (Free) Limits:**
+
 - 10 sessions per month
 - 1 clinician seat only
 - CV measurement + basic note export
@@ -119,6 +125,7 @@ international visitors using a static rate of 1 NZD = 0.60 USD):
 - Watermarked PDF export ("Generated with PhysioLens Free")
 
 **Clinician Pro (NZD $49/month):**
+
 - Unlimited sessions
 - 1 clinician seat
 - Full CV pipeline including dual-camera
@@ -128,6 +135,7 @@ international visitors using a static rate of 1 NZD = 0.60 USD):
 - Email support
 
 **Practice (NZD $129/month):**
+
 - Unlimited sessions
 - Up to 8 clinician seats
 - Everything in Pro
@@ -144,7 +152,9 @@ Add to `apps/api/src/db/schema.ts` — new table:
 ```typescript
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').primaryKey().defaultRandom(),
-  organizationId: uuid('organization_id').notNull().references(() => organizations.id),
+  organizationId: uuid('organization_id')
+    .notNull()
+    .references(() => organizations.id),
   stripeCustomerId: varchar('stripe_customer_id', { length: 255 }).notNull(),
   stripeSubscriptionId: varchar('stripe_subscription_id', { length: 255 }),
   stripePriceId: varchar('stripe_price_id', { length: 255 }),
@@ -160,6 +170,7 @@ Also add `monthlySessionCount` and `billingCycleStart` to the `organizations` ta
 for enforcing the Free tier limit.
 
 Create `apps/api/src/routes/billing.ts`:
+
 - `POST /api/billing/checkout` — creates a Stripe Checkout Session, returns URL
 - `POST /api/billing/portal` — creates Stripe Customer Portal session
 - `POST /api/billing/webhook` — handles `checkout.session.completed`,
@@ -167,6 +178,7 @@ Create `apps/api/src/routes/billing.ts`:
 - `GET /api/billing/subscription` — returns current org plan + limits + usage
 
 Create `apps/api/src/middleware/plan-guard.ts`:
+
 - Middleware that checks `organizationId` subscription tier
 - For Free tier, count sessions this billing cycle and reject if > 10 with:
   `{ error: 'SESSION_LIMIT_REACHED', upgradeUrl: '/billing/upgrade' }`
@@ -178,6 +190,7 @@ Apply `planGuard('practice')` to any multi-seat or admin endpoints.
 ### 1.4 Stripe Webhook Setup
 
 Add env vars to `apps/api/.env.example`:
+
 ```
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
@@ -201,7 +214,7 @@ Currently `apps/web/src/app/page.tsx` is the dashboard. Move the dashboard to
 
 The new root `page.tsx` must be a `'use client'` page with no sidebar layout.
 Create a separate layout for marketing pages: `apps/web/src/app/(marketing)/layout.tsx`
-that renders a simple top nav (logo + "Sign In" + "Start Free") without the 
+that renders a simple top nav (logo + "Sign In" + "Start Free") without the
 clinical sidebar.
 
 Move the current dashboard to `apps/web/src/app/dashboard/page.tsx`.
@@ -219,20 +232,23 @@ Hero visual: A short looping video placeholder (dark card with animated skeleton
 
 **Section 2 — Social Proof Strip**
 Three short quotes (fabricate realistic ones for now with [PLACEHOLDER] note):
+
 - "I save 20 minutes per session compared to manual goniometry. Game changer." — Sarah K., Physiotherapist, Auckland
-- "The note generation alone is worth it. I used to dread documentation." — James R., Sports Physio, Sydney  
+- "The note generation alone is worth it. I used to dread documentation." — James R., Sports Physio, Sydney
 - "My clinic upgraded from paper forms to PhysioLens in one afternoon." — Dr. M. Patel, Orthopaedic Clinic, Melbourne
-Add a note: `// TODO: Replace with verified customer quotes before launch`
+  Add a note: `// TODO: Replace with verified customer quotes before launch`
 
 **Section 3 — Problem/Solution**
 Two-column layout:
-Left (Problem): 
+Left (Problem):
+
 - Manual goniometry takes 3–5 minutes per joint
 - Handwritten notes eat 25+ minutes per patient
 - Measurement inconsistency between clinicians
 - No objective progression tracking for patients
 
 Right (Solution — PhysioLens):
+
 - AI measures all visible joints in real time
 - Structured notes generated from measurements automatically
 - Standardised AMA/AAOS normative comparison on every reading
@@ -254,6 +270,7 @@ Practice: "Start Free Trial" → Stripe Checkout
 Add below: `"All plans include a 14-day free trial of Pro features. No credit card required to start."`
 
 **Section 6 — FAQ** (accordion, 6 questions)
+
 1. Q: Is PhysioLens a certified medical device? A: No. PhysioLens is a clinical workflow and documentation tool, not a diagnostic medical device. All measurements are labeled as assistive data and require clinician review and confirmation before use in patient records.
 2. Q: Does it work on a phone? A: Yes. PhysioLens works in mobile Chrome and Safari. You can also pair your phone as a second camera for 3D measurement — no app download needed.
 3. Q: Is patient data secure? A: All data is encrypted in transit (TLS) and at rest. We maintain a full audit trail. Our architecture is HIPAA-aligned and Privacy Act compliant for NZ/AU.
@@ -273,6 +290,7 @@ Disclaimer: PhysioLens is a clinical workflow tool. It does not provide medical 
 ### 3.1 Auth Pages
 
 Create these new pages (all in the `(marketing)` layout group, no sidebar):
+
 - `app/(auth)/login/page.tsx` — email + password, link to register
 - `app/(auth)/register/page.tsx` — name, clinic name, email, password, role dropdown (Physiotherapist / Sports Medicine / Chiropractor / Orthopedic Surgeon / Other)
 - `app/(auth)/verify-email/page.tsx` — "Check your email" holding page
@@ -284,18 +302,21 @@ On register success: Create organization (using clinic name) + user via the exis
 Create `app/onboarding/page.tsx` — a linear 3-step wizard shown only on first login:
 
 **Step 1 — Setup Your Profile**
+
 - Display name (pre-filled from registration)
 - Specialty (dropdown)
 - Country (NZ / AU / UK / US / Other)
 - Primary use case: "For my clinic" | "For personal practice" | "For research"
 
 **Step 2 — Choose Your Plan**
+
 - Show the same 3-tier pricing cards from the landing page
 - "Continue with Free" (skip Stripe, go to step 3)
 - "Start Pro Trial" (redirect to Stripe Checkout, return URL = `/onboarding?step=3&success=true`)
 - "Start Practice Trial" (same)
 
 **Step 3 — Take Your First Measurement**
+
 - Short animated explainer: "Your camera, your patient, your notes — ready in 60 seconds"
 - Single CTA: "Start Your First Session →" (links to `/sessions/new`)
 - Confetti animation on page load (use `canvas-confetti` package)
@@ -320,6 +341,7 @@ Store the JWT in an `httpOnly` cookie (not localStorage) for security.
 ### 4.1 Billing Page
 
 Create `app/dashboard/billing/page.tsx`:
+
 - Show current plan name, status, next renewal date
 - Show this billing period's session count (Free tier shows "X / 10 sessions used" with progress bar)
 - "Upgrade Plan" button → Stripe Checkout
@@ -329,11 +351,13 @@ Create `app/dashboard/billing/page.tsx`:
 ### 4.2 Upgrade Prompt
 
 When a Free user hits the session limit (planGuard returns 429), show a toast/modal:
+
 > "You've used all 10 free sessions this month. Upgrade to Clinician Pro for unlimited sessions — from NZD $49/month."
 > [Upgrade Now] [Maybe Later]
 
 When a Free user clicks the AI Interpretation button in NoteRenderer:
 Show a modal:
+
 > "AI Clinical Interpretation is a Pro feature."
 > "Upgrade to unlock AI-powered deficit analysis and clinical test recommendations."
 > [See Plans] [Not now]
@@ -341,6 +365,7 @@ Show a modal:
 ### 4.3 Add Billing Link to Sidebar
 
 In `apps/web/src/components/layout/Sidebar.tsx`, add:
+
 - "Billing & Plan" link with a `CreditCard` icon
 - Show the current plan badge (e.g., "FREE", "PRO", "PRACTICE") as a coloured chip next to the user avatar
 
@@ -351,23 +376,29 @@ In `apps/web/src/components/layout/Sidebar.tsx`, add:
 Create `app/dashboard/clinic/page.tsx` — visible only to `clinic_admin` role:
 
 ### Clinician Management Table
+
 Columns: Name | Email | Role | Sessions This Month | Last Active | Status
 Actions: Invite New Clinician (email invite), Remove Clinician, Change Role
 
 ### Invite Flow
+
 `POST /api/clinic/invite` — creates an invite token and sends an email with:
+
 > "You've been invited to join [Clinic Name] on PhysioLens. Click here to create your account."
 
 Accept URL: `/register?invite=<token>` — pre-fills clinic association.
 
 ### Aggregate Outcome Metrics
+
 Summary cards (Practice tier only):
+
 - Total sessions across all clinicians this month
 - Average AI confidence score across recent sessions
 - Most common joint assessed this month (bar chart)
 - Clinician utilisation rate (sessions per clinician per week)
 
 Add these API endpoints:
+
 - `GET /api/clinic/clinicians` — list clinicians in org
 - `GET /api/clinic/stats` — aggregate stats for admin dashboard
 - `POST /api/clinic/invite` — create invite
@@ -380,11 +411,13 @@ Add these API endpoints:
 A shell already exists at `apps/web/src/app/exam/self-guided/`. Build it out:
 
 ### What to Build
+
 A guided home measurement experience for patients, distributed via a unique link
 generated by the clinic. No patient login required — link contains a one-time
 session token.
 
 Flow:
+
 1. Clinic admin generates a patient link from the clinic dashboard: "Send Home Assessment" button per historical session
 2. Patient opens link on their phone
 3. Simple 3-step guided flow: "Stand 2 metres from the camera" → "Raise your [RIGHT ARM/LEFT KNEE/etc.]" → "Hold still for 3 seconds"
@@ -393,12 +426,15 @@ Flow:
 6. Clinician reviews in their dashboard
 
 ### API Changes
+
 - `POST /api/patient-links` — generate a one-time patient measurement link (Practice tier only)
 - `GET /api/patient-links/:token` — validate token, return procedure context
 - `POST /api/patient-links/:token/measurement` — submit measurement from patient device (no auth, token-scoped)
 
 ### Patient Link Page
+
 `app/patient/[token]/page.tsx`:
+
 - No sidebar, clean minimal UI
 - Brand logo + "Powered by PhysioLens"
 - Full-screen camera UI (guided flow)
@@ -413,6 +449,7 @@ Flow:
 Replace ALL mock data in `apps/web/src/app/dashboard/page.tsx` with real API calls:
 
 Replace the STATS mock array with a `useEffect` that calls `GET /api/dashboard/stats`:
+
 ```typescript
 // Returns:
 {
@@ -449,6 +486,7 @@ Session ID, Patient ID, Date, Joint, ROM Value, Confidence Score, Note Status, C
 ### 8.1 Rename and Brand Consistently
 
 The app is called **PhysioLens**. Ensure the name appears consistently:
+
 - Browser tab title: "PhysioLens — AI-Powered ROM Measurement"
 - Sidebar logo text: "PhysioLens"
 - Dashboard heading: "PhysioLens Dashboard"
@@ -460,19 +498,23 @@ The app is called **PhysioLens**. Ensure the name appears consistently:
 Update these specific UI strings for commercial impact:
 
 In `CameraSetupWizard.tsx`:
+
 - Step 1 heading: Change to "What are we measuring today?" (more conversational)
 - Add below joint selector: "PhysioLens will automatically identify landmarks and calculate angles — no calibration needed."
 
 In `MeasurementPanel.tsx`:
+
 - Add to each measurement row below the angle: a small chip showing deficit %
   e.g., "14° below normal (AAOS)" in amber if deficit, green tick if within normal
 
 In `NoteRenderer.tsx`:
+
 - Change the AI interpretation button label from whatever it is to:
   "✦ Get AI Clinical Interpretation" (with Sparkles icon)
 - Under the button (Free tier only): "(Pro feature — upgrade to unlock)"
 
 In `SessionNew` page:
+
 - After session completes and note is generated, add:
   "📋 Note ready. Your session took [X] minutes — [Y] minutes saved vs manual documentation."
 
@@ -484,12 +526,14 @@ Create `apps/api/src/services/email.ts` with a minimal email service using
 Add env: `RESEND_API_KEY=re_...` and `FROM_EMAIL=hello@physiolens.io`
 
 Templates to implement (as plain HTML strings):
+
 1. `welcomeEmail(name, clinicName)` — sent on registration
 2. `inviteEmail(inviterName, clinicName, inviteUrl)` — clinic seat invite
 3. `trialExpiringEmail(name, daysLeft)` — 3 days before 14-day trial ends
 4. `paymentFailedEmail(name, retryUrl)` — on Stripe payment failure
 
 Trigger emails:
+
 - Registration → `welcomeEmail`
 - Clinic invite → `inviteEmail`
 - Stripe `customer.subscription.trial_will_end` webhook → `trialExpiringEmail`
@@ -502,24 +546,34 @@ Trigger emails:
 ### 9.1 Next.js Metadata
 
 In `apps/web/src/app/(marketing)/layout.tsx`, add:
+
 ```typescript
 export const metadata = {
   title: 'PhysioLens — AI ROM Measurement for Physiotherapists',
-  description: 'Browser-based computer vision that measures joint Range-of-Motion in real time and generates structured clinical notes automatically. No hardware. No install.',
-  keywords: ['physiotherapy software', 'ROM measurement tool', 'clinical documentation', 'joint angle measurement', 'physio AI'],
+  description:
+    'Browser-based computer vision that measures joint Range-of-Motion in real time and generates structured clinical notes automatically. No hardware. No install.',
+  keywords: [
+    'physiotherapy software',
+    'ROM measurement tool',
+    'clinical documentation',
+    'joint angle measurement',
+    'physio AI',
+  ],
   openGraph: {
     title: 'PhysioLens — Measure ROM. Generate Notes. Instantly.',
-    description: 'AI-powered ROM measurement for physiotherapists. Browser-based, no hardware required.',
+    description:
+      'AI-powered ROM measurement for physiotherapists. Browser-based, no hardware required.',
     url: 'https://physiolens.io',
     siteName: 'PhysioLens',
     type: 'website',
   },
-}
+};
 ```
 
 ### 9.2 Structured Data
 
 Add JSON-LD to the landing page `<head>`:
+
 ```json
 {
   "@context": "https://schema.org",
@@ -545,6 +599,7 @@ Add JSON-LD to the landing page `<head>`:
 ### 10.1 New Environment Variables
 
 Add to `apps/api/.env.example`:
+
 ```
 # Stripe
 STRIPE_SECRET_KEY=sk_live_...
@@ -569,6 +624,7 @@ ENABLE_USAGE_ANALYTICS=true
 ```
 
 Add to `apps/web/.env.local.example`:
+
 ```
 # Add to existing .env.local.example
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
@@ -578,6 +634,7 @@ NEXT_PUBLIC_APP_URL=https://app.physiolens.io
 ### 10.2 Vercel Deployment Config
 
 Create `apps/web/vercel.json`:
+
 ```json
 {
   "buildCommand": "turbo run build --filter=@physiolens/web",
@@ -597,6 +654,7 @@ Create `apps/web/vercel.json`:
 ```
 
 Add `apps/api/railway.json` (Railway.app for the API — NZD ~$10/month):
+
 ```json
 {
   "$schema": "https://railway.app/railway.schema.json",
@@ -614,6 +672,7 @@ Add `apps/api/railway.json` (Railway.app for the API — NZD ~$10/month):
 ## IMPLEMENTATION ORDER & TESTING
 
 Implement sections in this exact order:
+
 1. Section 1 (Stripe + DB schema changes) — foundation everything else depends on
 2. Section 3 (Auth pages + onboarding) — users need to be able to sign up
 3. Section 2 (Landing page) — public face of the product
@@ -627,9 +686,11 @@ Implement sections in this exact order:
 11. Section 10 (Deployment config) — launch readiness
 
 After implementing each section, run:
+
 ```bash
 pnpm typecheck && pnpm lint && pnpm test
 ```
+
 All 29 existing tests must continue passing. Add new tests for billing middleware
 and Stripe webhook handler.
 
@@ -637,12 +698,12 @@ and Stripe webhook handler.
 
 ## REVENUE TARGETS (Know These While Building)
 
-| Month | Target | How |
-|-------|--------|-----|
-| Month 1 | NZD $500 MRR | 10 Pro subscribers via Reddit/physio Facebook groups |
-| Month 3 | NZD $3,000 MRR | 2 Practice clinics + 30 Pro users |
-| Month 6 | NZD $10,000 MRR | 10 Practice clinics + 100 Pro users |
-| Month 12 | NZD $30,000 MRR | 30 Practice clinics + 250 Pro users |
+| Month    | Target          | How                                                  |
+| -------- | --------------- | ---------------------------------------------------- |
+| Month 1  | NZD $500 MRR    | 10 Pro subscribers via Reddit/physio Facebook groups |
+| Month 3  | NZD $3,000 MRR  | 2 Practice clinics + 30 Pro users                    |
+| Month 6  | NZD $10,000 MRR | 10 Practice clinics + 100 Pro users                  |
+| Month 12 | NZD $30,000 MRR | 30 Practice clinics + 250 Pro users                  |
 
 Break-even on infrastructure (Vercel Pro $35 + Railway $15 + Supabase $25 + Anthropic API $50 = ~NZD $220/month) requires just **5 Pro subscribers**. Everything above that is profit.
 
@@ -691,8 +752,8 @@ apps/api/railway.json                            # Railway deployment config
 
 ---
 
-*This brief was generated on 18 February 2026 based on deep market research
+_This brief was generated on 18 February 2026 based on deep market research
 across Reddit, Product Hunt, G2, Capterra, and competitive analysis of Hinge
 Health, Kaia, RecoveryOne, SimplePractice, and Jane App. PhysioLens v1 (MVP)
 is fully built and tested. This document describes v2 commercial transformation
-only — do not rebuild existing features.*
+only — do not rebuild existing features._

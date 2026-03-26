@@ -21,6 +21,7 @@ PhysioLens ("Service") provides computer-vision-assisted musculoskeletal range-o
 ## 3. Acceptable Use
 
 Users shall:
+
 - Use the Service only for legitimate clinical documentation purposes
 - Not attempt to reverse-engineer the computer vision algorithms
 - Not use the Service to process data for individuals not under their clinical care
@@ -82,6 +83,7 @@ THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED
 ---
 
 **Review Checklist:**
+
 - [ ] Legal counsel has reviewed all `[TBD]` fields
 - [ ] Medical device classification confirmed with regulatory advisor
 - [ ] BAA/DPA template cross-referenced (see BAA_DPA_CHECKLIST.md)

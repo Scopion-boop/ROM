@@ -24,6 +24,7 @@ By accessing or using the ROM Measurement Platform (the "Platform"), you ("User,
 ### 2.1 Eligibility Requirements
 
 To use the Platform, you must:
+
 - Be at least 18 years of age
 - Hold a valid professional healthcare license (physician, physical therapist, chiropractor, etc.)
 - Be authorized to access and document patient health information
@@ -32,6 +33,7 @@ To use the Platform, you must:
 ### 2.2 Account Registration
 
 You agree to:
+
 - Provide accurate, current, and complete registration information
 - Maintain the security of your account credentials
 - Notify us immediately of any unauthorized access to your account
@@ -42,6 +44,7 @@ You agree to:
 ### 2.3 Account Termination
 
 We reserve the right to suspend or terminate your account:
+
 - For violation of these Terms
 - For misuse of the Platform or patient data
 - For inactivity exceeding 12 months
@@ -60,6 +63,7 @@ Subject to these Terms, we grant you a limited, non-exclusive, non-transferable,
 ### 3.2 Permitted Uses
 
 You may use the Platform to:
+
 - Perform range of motion assessments on patients
 - Generate clinical documentation and reports
 - Request AI-powered clinical interpretation (advisory only)
@@ -69,6 +73,7 @@ You may use the Platform to:
 ### 3.3 Prohibited Uses
 
 You may NOT:
+
 - Use the Platform for unlicensed medical practice or diagnosis
 - Share patient data outside of permitted clinical uses
 - Reverse engineer, decompile, or disassemble the Platform
@@ -90,6 +95,7 @@ You may NOT:
 **CRITICAL:** The Platform is a clinical assessment tool that assists healthcare professionals. It does NOT replace clinical judgment, physical examination, or professional medical decision-making.
 
 You acknowledge and agree that:
+
 - All clinical decisions remain your professional responsibility
 - You must independently verify all measurements and AI-generated recommendations
 - The Platform provides advisory information only, not medical diagnoses
@@ -98,6 +104,7 @@ You acknowledge and agree that:
 ### 4.2 AI-Generated Content
 
 AI-powered features (clinical interpretation, special test recommendations) are:
+
 - **Advisory only** and not a substitute for clinical expertise
 - Subject to algorithmic errors or limitations
 - Trained on general clinical data that may not apply to all patients
@@ -108,6 +115,7 @@ AI-powered features (clinical interpretation, special test recommendations) are:
 ### 4.3 Patient Consent
 
 You are responsible for obtaining all necessary patient consents, including:
+
 - Informed consent for the range of motion assessment
 - Authorization to use computer vision technology
 - HIPAA authorization for data storage and processing (if applicable)
@@ -122,6 +130,7 @@ You are responsible for obtaining all necessary patient consents, including:
 **You Own the Patient Data:** All patient health information entered into the Platform remains your property (or your organization's property). We act as a data processor under your instructions.
 
 We claim no ownership rights to patient data and will:
+
 - Process data only as instructed by you
 - Not use patient data for purposes other than providing the Platform
 - Return or delete patient data upon request (subject to legal retention requirements)
@@ -129,6 +138,7 @@ We claim no ownership rights to patient data and will:
 ### 5.2 Platform Intellectual Property
 
 The Platform and all associated intellectual property, including:
+
 - Software, algorithms, and computer code
 - Computer vision models and AI algorithms
 - User interface designs and graphics
@@ -148,6 +158,7 @@ If you provide feedback, suggestions, or ideas about the Platform, you grant us 
 ### 6.1 Subscription Model
 
 The Platform is offered on a subscription basis:
+
 - **[PRICING MODEL]:** [Monthly/Annual subscription per clinician]
 - **[FREE TIER]:** [If applicable - limited features or trial period]
 - **[ENTERPRISE PRICING]:** Contact sales@[YOUR DOMAIN].com for custom pricing
@@ -166,6 +177,7 @@ We reserve the right to change pricing with **30 days' notice**. Price changes w
 ### 6.4 Late Payment and Suspension
 
 Accounts with payment overdue by 15 days may be suspended. Suspended accounts:
+
 - Cannot access the Platform
 - Retain data for 30 days (then subject to deletion)
 - May incur reactivation fees
@@ -191,6 +203,7 @@ We warrant that the Platform will substantially conform to its documented functi
 ### 7.3 No Medical Warranty
 
 **WE DO NOT WARRANT THAT:**
+
 - The Platform will detect all clinical conditions or abnormalities
 - Measurements are accurate for all patients or body types
 - AI recommendations are clinically appropriate for specific patients
@@ -217,12 +230,14 @@ We warrant that the Platform will substantially conform to its documented functi
 ### 8.2 Liability Cap
 
 **Our total liability to you for all claims arising from or related to the Platform shall not exceed the greater of:**
+
 - The fees you paid in the 12 months preceding the claim, OR
 - $10,000 USD
 
 ### 8.3 Exceptions
 
 This limitation does not apply to:
+
 - Our gross negligence or willful misconduct
 - Data breaches caused by our failure to implement reasonable security measures
 - Claims that cannot be limited by law (e.g., statutory consumer protections)
@@ -244,6 +259,7 @@ You agree to indemnify, defend, and hold harmless [YOUR COMPANY NAME], its offic
 ### 9.2 Indemnification Process
 
 We will:
+
 - Notify you promptly of any indemnifiable claim
 - Allow you to control the defense and settlement (subject to our approval)
 - Provide reasonable cooperation at your expense
@@ -261,6 +277,7 @@ If you are a HIPAA Covered Entity, a separate Business Associate Agreement (BAA)
 ### 10.2 HIPAA Compliance Obligations
 
 Under the BAA, we agree to:
+
 - Use PHI only for permitted purposes
 - Implement administrative, physical, and technical safeguards
 - Report breaches within 72 hours
@@ -268,6 +285,7 @@ Under the BAA, we agree to:
 - Return or destroy PHI upon contract termination
 
 **Your Obligations:**
+
 - Obtain patient authorizations as required by HIPAA
 - Ensure minimum necessary use of PHI
 - Notify us of any privacy or security concerns
@@ -285,6 +303,7 @@ Our Privacy Policy is incorporated into these Terms and describes how we collect
 ### 11.2 GDPR Compliance (EU/EEA Users)
 
 For users in the European Union or European Economic Area:
+
 - We act as a data processor under your instructions (you are the data controller)
 - We comply with GDPR requirements for lawful processing
 - We use Standard Contractual Clauses for international data transfers
@@ -303,6 +322,7 @@ These Terms remain in effect while you access or use the Platform.
 ### 12.2 Termination by You
 
 You may terminate your account at any time by:
+
 - Contacting support@[YOUR DOMAIN].com, OR
 - Using the account cancellation feature in the Platform
 
@@ -311,6 +331,7 @@ Cancellation takes effect at the end of the current billing period. No refunds f
 ### 12.3 Termination by Us
 
 We may terminate your access immediately for:
+
 - Material breach of these Terms
 - Non-payment (after 30 days past due)
 - Illegal activity or misuse of patient data
@@ -319,6 +340,7 @@ We may terminate your access immediately for:
 ### 12.4 Effect of Termination
 
 Upon termination:
+
 - Your license to use the Platform ends immediately
 - Outstanding fees become due
 - We will retain patient data for 30 days to allow export
@@ -337,11 +359,13 @@ These Terms are governed by the laws of [YOUR STATE/JURISDICTION], without regar
 ### 13.2 Arbitration Agreement
 
 **Mandatory Arbitration:** Any dispute arising from these Terms or the Platform shall be resolved by binding arbitration, except:
+
 - Small claims court actions (under $10,000)
 - Intellectual property disputes
 - Emergency injunctive relief
 
 **Arbitration Rules:**
+
 - Administered by the American Arbitration Association (AAA)
 - Conducted under AAA Commercial Arbitration Rules
 - Single arbitrator selected per AAA procedures
@@ -360,6 +384,7 @@ You may opt out of arbitration by sending written notice within 30 days of accep
 ### 14.1 Modifications to Terms
 
 We may modify these Terms at any time. We will notify you of material changes via:
+
 - Email to your registered address
 - In-platform notification
 - Posting on our website
@@ -408,6 +433,7 @@ Phone: [YOUR PHONE NUMBER]
 ## Acknowledgment
 
 **By clicking "I Agree" or by accessing the Platform, you acknowledge that:**
+
 - You have read and understood these Terms
 - You agree to be bound by these Terms
 - You are a licensed healthcare professional authorized to use the Platform

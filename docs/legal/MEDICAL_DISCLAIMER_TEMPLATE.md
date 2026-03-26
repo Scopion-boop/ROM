@@ -42,6 +42,7 @@ PhysioLens ("Service") provides computer-vision-assisted musculoskeletal range-o
 ---
 
 **Review Checklist:**
+
 - [ ] Legal counsel has reviewed disclaimer language
 - [ ] Regulatory advisor confirms device classification position
 - [ ] Clinical advisory board has reviewed "Clinician Review Required" language

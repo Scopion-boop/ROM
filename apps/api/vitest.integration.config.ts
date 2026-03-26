@@ -1,10 +1,10 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-    test: {
-        globals: true,
-        environment: 'node',
-        include: ['src/repositories/drizzle/__tests__/**/*.test.ts'],
-        fileParallelism: false,
-    },
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['src/repositories/drizzle/__tests__/**/*.test.ts'],
+    fileParallelism: false,
+  },
 });

@@ -30,16 +30,24 @@ const COUNTRIES = [
   'Other',
 ];
 
-const USE_CASES = [
-  'Individual practice',
-  'Multi-clinician clinic',
-  'Research / Education',
-];
+const USE_CASES = ['Individual practice', 'Multi-clinician clinic', 'Research / Education'];
 
 const PLAN_FEATURES = {
   free: ['10 sessions/month', '1 seat', 'Basic ROM measurement', 'Watermarked PDFs'],
-  pro: ['Unlimited sessions', '1 seat', 'AI clinical notes', '90-day history', 'PDF without watermark'],
-  practice: ['Up to 8 seats', 'Everything in Pro', 'Clinic admin dashboard', 'Patient assessment portal', 'CSV data export'],
+  pro: [
+    'Unlimited sessions',
+    '1 seat',
+    'AI clinical notes',
+    '90-day history',
+    'PDF without watermark',
+  ],
+  practice: [
+    'Up to 8 seats',
+    'Everything in Pro',
+    'Clinic admin dashboard',
+    'Patient assessment portal',
+    'CSV data export',
+  ],
 };
 
 const inputStyle: React.CSSProperties = {
@@ -111,7 +119,9 @@ export default function OnboardingPage() {
       headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
       credentials: 'include',
       body: JSON.stringify({ onboardingCompleted: true }),
-    }).catch(() => {/* non-critical */ });
+    }).catch(() => {
+      /* non-critical */
+    });
   }, [step]);
 
   async function handleStep1() {
@@ -140,7 +150,9 @@ export default function OnboardingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authClient.getAuthHeaders() },
         credentials: 'include',
-        body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ?? 'price_pro_monthly' }),
+        body: JSON.stringify({
+          priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ?? 'price_pro_monthly',
+        }),
       });
       const { checkoutUrl } = await res.json();
       if (checkoutUrl) window.location.href = checkoutUrl;
@@ -173,137 +185,511 @@ export default function OnboardingPage() {
   return (
     <div style={containerStyle}>
       {/* Logo */}
-      <div style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--accent)', marginBottom: '32px' }}>
+      <div
+        style={{
+          fontSize: '1.4rem',
+          fontWeight: 700,
+          color: 'var(--accent)',
+          marginBottom: '32px',
+        }}
+      >
         PhysioLens
       </div>
 
       {/* Step indicators */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
         {([1, 2, 3] as Step[]).map((s) => (
-          <div key={s} style={{ width: s === step ? '24px' : '8px', height: '8px', borderRadius: '4px', background: s === step ? 'var(--accent)' : s < step ? 'var(--accent)' : 'var(--border-primary)', transition: 'all 0.3s ease', opacity: s < step ? 0.5 : 1 }} />
+          <div
+            key={s}
+            style={{
+              width: s === step ? '24px' : '8px',
+              height: '8px',
+              borderRadius: '4px',
+              background:
+                s === step ? 'var(--accent)' : s < step ? 'var(--accent)' : 'var(--border-primary)',
+              transition: 'all 0.3s ease',
+              opacity: s < step ? 0.5 : 1,
+            }}
+          />
         ))}
       </div>
 
       <div style={{ width: '100%', maxWidth: '560px' }}>
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} style={cardStyle}>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Step 1 of 3</p>
-              <h1 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '8px' }}>Tell us about your practice</h1>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '28px', fontSize: '0.95rem' }}>This helps us personalise your experience.</p>
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              style={cardStyle}
+            >
+              <p
+                style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--text-muted)',
+                  marginBottom: '8px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                Step 1 of 3
+              </p>
+              <h1 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '8px' }}>
+                Tell us about your practice
+              </h1>
+              <p
+                style={{
+                  color: 'var(--text-secondary)',
+                  marginBottom: '28px',
+                  fontSize: '0.95rem',
+                }}
+              >
+                This helps us personalise your experience.
+              </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '24px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '20px',
+                  marginBottom: '24px',
+                }}
+              >
                 <div>
-                  <label htmlFor="onboard-specialty" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Specialty</label>
-                  <select id="onboard-specialty" value={specialty} onChange={(e) => setSpecialty(e.target.value)} style={{ ...inputStyle }}>
+                  <label
+                    htmlFor="onboard-specialty"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: 'var(--text-secondary)',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Specialty
+                  </label>
+                  <select
+                    id="onboard-specialty"
+                    value={specialty}
+                    onChange={(e) => setSpecialty(e.target.value)}
+                    style={{ ...inputStyle }}
+                  >
                     <option value="">Select your specialty</option>
-                    {SPECIALTIES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {SPECIALTIES.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="onboard-country" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px' }}>Country</label>
-                  <select id="onboard-country" value={country} onChange={(e) => setCountry(e.target.value)} style={inputStyle}>
+                  <label
+                    htmlFor="onboard-country"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: 'var(--text-secondary)',
+                      marginBottom: '6px',
+                    }}
+                  >
+                    Country
+                  </label>
+                  <select
+                    id="onboard-country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    style={inputStyle}
+                  >
                     <option value="">Select your country</option>
-                    {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    {COUNTRIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '10px' }}>Primary use case</label>
+                  <label
+                    style={{
+                      display: 'block',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: 'var(--text-secondary)',
+                      marginBottom: '10px',
+                    }}
+                  >
+                    Primary use case
+                  </label>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {USE_CASES.map((uc) => (
-                      <label key={uc} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', borderRadius: '8px', border: `1px solid ${useCase === uc ? 'var(--accent)' : 'var(--border-primary)'}`, background: useCase === uc ? 'rgba(14,205,186,0.08)' : 'var(--bg-tertiary)', cursor: 'pointer', transition: 'all 0.2s' }}>
-                        <input type="radio" name="useCase" value={uc} checked={useCase === uc} onChange={() => setUseCase(uc)} style={{ accentColor: 'var(--accent)' }} />
-                        <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{uc}</span>
+                      <label
+                        key={uc}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '12px 14px',
+                          borderRadius: '8px',
+                          border: `1px solid ${useCase === uc ? 'var(--accent)' : 'var(--border-primary)'}`,
+                          background:
+                            useCase === uc ? 'rgba(14,205,186,0.08)' : 'var(--bg-tertiary)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="useCase"
+                          value={uc}
+                          checked={useCase === uc}
+                          onChange={() => setUseCase(uc)}
+                          style={{ accentColor: 'var(--accent)' }}
+                        />
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                          {uc}
+                        </span>
                       </label>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {error && <p style={{ color: 'var(--error)', fontSize: '0.875rem', marginBottom: '16px' }}>{error}</p>}
+              {error && (
+                <p style={{ color: 'var(--error)', fontSize: '0.875rem', marginBottom: '16px' }}>
+                  {error}
+                </p>
+              )}
 
-              <button onClick={handleStep1} disabled={loading} style={{ ...btnPrimaryStyle, width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
+              <button
+                onClick={handleStep1}
+                disabled={loading}
+                style={{
+                  ...btnPrimaryStyle,
+                  width: '100%',
+                  justifyContent: 'center',
+                  opacity: loading ? 0.7 : 1,
+                }}
+              >
                 {loading ? 'Saving...' : 'Continue'} <ArrowRight size={16} />
               </button>
             </motion.div>
           )}
 
           {step === 2 && (
-            <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} style={cardStyle}>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Step 2 of 3</p>
-              <h1 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '8px' }}>Start free, upgrade when ready</h1>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '28px', fontSize: '0.95rem' }}>No credit card required.</p>
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              style={cardStyle}
+            >
+              <p
+                style={{
+                  fontSize: '0.8rem',
+                  color: 'var(--text-muted)',
+                  marginBottom: '8px',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                }}
+              >
+                Step 2 of 3
+              </p>
+              <h1 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '8px' }}>
+                Start free, upgrade when ready
+              </h1>
+              <p
+                style={{
+                  color: 'var(--text-secondary)',
+                  marginBottom: '28px',
+                  fontSize: '0.95rem',
+                }}
+              >
+                No credit card required.
+              </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  marginBottom: '24px',
+                }}
+              >
                 {/* Free */}
-                <div style={{ padding: '20px', border: '1px solid var(--border-primary)', borderRadius: '12px', background: 'var(--bg-tertiary)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div
+                  style={{
+                    padding: '20px',
+                    border: '1px solid var(--border-primary)',
+                    borderRadius: '12px',
+                    background: 'var(--bg-tertiary)',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '12px',
+                    }}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '1rem' }}>Starter</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Free forever</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Free forever
+                      </div>
                     </div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>$0<span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}>/mo</span></div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                      $0
+                      <span
+                        style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}
+                      >
+                        /mo
+                      </span>
+                    </div>
                   </div>
                   <ul style={{ listStyle: 'none', marginBottom: '16px' }}>
-                    {PLAN_FEATURES.free.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: 'var(--success)', flexShrink: 0 }} />{f}</li>)}
+                    {PLAN_FEATURES.free.map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontSize: '0.85rem',
+                          color: 'var(--text-secondary)',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        <Check size={14} style={{ color: 'var(--success)', flexShrink: 0 }} />
+                        {f}
+                      </li>
+                    ))}
                   </ul>
-                  <button onClick={() => setStep(3)} style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center' }}>Continue Free →</button>
+                  <button
+                    onClick={() => setStep(3)}
+                    style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center' }}
+                  >
+                    Continue Free →
+                  </button>
                 </div>
 
                 {/* Pro */}
-                <div style={{ padding: '20px', border: '2px solid var(--accent)', borderRadius: '12px', background: 'rgba(14,205,186,0.03)', position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: '-11px', left: '20px', padding: '2px 12px', background: 'var(--accent)', color: '#000', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Most Popular</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div
+                  style={{
+                    padding: '20px',
+                    border: '2px solid var(--accent)',
+                    borderRadius: '12px',
+                    background: 'rgba(14,205,186,0.03)',
+                    position: 'relative',
+                  }}
+                >
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-11px',
+                      left: '20px',
+                      padding: '2px 12px',
+                      background: 'var(--accent)',
+                      color: '#000',
+                      borderRadius: '10px',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    Most Popular
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '12px',
+                    }}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '1rem' }}>Clinician</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Pro plan</div>
                     </div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>$49<span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}>/mo NZD</span></div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                      $49
+                      <span
+                        style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}
+                      >
+                        /mo NZD
+                      </span>
+                    </div>
                   </div>
                   <ul style={{ listStyle: 'none', marginBottom: '16px' }}>
-                    {PLAN_FEATURES.pro.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />{f}</li>)}
+                    {PLAN_FEATURES.pro.map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontSize: '0.85rem',
+                          color: 'var(--text-secondary)',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        <Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                        {f}
+                      </li>
+                    ))}
                   </ul>
-                  <button onClick={handleProCheckout} disabled={loading} style={{ ...btnPrimaryStyle, width: '100%', justifyContent: 'center', opacity: loading ? 0.7 : 1 }}>
+                  <button
+                    onClick={handleProCheckout}
+                    disabled={loading}
+                    style={{
+                      ...btnPrimaryStyle,
+                      width: '100%',
+                      justifyContent: 'center',
+                      opacity: loading ? 0.7 : 1,
+                    }}
+                  >
                     {loading ? 'Loading...' : 'Start Free Trial'} <ArrowRight size={16} />
                   </button>
                 </div>
 
                 {/* Practice */}
-                <div style={{ padding: '20px', border: '1px solid var(--border-primary)', borderRadius: '12px', background: 'var(--bg-tertiary)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <div
+                  style={{
+                    padding: '20px',
+                    border: '1px solid var(--border-primary)',
+                    borderRadius: '12px',
+                    background: 'var(--bg-tertiary)',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '12px',
+                    }}
+                  >
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '1rem' }}>Practice</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Multi-clinician</div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Multi-clinician
+                      </div>
                     </div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>$129<span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}>/mo NZD</span></div>
+                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                      $129
+                      <span
+                        style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-muted)' }}
+                      >
+                        /mo NZD
+                      </span>
+                    </div>
                   </div>
                   <ul style={{ listStyle: 'none', marginBottom: '16px' }}>
-                    {PLAN_FEATURES.practice.map((f) => <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '4px' }}><Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />{f}</li>)}
+                    {PLAN_FEATURES.practice.map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          fontSize: '0.85rem',
+                          color: 'var(--text-secondary)',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        <Check size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                        {f}
+                      </li>
+                    ))}
                   </ul>
-                  <a href="mailto:sales@physiolens.io" style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center', textDecoration: 'none', display: 'flex' }}>Contact Sales</a>
+                  <a
+                    href="mailto:sales@physiolens.io"
+                    style={{
+                      ...btnGhostStyle,
+                      width: '100%',
+                      justifyContent: 'center',
+                      textDecoration: 'none',
+                      display: 'flex',
+                    }}
+                  >
+                    Contact Sales
+                  </a>
                 </div>
               </div>
 
               {error && <p style={{ color: 'var(--error)', fontSize: '0.875rem' }}>{error}</p>}
 
-              <button onClick={() => setStep(1)} style={{ ...btnGhostStyle, width: '100%', justifyContent: 'center', marginTop: '8px' }}>
+              <button
+                onClick={() => setStep(1)}
+                style={{
+                  ...btnGhostStyle,
+                  width: '100%',
+                  justifyContent: 'center',
+                  marginTop: '8px',
+                }}
+              >
                 &larr; Back
               </button>
             </motion.div>
           )}
 
           {step === 3 && (
-            <motion.div key="step3" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} style={{ ...cardStyle, textAlign: 'center' }}>
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              style={{ ...cardStyle, textAlign: 'center' }}
+            >
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(14,205,186,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--accent)' }}>
+                <div
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    background: 'rgba(14,205,186,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid var(--accent)',
+                  }}
+                >
                   <Check size={40} style={{ color: 'var(--accent)' }} />
                 </div>
               </div>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '12px' }}>You&apos;re ready to go!</h1>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '1rem', lineHeight: 1.6 }}>Your first ROM measurement is one click away.</p>
-              <Link href="/sessions/new" style={{ ...btnPrimaryStyle, textDecoration: 'none', display: 'inline-flex', padding: '14px 32px', fontSize: '1rem' }}>
+              <h1 style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '12px' }}>
+                You&apos;re ready to go!
+              </h1>
+              <p
+                style={{
+                  color: 'var(--text-secondary)',
+                  marginBottom: '32px',
+                  fontSize: '1rem',
+                  lineHeight: 1.6,
+                }}
+              >
+                Your first ROM measurement is one click away.
+              </p>
+              <Link
+                href="/sessions/new"
+                style={{
+                  ...btnPrimaryStyle,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  padding: '14px 32px',
+                  fontSize: '1rem',
+                }}
+              >
                 Start First Session <ArrowRight size={18} />
               </Link>
             </motion.div>

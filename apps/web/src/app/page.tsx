@@ -3,7 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, FileText, TrendingUp, Check, ChevronDown, AlertCircle, Clock, FileX, Shield } from 'lucide-react';
+import {
+  Zap,
+  FileText,
+  TrendingUp,
+  Check,
+  ChevronDown,
+  AlertCircle,
+  Clock,
+  FileX,
+  Shield,
+} from 'lucide-react';
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -13,7 +23,9 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', minHeight: '100vh' }}>
+    <div
+      style={{ background: 'var(--bg-primary)', color: 'var(--text-primary)', minHeight: '100vh' }}
+    >
       {/* 1. Navigation */}
       <nav
         style={{
@@ -37,7 +49,9 @@ export default function LandingPage() {
             gap: '2rem',
           }}
         >
-          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent)' }}>PhysioLens</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent)' }}>
+            PhysioLens
+          </div>
 
           <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
             <button
@@ -150,7 +164,8 @@ export default function LandingPage() {
         style={{
           padding: '6rem 2rem',
           textAlign: 'center',
-          background: 'radial-gradient(ellipse 60% 40% at 50% 0%, var(--accent-glow) 0%, transparent 70%)',
+          background:
+            'radial-gradient(ellipse 60% 40% at 50% 0%, var(--accent-glow) 0%, transparent 70%)',
         }}
       >
         <div style={{ maxWidth: '900px', margin: '0 auto' }}>
@@ -175,11 +190,19 @@ export default function LandingPage() {
               margin: '0 auto 2.5rem',
             }}
           >
-            Browser-based computer vision that measures joint range-of-motion and auto-generates clinical notes — no
-            wearables, no calibration, no manual data entry.
+            Browser-based computer vision that measures joint range-of-motion and auto-generates
+            clinical notes — no wearables, no calibration, no manual data entry.
           </p>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '2rem', flexWrap: 'wrap' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '1rem',
+              justifyContent: 'center',
+              marginBottom: '2rem',
+              flexWrap: 'wrap',
+            }}
+          >
             <Link
               href="/sessions/new"
               style={{
@@ -261,7 +284,13 @@ export default function LandingPage() {
       {/* 4. Problem / Solution */}
       <section style={{ padding: '6rem 2rem' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '4rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+              gap: '4rem',
+            }}
+          >
             {/* Problems */}
             <div>
               <h2 style={{ fontSize: '2rem', marginBottom: '2rem', color: 'var(--text-primary)' }}>
@@ -269,9 +298,18 @@ export default function LandingPage() {
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <AlertCircle size={24} style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <AlertCircle
+                    size={24}
+                    style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Manual goniometers
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -281,33 +319,62 @@ export default function LandingPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <FileX size={24} style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <FileX
+                    size={24}
+                    style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Hand-written notes
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                      Copy to EHR doubles documentation time, typos and illegible handwriting compromise care
+                      Copy to EHR doubles documentation time, typos and illegible handwriting
+                      compromise care
                     </p>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <Clock size={24} style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <Clock
+                    size={24}
+                    style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       No objective baseline
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                      Can&apos;t prove improvement to patients or insurance without consistent measurement
+                      Can&apos;t prove improvement to patients or insurance without consistent
+                      measurement
                     </p>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <Shield size={24} style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <Shield
+                    size={24}
+                    style={{ color: 'var(--error)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Insurance audits
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -325,9 +392,18 @@ export default function LandingPage() {
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <Check size={24} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <Check
+                    size={24}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Computer vision angles
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -337,37 +413,67 @@ export default function LandingPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <Check size={24} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <Check
+                    size={24}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       AI-generated SOAP notes
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                      Copy-paste ready clinical documentation in your standard format, exported to PDF
+                      Copy-paste ready clinical documentation in your standard format, exported to
+                      PDF
                     </p>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <Check size={24} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <Check
+                    size={24}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Session-over-session trends
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                      Visual progress charts show improvement, builds patient confidence and retention
+                      Visual progress charts show improvement, builds patient confidence and
+                      retention
                     </p>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                  <Check size={24} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }} />
+                  <Check
+                    size={24}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.25rem' }}
+                  />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                    <h4
+                      style={{
+                        fontSize: '1.1rem',
+                        marginBottom: '0.5rem',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       Audit-ready history
                     </h4>
                     <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                      Every measurement logged with timestamp, confidence score, and exportable to CSV
+                      Every measurement logged with timestamp, confidence score, and exportable to
+                      CSV
                     </p>
                   </div>
                 </div>
@@ -380,8 +486,16 @@ export default function LandingPage() {
       {/* 5. Feature Cards */}
       <section id="features" style={{ padding: '6rem 2rem', background: 'var(--bg-secondary)' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '3rem' }}>Core Features</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+          <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '3rem' }}>
+            Core Features
+          </h2>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: '2rem',
+            }}
+          >
             <motion.div
               whileHover={{ scale: 1.02, y: -4 }}
               style={{
@@ -408,7 +522,8 @@ export default function LandingPage() {
               </div>
               <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Instant Angles</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                Pose detection measures any joint in seconds with sub-5° accuracy. No wearables or calibration needed.
+                Pose detection measures any joint in seconds with sub-5° accuracy. No wearables or
+                calibration needed.
               </p>
             </motion.div>
 
@@ -438,7 +553,8 @@ export default function LandingPage() {
               </div>
               <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Auto Clinical Notes</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                AI generates SOAP-format notes from measurement data, fully editable and exports to professional PDFs.
+                AI generates SOAP-format notes from measurement data, fully editable and exports to
+                professional PDFs.
               </p>
             </motion.div>
 
@@ -468,7 +584,8 @@ export default function LandingPage() {
               </div>
               <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Trend Analysis</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                Track ROM improvement over sessions with visual charts. Generate shareable patient progress reports.
+                Track ROM improvement over sessions with visual charts. Generate shareable patient
+                progress reports.
               </p>
             </motion.div>
           </div>
@@ -478,13 +595,23 @@ export default function LandingPage() {
       {/* 6. Pricing Table */}
       <section id="pricing" style={{ padding: '6rem 2rem' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '1rem' }}>Simple, Transparent Pricing</h2>
+          <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '1rem' }}>
+            Simple, Transparent Pricing
+          </h2>
           <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem' }}>
             All prices in NZD. Start free, upgrade anytime.
           </p>
 
           {/* Pricing Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '2rem', maxWidth: '740px', margin: '0 auto' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '2rem',
+              maxWidth: '740px',
+              margin: '0 auto',
+            }}
+          >
             {/* Starter */}
             <div
               style={{
@@ -495,21 +622,49 @@ export default function LandingPage() {
               }}
             >
               <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Starter</h3>
-              <p style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Free</p>
+              <p
+                style={{
+                  color: 'var(--text-tertiary)',
+                  marginBottom: '1.5rem',
+                  fontSize: '0.9rem',
+                }}
+              >
+                Free
+              </p>
               <div style={{ fontSize: '3rem', fontWeight: 700, marginBottom: '1.5rem' }}>
-                $0<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span>
+                $0
+                <span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>
+                  /month
+                </span>
               </div>
-              <ul style={{ listStyle: 'none', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <ul
+                style={{
+                  listStyle: 'none',
+                  marginBottom: '2rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                }}
+              >
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>10 sessions/month</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>1 seat</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>Basic ROM measurement</span>
                 </li>
               </ul>
@@ -572,30 +727,66 @@ export default function LandingPage() {
                 Most Popular
               </div>
               <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Clinician</h3>
-              <p style={{ color: 'var(--text-tertiary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Pro</p>
+              <p
+                style={{
+                  color: 'var(--text-tertiary)',
+                  marginBottom: '1.5rem',
+                  fontSize: '0.9rem',
+                }}
+              >
+                Pro
+              </p>
               <div style={{ fontSize: '3rem', fontWeight: 700, marginBottom: '1.5rem' }}>
-                {'$49'}<span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>/month</span>
+                {'$49'}
+                <span style={{ fontSize: '1rem', fontWeight: 400, color: 'var(--text-secondary)' }}>
+                  /month
+                </span>
               </div>
-              <ul style={{ listStyle: 'none', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <ul
+                style={{
+                  listStyle: 'none',
+                  marginBottom: '2rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                }}
+              >
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>Unlimited sessions</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>1 seat</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>AI clinical notes</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
                   <span style={{ color: 'var(--text-secondary)' }}>CSV data export</span>
                 </li>
                 <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                  <Check size={20} style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }} />
-                  <span style={{ color: 'var(--text-secondary)' }}>Save &amp; revisit past sessions</span>
+                  <Check
+                    size={20}
+                    style={{ color: 'var(--success)', flexShrink: 0, marginTop: '0.15rem' }}
+                  />
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    Save &amp; revisit past sessions
+                  </span>
                 </li>
               </ul>
               <Link
@@ -635,7 +826,9 @@ export default function LandingPage() {
       {/* 7. FAQ Accordion */}
       <section id="faq" style={{ padding: '6rem 2rem', background: 'var(--bg-secondary)' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '3rem' }}>Frequently Asked Questions</h2>
+          <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '3rem' }}>
+            Frequently Asked Questions
+          </h2>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {[
@@ -708,7 +901,13 @@ export default function LandingPage() {
                       transition={{ duration: 0.3 }}
                       style={{ overflow: 'hidden' }}
                     >
-                      <div style={{ padding: '0 1.5rem 1.5rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                      <div
+                        style={{
+                          padding: '0 1.5rem 1.5rem',
+                          color: 'var(--text-secondary)',
+                          lineHeight: 1.7,
+                        }}
+                      >
                         {faq.a}
                       </div>
                     </motion.div>
@@ -721,11 +920,31 @@ export default function LandingPage() {
       </section>
 
       {/* 8. Footer */}
-      <footer style={{ padding: '4rem 2rem 2rem', background: 'var(--bg-primary)', borderTop: '1px solid var(--border-primary)' }}>
+      <footer
+        style={{
+          padding: '4rem 2rem 2rem',
+          background: 'var(--bg-primary)',
+          borderTop: '1px solid var(--border-primary)',
+        }}
+      >
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '3rem',
+              marginBottom: '3rem',
+            }}
+          >
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--accent)', marginBottom: '1rem' }}>
+              <div
+                style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 700,
+                  color: 'var(--accent)',
+                  marginBottom: '1rem',
+                }}
+              >
                 PhysioLens
               </div>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.95rem' }}>
@@ -734,23 +953,36 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Legal</h4>
+              <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                Legal
+              </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                <a href="/privacy" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                <a
+                  href="/privacy"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                >
                   Privacy Policy
                 </a>
                 <a href="/terms" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
                   Terms of Service
                 </a>
-                <a href="/medical-disclaimer" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+                <a
+                  href="/medical-disclaimer"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                >
                   Medical Disclaimer
                 </a>
               </div>
             </div>
 
             <div>
-              <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Contact</h4>
-              <a href="mailto:support@physiolens.com" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
+              <h4 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
+                Contact
+              </h4>
+              <a
+                href="mailto:support@physiolens.com"
+                style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+              >
                 support@physiolens.com
               </a>
             </div>
@@ -778,7 +1010,8 @@ export default function LandingPage() {
                 lineHeight: 1.6,
               }}
             >
-              PhysioLens is a documentation tool and is not a medical device. Always exercise clinical judgment.
+              PhysioLens is a documentation tool and is not a medical device. Always exercise
+              clinical judgment.
             </p>
           </div>
         </div>
@@ -793,7 +1026,12 @@ export default function LandingPage() {
             '@type': 'SoftwareApplication',
             name: 'PhysioLens',
             applicationCategory: 'HealthApplication',
-            offers: { '@type': 'AggregateOffer', lowPrice: '0', highPrice: '129', priceCurrency: 'NZD' },
+            offers: {
+              '@type': 'AggregateOffer',
+              lowPrice: '0',
+              highPrice: '129',
+              priceCurrency: 'NZD',
+            },
             operatingSystem: 'Web Browser',
             description: 'AI-powered ROM measurement tool for physiotherapists',
           }),

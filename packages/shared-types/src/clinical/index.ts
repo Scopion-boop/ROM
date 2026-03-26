@@ -8,25 +8,25 @@ export { MovementType, MOVEMENT_TYPES, MOVEMENT_META, type MovementMeta } from '
 
 // Joint ↔ Movement mapping
 export {
-    JOINT_MOVEMENT_MAP,
-    isValidJointMovement,
-    getMovementsForJoint,
-    TOTAL_MEASUREMENT_TYPES,
+  JOINT_MOVEMENT_MAP,
+  isValidJointMovement,
+  getMovementsForJoint,
+  TOTAL_MEASUREMENT_TYPES,
 } from './joint-movement-map';
 
 // Normative ranges
 export {
-    NORMATIVE_RANGES,
-    getNormativeRange,
-    compareToNormative,
-    type NormativeRange,
+  NORMATIVE_RANGES,
+  getNormativeRange,
+  compareToNormative,
+  type NormativeRange,
 } from './normative-ranges';
 
 // Landmark mapping
 export {
-    LANDMARK_MAP,
-    getLandmarkTriple,
-    getSidesForJoint,
-    type Side,
-    type LandmarkTriple,
+  LANDMARK_MAP,
+  getLandmarkTriple,
+  getSidesForJoint,
+  type Side,
+  type LandmarkTriple,
 } from './landmark-map';

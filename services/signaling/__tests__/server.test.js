@@ -8,7 +8,7 @@
  *   2. WebSocket connection/relay behavior via child process spawn
  */
 
-import { describe, it, expect, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { WebSocket } from 'ws';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
@@ -22,161 +22,182 @@ const TEST_PORT = 14000 + Math.floor(Math.random() * 1000);
 
 /** Start the signaling server as a child process on a given port. */
 function startServer(port) {
-    return new Promise((resolve, reject) => {
-        const child = spawn('node', [SERVER_PATH], {
-            env: { ...process.env, SIGNAL_PORT: String(port) },
-            stdio: ['pipe', 'pipe', 'pipe'],
-        });
-
-        const timeout = setTimeout(() => {
-            reject(new Error('Server did not start within 5s'));
-        }, 5000);
-
-        child.stdout.on('data', (data) => {
-            if (data.toString().includes('listening')) {
-                clearTimeout(timeout);
-                resolve(child);
-            }
-        });
-
-        child.stderr.on('data', (data) => {
-            // Some environments print warnings on stderr — don't fail
-            console.error(`[signaling stderr] ${data}`);
-        });
-
-        child.on('error', (err) => {
-            clearTimeout(timeout);
-            reject(err);
-        });
+  return new Promise((resolve, reject) => {
+    const child = spawn('node', [SERVER_PATH], {
+      env: { ...process.env, SIGNAL_PORT: String(port) },
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
+
+    const timeout = setTimeout(() => {
+      reject(new Error('Server did not start within 5s'));
+    }, 5000);
+
+    child.stdout.on('data', (data) => {
+      if (data.toString().includes('listening')) {
+        clearTimeout(timeout);
+        resolve(child);
+      }
+    });
+
+    child.stderr.on('data', (data) => {
+      // Some environments print warnings on stderr — don't fail
+      console.error(`[signaling stderr] ${data}`);
+    });
+
+    child.on('error', (err) => {
+      clearTimeout(timeout);
+      reject(err);
+    });
+  });
 }
 
 /** Connect a WebSocket client to the signaling server. */
 function connectClient(port, session, token, role) {
-    return new Promise((resolve, reject) => {
-        const ws = new WebSocket(
-            `ws://127.0.0.1:${port}/ws/signaling?session=${session}&token=${token}&role=${role}`,
-        );
-        ws.on('open', () => resolve(ws));
-        ws.on('error', reject);
-    });
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(
+      `ws://127.0.0.1:${port}/ws/signaling?session=${session}&token=${token}&role=${role}`,
+    );
+    ws.on('open', () => resolve(ws));
+    ws.on('error', reject);
+  });
 }
 
-/** Wait for the next message from a WebSocket. */
-function nextMessage(ws, timeoutMs = 3000) {
-    return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error('Timed out waiting for message')), timeoutMs);
-        ws.once('message', (data) => {
+/** Collect messages from a WebSocket into a buffer array. Returns a helper to wait for N messages. */
+function createMessageCollector(ws) {
+  const messages = [];
+  const waiters = [];
+
+  ws.on('message', (data) => {
+    messages.push(JSON.parse(data.toString()));
+    // Resolve any waiters that now have enough messages
+    for (let i = waiters.length - 1; i >= 0; i--) {
+      if (messages.length >= waiters[i].count) {
+        waiters[i].resolve([...messages]);
+        waiters.splice(i, 1);
+      }
+    }
+  });
+
+  return {
+    messages,
+    /** Wait until at least `count` messages have been received. */
+    waitForCount(count, timeoutMs = 5000) {
+      if (messages.length >= count) {
+        return Promise.resolve([...messages]);
+      }
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(
+          () =>
+            reject(new Error(`Timed out waiting for ${count} messages (got ${messages.length})`)),
+          timeoutMs,
+        );
+        waiters.push({
+          count,
+          resolve: (msgs) => {
             clearTimeout(timer);
-            resolve(JSON.parse(data.toString()));
+            resolve(msgs);
+          },
         });
-    });
+      });
+    },
+  };
 }
 
 describe('Signaling Server', () => {
-    let serverProcess;
+  let serverProcess;
 
-    afterAll(() => {
-        if (serverProcess) {
-            serverProcess.kill('SIGTERM');
-        }
+  beforeAll(async () => {
+    serverProcess = await startServer(TEST_PORT);
+  }, 10000);
+
+  afterAll(() => {
+    if (serverProcess) {
+      serverProcess.kill('SIGTERM');
+    }
+  });
+
+  it('starts and listens on configured port', () => {
+    expect(serverProcess.pid).toBeDefined();
+  });
+
+  it('rejects connections without required query params', async () => {
+    const ws = new WebSocket(`ws://127.0.0.1:${TEST_PORT}/ws/signaling`);
+
+    const closeCode = await new Promise((resolve) => {
+      ws.on('close', (code) => resolve(code));
+      ws.on('error', () => {}); // suppress error event
     });
 
-    it('starts and listens on configured port', async () => {
-        serverProcess = await startServer(TEST_PORT);
-        expect(serverProcess.pid).toBeDefined();
-    });
+    expect(closeCode).toBe(4000);
+  });
 
-    it('rejects connections without required query params', async () => {
-        if (!serverProcess) serverProcess = await startServer(TEST_PORT);
+  it('sends room-ready when both host and remote connect', { timeout: 10000 }, async () => {
+    const session = `test-session-${Date.now()}`;
+    const token = 'test-token';
 
-        const ws = new WebSocket(`ws://127.0.0.1:${TEST_PORT}/ws/signaling`);
+    const host = await connectClient(TEST_PORT, session, token, 'host');
+    const hostCollector = createMessageCollector(host);
 
-        const closeCode = await new Promise((resolve) => {
-            ws.on('close', (code) => resolve(code));
-            ws.on('error', () => { }); // suppress error event
-        });
+    const remote = await connectClient(TEST_PORT, session, token, 'remote');
+    const remoteCollector = createMessageCollector(remote);
 
-        expect(closeCode).toBe(4000);
-    });
+    const [hostMsgs, remoteMsgs] = await Promise.all([
+      hostCollector.waitForCount(1),
+      remoteCollector.waitForCount(1),
+    ]);
 
-    it('sends room-ready when both host and remote connect', async () => {
-        if (!serverProcess) serverProcess = await startServer(TEST_PORT);
+    expect(hostMsgs[0].type).toBe('room-ready');
+    expect(hostMsgs[0].yourRole).toBe('host');
+    expect(remoteMsgs[0].type).toBe('room-ready');
+    expect(remoteMsgs[0].yourRole).toBe('remote');
 
-        const session = `test-session-${Date.now()}`;
-        const token = 'test-token';
+    host.close();
+    remote.close();
+  });
 
-        const host = await connectClient(TEST_PORT, session, token, 'host');
-        const hostMsg = nextMessage(host);
+  it('relays messages between host and remote', { timeout: 10000 }, async () => {
+    const session = `relay-test-${Date.now()}`;
+    const token = 'relay-token';
 
-        const remote = await connectClient(TEST_PORT, session, token, 'remote');
-        const remoteMsg = nextMessage(remote);
+    const host = await connectClient(TEST_PORT, session, token, 'host');
+    const hostCollector = createMessageCollector(host);
 
-        const [hostReady, remoteReady] = await Promise.all([hostMsg, remoteMsg]);
+    const remote = await connectClient(TEST_PORT, session, token, 'remote');
+    const remoteCollector = createMessageCollector(remote);
 
-        expect(hostReady.type).toBe('room-ready');
-        expect(hostReady.yourRole).toBe('host');
-        expect(remoteReady.type).toBe('room-ready');
-        expect(remoteReady.yourRole).toBe('remote');
+    // Wait for room-ready on both sides
+    await Promise.all([hostCollector.waitForCount(1), remoteCollector.waitForCount(1)]);
 
-        host.close();
-        remote.close();
-    });
+    // Host sends an offer, remote should receive it (as message #2)
+    host.send(JSON.stringify({ type: 'offer', sdp: 'test-sdp' }));
+    const remoteMsgs = await remoteCollector.waitForCount(2);
 
-    it('relays messages between host and remote', async () => {
-        if (!serverProcess) serverProcess = await startServer(TEST_PORT);
+    expect(remoteMsgs[1].type).toBe('offer');
+    expect(remoteMsgs[1].sdp).toBe('test-sdp');
 
-        const session = `relay-test-${Date.now()}`;
-        const token = 'relay-token';
+    host.close();
+    remote.close();
+  });
 
-        const host = await connectClient(TEST_PORT, session, token, 'host');
-        // Set up host room-ready listener BEFORE remote connects to avoid race
-        const hostReady = nextMessage(host, 5000);
+  it('notifies when peer disconnects', { timeout: 10000 }, async () => {
+    const session = `disconnect-test-${Date.now()}`;
+    const token = 'dc-token';
 
-        const remote = await connectClient(TEST_PORT, session, token, 'remote');
-        const remoteReady = nextMessage(remote, 5000);
+    const host = await connectClient(TEST_PORT, session, token, 'host');
+    const hostCollector = createMessageCollector(host);
 
-        // Consume room-ready
-        await Promise.all([hostReady, remoteReady]);
+    const remote = await connectClient(TEST_PORT, session, token, 'remote');
+    const remoteCollector = createMessageCollector(remote);
 
-        // Small delay to ensure clean state after room-ready
-        await new Promise((r) => setTimeout(r, 50));
+    // Wait for room-ready
+    await Promise.all([hostCollector.waitForCount(1), remoteCollector.waitForCount(1)]);
 
-        // Host sends an offer, remote should receive it
-        const remoteMsg = nextMessage(remote, 5000);
-        host.send(JSON.stringify({ type: 'offer', sdp: 'test-sdp' }));
-        const received = await remoteMsg;
+    // Close host — remote should get peer-disconnected (message #2)
+    host.close();
+    const remoteMsgs = await remoteCollector.waitForCount(2);
 
-        expect(received.type).toBe('offer');
-        expect(received.sdp).toBe('test-sdp');
+    expect(remoteMsgs[1].type).toBe('peer-disconnected');
 
-        host.close();
-        remote.close();
-    });
-
-    it('notifies when peer disconnects', async () => {
-        if (!serverProcess) serverProcess = await startServer(TEST_PORT);
-
-        const session = `disconnect-test-${Date.now()}`;
-        const token = 'dc-token';
-
-        const host = await connectClient(TEST_PORT, session, token, 'host');
-        // Set up host room-ready listener BEFORE remote connects to avoid race
-        const hostReady = nextMessage(host, 5000);
-
-        const remote = await connectClient(TEST_PORT, session, token, 'remote');
-        const remoteReady = nextMessage(remote, 5000);
-
-        // Consume room-ready
-        await Promise.all([hostReady, remoteReady]);
-
-        // Remote will receive peer-disconnected when host closes
-        const remoteDisconnectMsg = nextMessage(remote, 5000);
-        host.close();
-        const msg = await remoteDisconnectMsg;
-
-        expect(msg.type).toBe('peer-disconnected');
-
-        remote.close();
-    });
+    remote.close();
+  });
 });

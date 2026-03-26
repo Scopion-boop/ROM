@@ -23,7 +23,8 @@ dashboardRouter.get('/stats', async (req, res, next) => {
     const avgConfidenceScore =
       totalMeasurements > 0
         ? Math.round(
-            (allMeasurements.reduce((acc, m) => acc + m.confidenceScore, 0) / totalMeasurements) * 100,
+            (allMeasurements.reduce((acc, m) => acc + m.confidenceScore, 0) / totalMeasurements) *
+              100,
           )
         : null;
     const now = new Date();
@@ -50,7 +51,9 @@ dashboardRouter.get('/stats', async (req, res, next) => {
       sessionLimit: getSessionLimit(sub?.plan ?? null),
       sessionChange,
     });
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
 dashboardRouter.get('/rom-trend', async (req, res, next) => {
@@ -87,5 +90,7 @@ dashboardRouter.get('/rom-trend', async (req, res, next) => {
     });
 
     res.json({ dates, avgRom });
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });

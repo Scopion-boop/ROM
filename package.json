@@ -1,30 +1,41 @@
 {
-    "name": "@physiolens/root",
-    "private": true,
-    "version": "0.0.0",
-    "description": "PhysioLens — Clinical ROM Measurement Platform — monorepo root",
-    "scripts": {
-        "dev": "turbo run dev",
-        "build": "turbo run build",
-        "lint": "turbo run lint",
-        "test": "turbo run test",
-        "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-        "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
-        "typecheck": "turbo run typecheck",
-        "clean": "turbo run clean && rm -rf node_modules"
-    },
-    "devDependencies": {
-        "@eslint/js": "^10.0.1",
-        "@types/node": "^22.13.0",
-        "eslint": "^9.19.0",
-        "prettier": "^3.4.0",
-        "turbo": "^2.4.0",
-        "typescript": "^5.7.0",
-        "typescript-eslint": "^8.54.0"
-    },
-    "packageManager": "pnpm@9.15.0",
-    "engines": {
-        "node": ">=20.0.0",
-        "pnpm": ">=9.0.0"
-    }
+  "name": "@physiolens/root",
+  "private": true,
+  "version": "0.0.0",
+  "description": "PhysioLens — Clinical ROM Measurement Platform — monorepo root",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md,yaml,yml,css}": "prettier --write"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^22.13.0",
+    "@vitest/coverage-v8": "^4.1.1",
+    "eslint": "^9.19.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.4.0",
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.54.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
 }

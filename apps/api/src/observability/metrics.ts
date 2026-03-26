@@ -6,41 +6,41 @@
  */
 
 interface MetricCounters {
-    [key: string]: number;
+  [key: string]: number;
 }
 
 const counters: MetricCounters = {};
 const startTime = Date.now();
 
 export function incrementCounter(name: string, amount: number = 1): void {
-    counters[name] = (counters[name] ?? 0) + amount;
+  counters[name] = (counters[name] ?? 0) + amount;
 }
 
 export function getCounter(name: string): number {
-    return counters[name] ?? 0;
+  return counters[name] ?? 0;
 }
 
 export function getAllCounters(): Readonly<MetricCounters> {
-    return { ...counters };
+  return { ...counters };
 }
 
 export function getUptimeSeconds(): number {
-    return Math.floor((Date.now() - startTime) / 1000);
+  return Math.floor((Date.now() - startTime) / 1000);
 }
 
 export function getMetricsSummary(): {
-    uptime_seconds: number;
-    counters: Readonly<MetricCounters>;
+  uptime_seconds: number;
+  counters: Readonly<MetricCounters>;
 } {
-    return {
-        uptime_seconds: getUptimeSeconds(),
-        counters: getAllCounters(),
-    };
+  return {
+    uptime_seconds: getUptimeSeconds(),
+    counters: getAllCounters(),
+  };
 }
 
 /** Test helper */
 export function _resetCounters(): void {
-    for (const key of Object.keys(counters)) {
-        delete counters[key];
-    }
+  for (const key of Object.keys(counters)) {
+    delete counters[key];
+  }
 }

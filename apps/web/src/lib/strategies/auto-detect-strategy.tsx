@@ -9,12 +9,13 @@ import { registerVisionStrategy } from '../vision-strategy-registry';
 import { LiveRomCapture } from '../../components/capture/LiveRomCapture';
 
 registerVisionStrategy({
-    meta: {
-        key: 'auto-detect',
-        label: 'Auto-Detect',
-        description: 'Automatically identifies visible joints and captures ROM measurements when movement stabilises.',
-        requiresJointSelection: false,
-        requiresCvBackend: false,
-    },
-    component: LiveRomCapture,
+  meta: {
+    key: 'auto-detect',
+    label: 'Auto-Detect',
+    description:
+      'Automatically identifies visible joints and captures ROM measurements when movement stabilises.',
+    requiresJointSelection: false,
+    requiresCvBackend: false,
+  },
+  component: LiveRomCapture,
 });

@@ -15,12 +15,12 @@ This document defines hard guardrails, execution constraints, and "done" criteri
 
 ### 2.1 Mandatory Constraints
 
-| Allowed | Blocked |
-|---------|---------|
-| "This tool assists clinicians in documenting ROM measurements" | "This tool diagnoses musculoskeletal conditions" |
-| "Measurement recorded: shoulder flexion 142°" | "Patient has limited mobility indicating rotator cuff pathology" |
-| "Assists with clinical documentation workflow" | "Provides clinical decision support for treatment selection" |
-| Referencing published accuracy metrics with citations | Claiming regulatory clearance or clinical equivalence without evidence |
+| Allowed                                                        | Blocked                                                                |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| "This tool assists clinicians in documenting ROM measurements" | "This tool diagnoses musculoskeletal conditions"                       |
+| "Measurement recorded: shoulder flexion 142°"                  | "Patient has limited mobility indicating rotator cuff pathology"       |
+| "Assists with clinical documentation workflow"                 | "Provides clinical decision support for treatment selection"           |
+| Referencing published accuracy metrics with citations          | Claiming regulatory clearance or clinical equivalence without evidence |
 
 ### 2.2 Hard Rules
 
@@ -91,22 +91,22 @@ An issue will be **reopened** if:
 
 ### 4.2 Execution Boundaries
 
-| Rule | Description |
-|------|-------------|
-| **Single-issue focus** | Each agent works on exactly one issue at a time |
-| **No scope creep** | Agent must not expand scope beyond the assigned issue's acceptance criteria |
+| Rule                    | Description                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Single-issue focus**  | Each agent works on exactly one issue at a time                                                                      |
+| **No scope creep**      | Agent must not expand scope beyond the assigned issue's acceptance criteria                                          |
 | **Escalation required** | If an agent encounters an ambiguity, blocker, or risk not covered by the issue, it MUST escalate to the orchestrator |
-| **No secrets in code** | Agents must never hardcode credentials, API keys, or PII in source files |
-| **Prompt integrity** | Agents execute ONLY from the latest approved version of `PROMPT_REGISTRY.md` |
+| **No secrets in code**  | Agents must never hardcode credentials, API keys, or PII in source files                                             |
+| **Prompt integrity**    | Agents execute ONLY from the latest approved version of `PROMPT_REGISTRY.md`                                         |
 
 ### 4.3 Risk-Gated Execution
 
-| Risk Class | Execution Rule |
-|------------|----------------|
-| `risk:r4` | Agent may execute and close with evidence bundle |
-| `risk:r3` | Agent may execute; closure requires orchestrator review |
-| `risk:r2` | Agent may execute; closure requires human approval |
-| `risk:r1` | Agent may NOT execute without explicit human pre-approval; closure requires human sign-off |
+| Risk Class | Execution Rule                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `risk:r4`  | Agent may execute and close with evidence bundle                                           |
+| `risk:r3`  | Agent may execute; closure requires orchestrator review                                    |
+| `risk:r2`  | Agent may execute; closure requires human approval                                         |
+| `risk:r1`  | Agent may NOT execute without explicit human pre-approval; closure requires human sign-off |
 
 ### 4.4 Dependency Enforcement
 
@@ -140,6 +140,6 @@ An agent MUST escalate immediately if:
 
 ## 7. Changelog
 
-| Date | Version | Change | Approved By |
-|------|---------|--------|-------------|
-| 2026-02-08 | 1.0.0 | Initial locked policy | Founder |
+| Date       | Version | Change                | Approved By |
+| ---------- | ------- | --------------------- | ----------- |
+| 2026-02-08 | 1.0.0   | Initial locked policy | Founder     |

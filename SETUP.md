@@ -3,6 +3,7 @@
 Complete guide for setting up the PhysioLens development environment.
 
 ## Table of Contents
+
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Environment Configuration](#environment-configuration)
@@ -15,6 +16,7 @@ Complete guide for setting up the PhysioLens development environment.
 ### Required Software
 
 1. **Node.js 20+**
+
    ```bash
    # Using nvm (recommended)
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -26,6 +28,7 @@ Complete guide for setting up the PhysioLens development environment.
    ```
 
 2. **pnpm 9.15+**
+
    ```bash
    npm install -g pnpm@9.15.0
 
@@ -34,6 +37,7 @@ Complete guide for setting up the PhysioLens development environment.
    ```
 
 3. **PostgreSQL 15+** (Optional - for database persistence)
+
    ```bash
    # macOS (using Homebrew)
    brew install postgresql@15
@@ -80,6 +84,7 @@ pnpm install
 ```
 
 This will install dependencies for:
+
 - Root workspace
 - `apps/web` (Next.js)
 - `apps/api` (Express)
@@ -111,6 +116,7 @@ NEXT_PUBLIC_SIGNAL_PORT=4001            # Port for signaling server
 ```
 
 **API Key Setup:**
+
 - **OpenAI**: Create account at https://platform.openai.com, get API key from API keys section
 - **Anthropic**: Create account at https://console.anthropic.com, get API key from settings
 
@@ -143,6 +149,7 @@ LOG_LEVEL=debug
 ```
 
 **Security Notes:**
+
 - Never commit `.env` files to version control
 - Use strong random secrets for JWT_SECRET
 - Keep API keys secure
@@ -152,6 +159,7 @@ LOG_LEVEL=debug
 ### Option 1: PostgreSQL (Recommended for Production)
 
 1. **Create Database**
+
    ```bash
    # Connect to PostgreSQL
    psql postgres
@@ -187,24 +195,28 @@ pnpm dev
 ```
 
 This starts:
+
 - Next.js web app on http://localhost:2000
 - Express API on http://localhost:3000
 
 ### Running Services Individually
 
 **Terminal 1: API Server**
+
 ```bash
 cd apps/api
 pnpm dev
 ```
 
 **Terminal 2: WebRTC Signaling Server**
+
 ```bash
 cd apps/web
 node src/lib/signaling/server.mjs
 ```
 
 **Terminal 3: Next.js Web App**
+
 ```bash
 cd apps/web
 pnpm dev
@@ -219,6 +231,7 @@ pnpm dev
 ### Testing the Setup
 
 1. **Verify API Health**
+
    ```bash
    curl http://localhost:3000/health
    # Should return: {"status":"ok","timestamp":"..."}
@@ -431,6 +444,7 @@ pnpm --filter @physiolens/api db:push --force
 ### AI Interpretation Not Working
 
 1. **Verify API key in .env.local**
+
    ```bash
    cat apps/web/.env.local | grep API_KEY
    ```
@@ -448,6 +462,7 @@ pnpm --filter @physiolens/api db:push --force
 ## Next Steps
 
 After setup:
+
 1. Review [API.md](./API.md) for API documentation
 2. Check [Architecture docs](./docs/planning-v2/03-architecture-stack.md)
 3. Read [Contributing guidelines](./docs/planning-v2/07-dev-agent-orchestration.md)
@@ -455,6 +470,7 @@ After setup:
 ## Support
 
 For issues not covered here:
+
 - Check [GitHub Issues](https://github.com/<org>/<repo>/issues)
 - Review [Open Questions](./docs/planning-v2/11-open-questions-for-founder.md)
 - Contact development team

@@ -1,20 +1,20 @@
 {
-    "name": "@physiolens/signaling",
-    "version": "0.1.0",
-    "private": true,
-    "type": "module",
-    "description": "WebRTC signaling server for phone camera pairing",
-    "scripts": {
-        "dev": "node server.js",
-        "start": "node server.js",
-        "test": "vitest run",
-        "clean": "echo 'nothing to clean'"
-    },
-    "dependencies": {
-        "ws": "^8.18.0"
-    },
-    "devDependencies": {
-        "@types/ws": "^8.5.13",
-        "vitest": "^3.0.0"
-    }
+  "name": "@physiolens/signaling",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "WebRTC signaling server for phone camera pairing",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "test": "vitest run",
+    "clean": "echo 'nothing to clean'"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "vitest": "^3.0.0"
+  }
 }

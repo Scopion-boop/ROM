@@ -1,434 +1,434 @@
 {
-    "shoulder:flexion:left": {
-        "proximal": 23,
-        "center": 11,
-        "distal": 13,
-        "preferredView": "sagittal"
-    },
-    "shoulder:flexion:right": {
-        "proximal": 24,
-        "center": 12,
-        "distal": 14,
-        "preferredView": "sagittal"
-    },
-    "shoulder:extension:left": {
-        "proximal": 23,
-        "center": 11,
-        "distal": 13,
-        "preferredView": "sagittal"
-    },
-    "shoulder:extension:right": {
-        "proximal": 24,
-        "center": 12,
-        "distal": 14,
-        "preferredView": "sagittal"
-    },
-    "shoulder:abduction:left": {
-        "proximal": 12,
-        "center": 11,
-        "distal": 13,
-        "preferredView": "frontal"
-    },
-    "shoulder:abduction:right": {
-        "proximal": 11,
-        "center": 12,
-        "distal": 14,
-        "preferredView": "frontal"
-    },
-    "shoulder:adduction:left": {
-        "proximal": 12,
-        "center": 11,
-        "distal": 13,
-        "preferredView": "frontal"
-    },
-    "shoulder:adduction:right": {
-        "proximal": 11,
-        "center": 12,
-        "distal": 14,
-        "preferredView": "frontal"
-    },
-    "shoulder:internal_rotation:left": {
-        "proximal": 15,
-        "center": 13,
-        "distal": 11,
-        "preferredView": "transverse"
-    },
-    "shoulder:internal_rotation:right": {
-        "proximal": 16,
-        "center": 14,
-        "distal": 12,
-        "preferredView": "transverse"
-    },
-    "shoulder:external_rotation:left": {
-        "proximal": 15,
-        "center": 13,
-        "distal": 11,
-        "preferredView": "transverse"
-    },
-    "shoulder:external_rotation:right": {
-        "proximal": 16,
-        "center": 14,
-        "distal": 12,
-        "preferredView": "transverse"
-    },
-    "shoulder:horizontal_adduction:left": {
-        "proximal": 12,
-        "center": 11,
-        "distal": 13,
-        "preferredView": "transverse"
-    },
-    "shoulder:horizontal_adduction:right": {
-        "proximal": 11,
-        "center": 12,
-        "distal": 14,
-        "preferredView": "transverse"
-    },
-    "shoulder:horizontal_abduction:left": {
-        "proximal": 12,
-        "center": 11,
-        "distal": 13,
-        "preferredView": "transverse"
-    },
-    "shoulder:horizontal_abduction:right": {
-        "proximal": 11,
-        "center": 12,
-        "distal": 14,
-        "preferredView": "transverse"
-    },
-    "elbow:flexion:left": {
-        "proximal": 11,
-        "center": 13,
-        "distal": 15,
-        "preferredView": "sagittal"
-    },
-    "elbow:flexion:right": {
-        "proximal": 12,
-        "center": 14,
-        "distal": 16,
-        "preferredView": "sagittal"
-    },
-    "elbow:extension:left": {
-        "proximal": 11,
-        "center": 13,
-        "distal": 15,
-        "preferredView": "sagittal"
-    },
-    "elbow:extension:right": {
-        "proximal": 12,
-        "center": 14,
-        "distal": 16,
-        "preferredView": "sagittal"
-    },
-    "elbow:pronation:left": {
-        "proximal": 15,
-        "center": 17,
-        "distal": 19,
-        "preferredView": "transverse"
-    },
-    "elbow:pronation:right": {
-        "proximal": 16,
-        "center": 18,
-        "distal": 20,
-        "preferredView": "transverse"
-    },
-    "elbow:supination:left": {
-        "proximal": 15,
-        "center": 17,
-        "distal": 19,
-        "preferredView": "transverse"
-    },
-    "elbow:supination:right": {
-        "proximal": 16,
-        "center": 18,
-        "distal": 20,
-        "preferredView": "transverse"
-    },
-    "wrist:flexion:left": {
-        "proximal": 13,
-        "center": 15,
-        "distal": 19,
-        "preferredView": "sagittal"
-    },
-    "wrist:flexion:right": {
-        "proximal": 14,
-        "center": 16,
-        "distal": 20,
-        "preferredView": "sagittal"
-    },
-    "wrist:extension:left": {
-        "proximal": 13,
-        "center": 15,
-        "distal": 19,
-        "preferredView": "sagittal"
-    },
-    "wrist:extension:right": {
-        "proximal": 14,
-        "center": 16,
-        "distal": 20,
-        "preferredView": "sagittal"
-    },
-    "wrist:radial_deviation:left": {
-        "proximal": 13,
-        "center": 15,
-        "distal": 19,
-        "preferredView": "frontal"
-    },
-    "wrist:radial_deviation:right": {
-        "proximal": 14,
-        "center": 16,
-        "distal": 20,
-        "preferredView": "frontal"
-    },
-    "wrist:ulnar_deviation:left": {
-        "proximal": 13,
-        "center": 15,
-        "distal": 19,
-        "preferredView": "frontal"
-    },
-    "wrist:ulnar_deviation:right": {
-        "proximal": 14,
-        "center": 16,
-        "distal": 20,
-        "preferredView": "frontal"
-    },
-    "hip:flexion:left": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "sagittal"
-    },
-    "hip:flexion:right": {
-        "proximal": 12,
-        "center": 24,
-        "distal": 26,
-        "preferredView": "sagittal"
-    },
-    "hip:extension:left": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "sagittal"
-    },
-    "hip:extension:right": {
-        "proximal": 12,
-        "center": 24,
-        "distal": 26,
-        "preferredView": "sagittal"
-    },
-    "hip:abduction:left": {
-        "proximal": 24,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "frontal"
-    },
-    "hip:abduction:right": {
-        "proximal": 23,
-        "center": 24,
-        "distal": 26,
-        "preferredView": "frontal"
-    },
-    "hip:adduction:left": {
-        "proximal": 24,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "frontal"
-    },
-    "hip:adduction:right": {
-        "proximal": 23,
-        "center": 24,
-        "distal": 26,
-        "preferredView": "frontal"
-    },
-    "hip:internal_rotation:left": {
-        "proximal": 27,
-        "center": 25,
-        "distal": 23,
-        "preferredView": "transverse"
-    },
-    "hip:internal_rotation:right": {
-        "proximal": 28,
-        "center": 26,
-        "distal": 24,
-        "preferredView": "transverse"
-    },
-    "hip:external_rotation:left": {
-        "proximal": 27,
-        "center": 25,
-        "distal": 23,
-        "preferredView": "transverse"
-    },
-    "hip:external_rotation:right": {
-        "proximal": 28,
-        "center": 26,
-        "distal": 24,
-        "preferredView": "transverse"
-    },
-    "knee:flexion:left": {
-        "proximal": 23,
-        "center": 25,
-        "distal": 27,
-        "preferredView": "sagittal"
-    },
-    "knee:flexion:right": {
-        "proximal": 24,
-        "center": 26,
-        "distal": 28,
-        "preferredView": "sagittal"
-    },
-    "knee:extension:left": {
-        "proximal": 23,
-        "center": 25,
-        "distal": 27,
-        "preferredView": "sagittal"
-    },
-    "knee:extension:right": {
-        "proximal": 24,
-        "center": 26,
-        "distal": 28,
-        "preferredView": "sagittal"
-    },
-    "ankle:dorsiflexion:left": {
-        "proximal": 25,
-        "center": 27,
-        "distal": 31,
-        "preferredView": "sagittal"
-    },
-    "ankle:dorsiflexion:right": {
-        "proximal": 26,
-        "center": 28,
-        "distal": 32,
-        "preferredView": "sagittal"
-    },
-    "ankle:plantarflexion:left": {
-        "proximal": 25,
-        "center": 27,
-        "distal": 31,
-        "preferredView": "sagittal"
-    },
-    "ankle:plantarflexion:right": {
-        "proximal": 26,
-        "center": 28,
-        "distal": 32,
-        "preferredView": "sagittal"
-    },
-    "ankle:inversion:left": {
-        "proximal": 25,
-        "center": 27,
-        "distal": 31,
-        "preferredView": "frontal"
-    },
-    "ankle:inversion:right": {
-        "proximal": 26,
-        "center": 28,
-        "distal": 32,
-        "preferredView": "frontal"
-    },
-    "ankle:eversion:left": {
-        "proximal": 25,
-        "center": 27,
-        "distal": 31,
-        "preferredView": "frontal"
-    },
-    "ankle:eversion:right": {
-        "proximal": 26,
-        "center": 28,
-        "distal": 32,
-        "preferredView": "frontal"
-    },
-    "cervical_spine:flexion:midline": {
-        "proximal": 0,
-        "center": 11,
-        "distal": 23,
-        "preferredView": "sagittal"
-    },
-    "cervical_spine:extension:midline": {
-        "proximal": 0,
-        "center": 11,
-        "distal": 23,
-        "preferredView": "sagittal"
-    },
-    "cervical_spine:lateral_flexion_left:midline": {
-        "proximal": 7,
-        "center": 0,
-        "distal": 8,
-        "preferredView": "frontal"
-    },
-    "cervical_spine:lateral_flexion_right:midline": {
-        "proximal": 8,
-        "center": 0,
-        "distal": 7,
-        "preferredView": "frontal"
-    },
-    "cervical_spine:rotation_left:midline": {
-        "proximal": 0,
-        "center": 7,
-        "distal": 11,
-        "preferredView": "transverse"
-    },
-    "cervical_spine:rotation_right:midline": {
-        "proximal": 0,
-        "center": 8,
-        "distal": 12,
-        "preferredView": "transverse"
-    },
-    "thoracic_spine:flexion:midline": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "sagittal"
-    },
-    "thoracic_spine:extension:midline": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "sagittal"
-    },
-    "thoracic_spine:rotation_left:midline": {
-        "proximal": 11,
-        "center": 12,
-        "distal": 24,
-        "preferredView": "transverse"
-    },
-    "thoracic_spine:rotation_right:midline": {
-        "proximal": 12,
-        "center": 11,
-        "distal": 23,
-        "preferredView": "transverse"
-    },
-    "lumbar_spine:flexion:midline": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "sagittal"
-    },
-    "lumbar_spine:extension:midline": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 25,
-        "preferredView": "sagittal"
-    },
-    "lumbar_spine:lateral_flexion_left:midline": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 12,
-        "preferredView": "frontal"
-    },
-    "lumbar_spine:lateral_flexion_right:midline": {
-        "proximal": 12,
-        "center": 24,
-        "distal": 11,
-        "preferredView": "frontal"
-    },
-    "lumbar_spine:rotation_left:midline": {
-        "proximal": 11,
-        "center": 23,
-        "distal": 24,
-        "preferredView": "transverse"
-    },
-    "lumbar_spine:rotation_right:midline": {
-        "proximal": 12,
-        "center": 24,
-        "distal": 23,
-        "preferredView": "transverse"
-    }
+  "shoulder:flexion:left": {
+    "proximal": 23,
+    "center": 11,
+    "distal": 13,
+    "preferredView": "sagittal"
+  },
+  "shoulder:flexion:right": {
+    "proximal": 24,
+    "center": 12,
+    "distal": 14,
+    "preferredView": "sagittal"
+  },
+  "shoulder:extension:left": {
+    "proximal": 23,
+    "center": 11,
+    "distal": 13,
+    "preferredView": "sagittal"
+  },
+  "shoulder:extension:right": {
+    "proximal": 24,
+    "center": 12,
+    "distal": 14,
+    "preferredView": "sagittal"
+  },
+  "shoulder:abduction:left": {
+    "proximal": 12,
+    "center": 11,
+    "distal": 13,
+    "preferredView": "frontal"
+  },
+  "shoulder:abduction:right": {
+    "proximal": 11,
+    "center": 12,
+    "distal": 14,
+    "preferredView": "frontal"
+  },
+  "shoulder:adduction:left": {
+    "proximal": 12,
+    "center": 11,
+    "distal": 13,
+    "preferredView": "frontal"
+  },
+  "shoulder:adduction:right": {
+    "proximal": 11,
+    "center": 12,
+    "distal": 14,
+    "preferredView": "frontal"
+  },
+  "shoulder:internal_rotation:left": {
+    "proximal": 15,
+    "center": 13,
+    "distal": 11,
+    "preferredView": "transverse"
+  },
+  "shoulder:internal_rotation:right": {
+    "proximal": 16,
+    "center": 14,
+    "distal": 12,
+    "preferredView": "transverse"
+  },
+  "shoulder:external_rotation:left": {
+    "proximal": 15,
+    "center": 13,
+    "distal": 11,
+    "preferredView": "transverse"
+  },
+  "shoulder:external_rotation:right": {
+    "proximal": 16,
+    "center": 14,
+    "distal": 12,
+    "preferredView": "transverse"
+  },
+  "shoulder:horizontal_adduction:left": {
+    "proximal": 12,
+    "center": 11,
+    "distal": 13,
+    "preferredView": "transverse"
+  },
+  "shoulder:horizontal_adduction:right": {
+    "proximal": 11,
+    "center": 12,
+    "distal": 14,
+    "preferredView": "transverse"
+  },
+  "shoulder:horizontal_abduction:left": {
+    "proximal": 12,
+    "center": 11,
+    "distal": 13,
+    "preferredView": "transverse"
+  },
+  "shoulder:horizontal_abduction:right": {
+    "proximal": 11,
+    "center": 12,
+    "distal": 14,
+    "preferredView": "transverse"
+  },
+  "elbow:flexion:left": {
+    "proximal": 11,
+    "center": 13,
+    "distal": 15,
+    "preferredView": "sagittal"
+  },
+  "elbow:flexion:right": {
+    "proximal": 12,
+    "center": 14,
+    "distal": 16,
+    "preferredView": "sagittal"
+  },
+  "elbow:extension:left": {
+    "proximal": 11,
+    "center": 13,
+    "distal": 15,
+    "preferredView": "sagittal"
+  },
+  "elbow:extension:right": {
+    "proximal": 12,
+    "center": 14,
+    "distal": 16,
+    "preferredView": "sagittal"
+  },
+  "elbow:pronation:left": {
+    "proximal": 15,
+    "center": 17,
+    "distal": 19,
+    "preferredView": "transverse"
+  },
+  "elbow:pronation:right": {
+    "proximal": 16,
+    "center": 18,
+    "distal": 20,
+    "preferredView": "transverse"
+  },
+  "elbow:supination:left": {
+    "proximal": 15,
+    "center": 17,
+    "distal": 19,
+    "preferredView": "transverse"
+  },
+  "elbow:supination:right": {
+    "proximal": 16,
+    "center": 18,
+    "distal": 20,
+    "preferredView": "transverse"
+  },
+  "wrist:flexion:left": {
+    "proximal": 13,
+    "center": 15,
+    "distal": 19,
+    "preferredView": "sagittal"
+  },
+  "wrist:flexion:right": {
+    "proximal": 14,
+    "center": 16,
+    "distal": 20,
+    "preferredView": "sagittal"
+  },
+  "wrist:extension:left": {
+    "proximal": 13,
+    "center": 15,
+    "distal": 19,
+    "preferredView": "sagittal"
+  },
+  "wrist:extension:right": {
+    "proximal": 14,
+    "center": 16,
+    "distal": 20,
+    "preferredView": "sagittal"
+  },
+  "wrist:radial_deviation:left": {
+    "proximal": 13,
+    "center": 15,
+    "distal": 19,
+    "preferredView": "frontal"
+  },
+  "wrist:radial_deviation:right": {
+    "proximal": 14,
+    "center": 16,
+    "distal": 20,
+    "preferredView": "frontal"
+  },
+  "wrist:ulnar_deviation:left": {
+    "proximal": 13,
+    "center": 15,
+    "distal": 19,
+    "preferredView": "frontal"
+  },
+  "wrist:ulnar_deviation:right": {
+    "proximal": 14,
+    "center": 16,
+    "distal": 20,
+    "preferredView": "frontal"
+  },
+  "hip:flexion:left": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "sagittal"
+  },
+  "hip:flexion:right": {
+    "proximal": 12,
+    "center": 24,
+    "distal": 26,
+    "preferredView": "sagittal"
+  },
+  "hip:extension:left": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "sagittal"
+  },
+  "hip:extension:right": {
+    "proximal": 12,
+    "center": 24,
+    "distal": 26,
+    "preferredView": "sagittal"
+  },
+  "hip:abduction:left": {
+    "proximal": 24,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "frontal"
+  },
+  "hip:abduction:right": {
+    "proximal": 23,
+    "center": 24,
+    "distal": 26,
+    "preferredView": "frontal"
+  },
+  "hip:adduction:left": {
+    "proximal": 24,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "frontal"
+  },
+  "hip:adduction:right": {
+    "proximal": 23,
+    "center": 24,
+    "distal": 26,
+    "preferredView": "frontal"
+  },
+  "hip:internal_rotation:left": {
+    "proximal": 27,
+    "center": 25,
+    "distal": 23,
+    "preferredView": "transverse"
+  },
+  "hip:internal_rotation:right": {
+    "proximal": 28,
+    "center": 26,
+    "distal": 24,
+    "preferredView": "transverse"
+  },
+  "hip:external_rotation:left": {
+    "proximal": 27,
+    "center": 25,
+    "distal": 23,
+    "preferredView": "transverse"
+  },
+  "hip:external_rotation:right": {
+    "proximal": 28,
+    "center": 26,
+    "distal": 24,
+    "preferredView": "transverse"
+  },
+  "knee:flexion:left": {
+    "proximal": 23,
+    "center": 25,
+    "distal": 27,
+    "preferredView": "sagittal"
+  },
+  "knee:flexion:right": {
+    "proximal": 24,
+    "center": 26,
+    "distal": 28,
+    "preferredView": "sagittal"
+  },
+  "knee:extension:left": {
+    "proximal": 23,
+    "center": 25,
+    "distal": 27,
+    "preferredView": "sagittal"
+  },
+  "knee:extension:right": {
+    "proximal": 24,
+    "center": 26,
+    "distal": 28,
+    "preferredView": "sagittal"
+  },
+  "ankle:dorsiflexion:left": {
+    "proximal": 25,
+    "center": 27,
+    "distal": 31,
+    "preferredView": "sagittal"
+  },
+  "ankle:dorsiflexion:right": {
+    "proximal": 26,
+    "center": 28,
+    "distal": 32,
+    "preferredView": "sagittal"
+  },
+  "ankle:plantarflexion:left": {
+    "proximal": 25,
+    "center": 27,
+    "distal": 31,
+    "preferredView": "sagittal"
+  },
+  "ankle:plantarflexion:right": {
+    "proximal": 26,
+    "center": 28,
+    "distal": 32,
+    "preferredView": "sagittal"
+  },
+  "ankle:inversion:left": {
+    "proximal": 25,
+    "center": 27,
+    "distal": 31,
+    "preferredView": "frontal"
+  },
+  "ankle:inversion:right": {
+    "proximal": 26,
+    "center": 28,
+    "distal": 32,
+    "preferredView": "frontal"
+  },
+  "ankle:eversion:left": {
+    "proximal": 25,
+    "center": 27,
+    "distal": 31,
+    "preferredView": "frontal"
+  },
+  "ankle:eversion:right": {
+    "proximal": 26,
+    "center": 28,
+    "distal": 32,
+    "preferredView": "frontal"
+  },
+  "cervical_spine:flexion:midline": {
+    "proximal": 0,
+    "center": 11,
+    "distal": 23,
+    "preferredView": "sagittal"
+  },
+  "cervical_spine:extension:midline": {
+    "proximal": 0,
+    "center": 11,
+    "distal": 23,
+    "preferredView": "sagittal"
+  },
+  "cervical_spine:lateral_flexion_left:midline": {
+    "proximal": 7,
+    "center": 0,
+    "distal": 8,
+    "preferredView": "frontal"
+  },
+  "cervical_spine:lateral_flexion_right:midline": {
+    "proximal": 8,
+    "center": 0,
+    "distal": 7,
+    "preferredView": "frontal"
+  },
+  "cervical_spine:rotation_left:midline": {
+    "proximal": 0,
+    "center": 7,
+    "distal": 11,
+    "preferredView": "transverse"
+  },
+  "cervical_spine:rotation_right:midline": {
+    "proximal": 0,
+    "center": 8,
+    "distal": 12,
+    "preferredView": "transverse"
+  },
+  "thoracic_spine:flexion:midline": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "sagittal"
+  },
+  "thoracic_spine:extension:midline": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "sagittal"
+  },
+  "thoracic_spine:rotation_left:midline": {
+    "proximal": 11,
+    "center": 12,
+    "distal": 24,
+    "preferredView": "transverse"
+  },
+  "thoracic_spine:rotation_right:midline": {
+    "proximal": 12,
+    "center": 11,
+    "distal": 23,
+    "preferredView": "transverse"
+  },
+  "lumbar_spine:flexion:midline": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "sagittal"
+  },
+  "lumbar_spine:extension:midline": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 25,
+    "preferredView": "sagittal"
+  },
+  "lumbar_spine:lateral_flexion_left:midline": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 12,
+    "preferredView": "frontal"
+  },
+  "lumbar_spine:lateral_flexion_right:midline": {
+    "proximal": 12,
+    "center": 24,
+    "distal": 11,
+    "preferredView": "frontal"
+  },
+  "lumbar_spine:rotation_left:midline": {
+    "proximal": 11,
+    "center": 23,
+    "distal": 24,
+    "preferredView": "transverse"
+  },
+  "lumbar_spine:rotation_right:midline": {
+    "proximal": 12,
+    "center": 24,
+    "distal": 23,
+    "preferredView": "transverse"
+  }
 }

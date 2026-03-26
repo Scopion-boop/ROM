@@ -3,6 +3,7 @@
 Production deployment guide for PhysioLens.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Environment Configuration](#environment-configuration)
@@ -17,6 +18,7 @@ Production deployment guide for PhysioLens.
 ## Overview
 
 ### Architecture Components
+
 - **Next.js Web App**: Frontend application (port 2000 → production port 80/443)
 - **Express API Server**: Backend API (port 3000 → production port 3000)
 - **WebRTC Signaling Server**: Real-time communication (port 4001 → production port 4001)
@@ -50,18 +52,21 @@ Production deployment guide for PhysioLens.
 ## Prerequisites
 
 ### Required Accounts & Services
+
 - [x] **Node.js 20+** runtime environment
 - [x] **PostgreSQL 15+** database
 - [x] **Domain name** with SSL certificate
 - [x] **OpenAI or Anthropic API account** (for AI interpretation)
 
 ### Optional Services
+
 - [ ] **AWS Account** (recommended for production)
 - [ ] **Vercel Account** (alternative for Next.js hosting)
 - [ ] **Docker Hub** (for containerized deployments)
 - [ ] **Datadog/New Relic** (monitoring)
 
 ### Pre-Deployment Checklist
+
 - [ ] All tests passing (`pnpm test`)
 - [ ] TypeScript compilation successful (`pnpm typecheck`)
 - [ ] Linting passes (`pnpm lint`)
@@ -139,15 +144,18 @@ ALLOWED_ORIGINS=https://app.yourdomain.com
 ### Secrets Management
 
 **Development**:
+
 - Use `.env.local` and `.env` files (never commit!)
 
 **Production**:
+
 - **AWS**: Use AWS Secrets Manager or Parameter Store
 - **Vercel**: Use Vercel Environment Variables dashboard
 - **Docker**: Use Docker Secrets or Kubernetes Secrets
 - **Self-hosted**: Use HashiCorp Vault or encrypted files
 
 **Example: AWS Secrets Manager**
+
 ```bash
 # Store secret
 aws secretsmanager create-secret \
@@ -183,6 +191,7 @@ pnpm build
 ### 2. Build Outputs
 
 **Next.js Web App**:
+
 ```bash
 cd apps/web
 pnpm build
@@ -193,6 +202,7 @@ pnpm build
 ```
 
 **Express API**:
+
 ```bash
 cd apps/api
 pnpm build
@@ -222,6 +232,7 @@ node src/lib/signaling/server.mjs
 ### Option 1: Vercel (Recommended for Web App)
 
 #### Why Vercel?
+
 - Native Next.js support
 - Automatic HTTPS & CDN
 - Zero-downtime deployments
@@ -231,23 +242,27 @@ node src/lib/signaling/server.mjs
 #### Deployment Steps
 
 1. **Install Vercel CLI**
+
    ```bash
    npm i -g vercel
    ```
 
 2. **Configure Vercel**
+
    ```bash
    cd apps/web
    vercel login
    ```
 
 3. **Set Environment Variables**
+
    ```bash
    vercel env add OPENAI_API_KEY production
    vercel env add NEXT_PUBLIC_SIGNAL_PORT production
    ```
 
 4. **Deploy**
+
    ```bash
    vercel --prod
    ```
@@ -335,7 +350,7 @@ services:
       context: ./apps/web
       dockerfile: Dockerfile
     ports:
-      - "2000:2000"
+      - '2000:2000'
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - NEXT_PUBLIC_SIGNAL_PORT=4001
@@ -349,7 +364,7 @@ services:
       context: ./apps/api
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
@@ -362,7 +377,7 @@ services:
       context: ./apps/web
       dockerfile: Dockerfile.signaling
     ports:
-      - "4001:4001"
+      - '4001:4001'
     environment:
       - NODE_ENV=production
       - ALLOWED_ORIGINS=http://localhost:2000
@@ -370,7 +385,7 @@ services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=rom_user
       - POSTGRES_PASSWORD=secure_password
@@ -401,17 +416,20 @@ docker-compose down
 ### Option 3: AWS Elastic Beanstalk
 
 1. **Install EB CLI**
+
    ```bash
    pip install awsebcli
    ```
 
 2. **Initialize Elastic Beanstalk**
+
    ```bash
    cd apps/web
    eb init -p node.js-20 rom-web-app --region us-east-1
    ```
 
 3. **Create Environment**
+
    ```bash
    eb create rom-prod --instance-type t3.medium
    ```
@@ -428,6 +446,7 @@ See [AWS ECS Deployment Guide](./docs/deployment/aws-ecs-guide.md) (coming soon)
 ### Option 5: Self-Hosted VPS
 
 #### Requirements
+
 - Ubuntu 22.04 LTS
 - 4GB RAM minimum
 - 50GB SSD storage
@@ -562,6 +581,7 @@ psql $DATABASE_URL -c "\dt"
 #### 3. Database Backups
 
 **Automated Daily Backups**:
+
 ```bash
 #!/bin/bash
 # backup-db.sh
@@ -577,6 +597,7 @@ find "${BACKUP_DIR}" -name "*.sql.gz" -mtime +30 -delete
 ```
 
 **Cron Job**:
+
 ```cron
 # Daily backup at 2 AM
 0 2 * * * /usr/local/bin/backup-db.sh
@@ -612,6 +633,7 @@ gunzip -c /var/backups/rom-app/rom_prod_20260208.sql.gz | psql -U rom_app -d rom
 ### Application Logs
 
 **Pino JSON Logs** (already configured):
+
 ```json
 {
   "level": 30,
@@ -625,11 +647,13 @@ gunzip -c /var/backups/rom-app/rom_prod_20260208.sql.gz | psql -U rom_app -d rom
 ### Health Checks
 
 **API Health Endpoint**:
+
 ```http
 GET /health
 ```
 
 **Next.js Health** (custom):
+
 ```javascript
 // pages/api/health.ts
 export default function handler(req, res) {
@@ -666,14 +690,14 @@ See [Observability Setup Guide](./docs/ops/observability-setup.md) (coming soon)
 
 ### Key Metrics to Monitor
 
-| Metric | Threshold | Alert |
-|--------|-----------|-------|
-| API Response Time (p95) | <500ms | >1s |
-| Error Rate | <1% | >5% |
-| Database Connections | <80% pool | >90% pool |
-| CPU Usage | <70% | >85% |
-| Memory Usage | <80% | >90% |
-| Disk Space | <80% | >90% |
+| Metric                  | Threshold | Alert     |
+| ----------------------- | --------- | --------- |
+| API Response Time (p95) | <500ms    | >1s       |
+| Error Rate              | <1%       | >5%       |
+| Database Connections    | <80% pool | >90% pool |
+| CPU Usage               | <70%      | >85%      |
+| Memory Usage            | <80%      | >90%      |
+| Disk Space              | <80%      | >90%      |
 
 ## Security Checklist
 
@@ -694,32 +718,37 @@ See [Observability Setup Guide](./docs/ops/observability-setup.md) (coming soon)
 ### Security Headers (Helmet.js)
 
 Already configured in `apps/api/src/index.ts`:
+
 ```typescript
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    }
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 ```
 
 ### SSL/TLS Configuration
 
 **Let's Encrypt (Free)**:
+
 ```bash
 sudo certbot --nginx -d app.yourdomain.com -d api.yourdomain.com
 ```
 
 **Auto-renewal**:
+
 ```cron
 0 0 1 * * certbot renew --quiet
 ```
@@ -770,6 +799,7 @@ gunzip -c /var/backups/rom-app/rom_prod_<timestamp>.sql.gz | psql -U rom_app -d 
 ### Application Won't Start
 
 **Check logs**:
+
 ```bash
 # Docker
 docker-compose logs web
@@ -782,6 +812,7 @@ journalctl -u rom-web -n 100
 ```
 
 **Common issues**:
+
 - Missing environment variables
 - Port already in use
 - Database connection failure
@@ -789,11 +820,13 @@ journalctl -u rom-web -n 100
 ### Database Connection Issues
 
 **Test connection**:
+
 ```bash
 psql $DATABASE_URL -c "SELECT 1"
 ```
 
 **Check firewall**:
+
 ```bash
 telnet db-host 5432
 ```
@@ -801,11 +834,13 @@ telnet db-host 5432
 ### High Memory Usage
 
 **Identify process**:
+
 ```bash
 pm2 monit
 ```
 
 **Node.js memory limit**:
+
 ```bash
 # Increase heap size
 export NODE_OPTIONS="--max-old-space-size=4096"
@@ -834,6 +869,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 ## Support
 
 For deployment issues:
+
 - Review [SETUP.md](./SETUP.md) for local troubleshooting
 - Check [Architecture docs](./docs/planning-v2/03-architecture-stack.md)
 - See [Release Checklist](./docs/release/RELEASE_CHECKLIST.md)

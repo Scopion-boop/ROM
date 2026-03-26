@@ -70,6 +70,7 @@ export function getPlanFromPriceId(priceId: string): 'solo' | null {
   if (
     priceId === process.env.STRIPE_PRICE_ID_PRO_MONTHLY ||
     priceId === process.env.STRIPE_PRICE_ID_PRO_YEARLY
-  ) return 'solo';
+  )
+    return 'solo';
   return null;
 }

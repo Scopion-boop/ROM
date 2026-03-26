@@ -1,6 +1,7 @@
 # 03 - Architecture and Stack
 
 ## Recommended architecture for speed + production readiness
+
 - Frontend: `Next.js` web app (TypeScript), responsive for clinic desktop and mobile browser
 - CV runtime: Browser-side pose inference for immediate feedback (WebAssembly/WebGPU path)
 - Backend API: `Node.js` (TypeScript, modular monolith initially)
@@ -10,12 +11,14 @@
 - Infra: AWS managed services with strong encryption and audit support
 
 ## Why this stack
+
 - Web-first reduces launch friction for clinics.
 - TypeScript across frontend/backend improves velocity and consistency.
 - Python service isolates model-serving concerns from transactional API domain.
 - Modular monolith first avoids early microservice overhead.
 
 ## High-level components
+
 1. `web-app`: clinician and patient interfaces
 2. `api-core`: auth, sessions, measurements, notes, exports
 3. `cv-worker`: pose pipeline orchestration and quality scoring
@@ -23,11 +26,13 @@
 5. `audit-service`: immutable event trail and compliance views
 
 ## Boundary decisions
+
 - Keep measurement and note-domain logic in backend domain layer.
 - Keep model and CV provider adapters behind interfaces.
 - Keep export adapters (PDF/clipboard/JSON) decoupled from capture flow.
 
 ## Data model (initial)
+
 - `users`, `organizations`, `roles`
 - `patients` (minimal dataset)
 - `exam_sessions`
@@ -37,6 +42,7 @@
 - `audit_events`
 
 ## Deployment topology (initial)
+
 - `web-app` served via CDN + edge
 - `api-core` in private compute with autoscaling
 - managed `PostgreSQL`
@@ -44,6 +50,7 @@
 - central logging/metrics/tracing
 
 ## Future scaling path
+
 - Split `api-core` by bounded contexts when throughput or team boundaries require it.
 - Add regional deployment and data residency controls if expanding jurisdictions.
 
@@ -54,6 +61,7 @@
 ### Actual Stack Implemented
 
 #### Frontend (Next.js 15.1 + React 19)
+
 - **Framework**: Next.js App Router with TypeScript
 - **Computer Vision**: MediaPipe Pose (browser-side WASM)
 - **State Management**: React hooks + local state
@@ -62,6 +70,7 @@
 - **Testing**: Vitest + React Testing Library (29 tests passing)
 
 #### Backend (Node.js + Express)
+
 - **API Framework**: Express with TypeScript
 - **Database ORM**: Drizzle ORM (PostgreSQL ready)
 - **Current Storage**: In-memory repositories (development)
@@ -70,12 +79,14 @@
 - **Logging**: Pino structured logging
 
 #### AI/ML Integration
+
 - **Computer Vision**: MediaPipe Pose Landmarker (33 body landmarks)
 - **LLM Integration**: OpenAI GPT-4o / Anthropic Claude Sonnet
 - **Interpretation**: Server-side Next.js API route (`/api/interpret`)
 - **Clinical Knowledge**: 23 special tests database (shoulder/knee/hip)
 
 #### Real-time Communication
+
 - **WebRTC Signaling**: Custom Node.js server (Socket.io, port 4001)
 - **Dual-Camera Pairing**: QR code-based room joining
 - **3D Landmark Fusion**: Client-side fusion algorithm
@@ -83,6 +94,7 @@
 ### Architecture Deviations from Plan
 
 #### What's Different
+
 1. **No Python microservice**: AI interpretation handled via Next.js API routes calling OpenAI/Anthropic directly
 2. **No FastAPI service**: Eliminated for MVP simplicity
 3. **No message queue**: Async jobs not yet needed (all operations synchronous)
@@ -90,6 +102,7 @@
 5. **No audit service yet**: Logging implemented, immutable audit trail pending
 
 #### What Matches Plan
+
 ✅ Next.js web app with TypeScript
 ✅ Browser-side CV (MediaPipe WASM)
 ✅ Node.js backend API
@@ -150,18 +163,21 @@
 ### Technology Decisions - Rationale
 
 #### Why MediaPipe in Browser (not backend CV)
+
 - **Latency**: Real-time feedback requires <50ms processing
 - **Privacy**: Video never leaves device (HIPAA advantage)
 - **Cost**: No server-side GPU compute needed
 - **Scale**: Offloads compute to client devices
 
 #### Why Next.js API Routes (not FastAPI)
+
 - **Simplicity**: One deployment, one codebase
 - **Developer velocity**: TypeScript end-to-end
 - **Serverless-ready**: Vercel/AWS Lambda compatible
 - **Adequate performance**: LLM calls are I/O-bound, not CPU-bound
 
 #### Why In-Memory Storage (MVP)
+
 - **Rapid iteration**: No database setup friction
 - **Stateless testing**: Tests run without DB dependencies
 - **Easy migration**: Repository pattern → swap for Drizzle later
@@ -170,6 +186,7 @@
 ### Database Schema (Ready, Not Integrated)
 
 **Drizzle ORM schemas defined** in `apps/api/src/db/schema.ts`:
+
 - `users` - Authentication & user profiles
 - `organizations` - Multi-tenancy
 - `sessions` - Exam sessions
@@ -180,6 +197,7 @@
 ### Security Implementation
 
 ✅ **Implemented**:
+
 - Helmet.js security headers
 - CORS protection
 - bcryptjs password hashing (12 rounds)
@@ -187,6 +205,7 @@
 - Environment variable isolation
 
 ⚠️ **Not Enforced** (Development mode):
+
 - Authentication middleware (commented out)
 - Authorization checks
 - Rate limiting
@@ -195,6 +214,7 @@
 ### Performance Characteristics
 
 **Current Benchmarks** (Development):
+
 - MediaPipe inference: ~16ms/frame (60 FPS)
 - Angle calculation: <1ms
 - AI interpretation: 2-5s (OpenAI API latency)
@@ -204,6 +224,7 @@
 ### Deployment Architecture (Current)
 
 **Development**:
+
 ```
 localhost:2000  → Next.js dev server
 localhost:3000  → Express API server
@@ -211,6 +232,7 @@ localhost:4001  → WebRTC signaling server
 ```
 
 **Production** (Planned):
+
 ```
 Vercel Edge Network → Next.js (serverless)
 AWS ECS/Fargate    → Express API
@@ -222,6 +244,7 @@ CloudWatch         → Logging & monitoring
 ### Missing Components vs. Plan
 
 **Not Yet Implemented**:
+
 - [ ] Python FastAPI microservice
 - [ ] Message queue (RabbitMQ/SQS)
 - [ ] Audit service (immutable event log)
@@ -236,18 +259,21 @@ CloudWatch         → Logging & monitoring
 ### Migration Path Forward
 
 **Phase 6: Production Readiness**
+
 1. Enable database persistence (swap repository implementations)
 2. Activate authentication middleware
 3. Add rate limiting & input validation
 4. Implement audit logging
 
 **Phase 7: Scale & Compliance**
+
 1. Add Python microservice if LLM latency/cost becomes issue
 2. Introduce message queue for async exports
 3. Implement immutable audit trail
 4. Add S3 storage for video artifacts (if retention needed)
 
 ### References
+
 - MediaPipe architecture: [apps/web/src/lib/cv/](../../apps/web/src/lib/cv/)
 - Vision strategies: [apps/web/src/lib/strategies/](../../apps/web/src/lib/strategies/)
 - API routes: [apps/api/src/routes/](../../apps/api/src/routes/)

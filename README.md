@@ -1,4 +1,5 @@
 # PhysioLens — Clinical ROM Measurement Platform
+
 AI-assisted range of motion measurement and clinical documentation system
 
 ✅ **Status**: Production-Ready MVP - Waves 1 & 2 Complete
@@ -6,9 +7,11 @@ AI-assisted range of motion measurement and clinical documentation system
 🎯 **Current Version**: v0.1.0 (Pre-Production)
 
 ## Project Overview
+
 Computer vision-powered range of motion measurement platform for physiotherapists, chiropractors, and orthopedic surgeons. Replaces manual goniometry with AI-assisted assessment for faster, more accurate clinical documentation.
 
 ### Core Features (Implemented)
+
 - ✅ **3D Dual-Camera ROM Measurement** - MediaPipe pose detection with WebRTC phone pairing
 - ✅ **Max ROM Filtering** - Automatic selection of maximum range per joint across all measurements
 - ✅ **Clinical Notes with Normative Ranges** - Auto-generated notes with AMA/AAOS reference ranges
@@ -20,6 +23,7 @@ Computer vision-powered range of motion measurement platform for physiotherapist
 ## Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15.1 (App Router) + React 19
 - **Computer Vision**: MediaPipe Pose Detection (WASM)
 - **Real-time Communication**: WebRTC (Simple Peer)
@@ -27,6 +31,7 @@ Computer vision-powered range of motion measurement platform for physiotherapist
 - **Testing**: Vitest + React Testing Library
 
 ### Backend
+
 - **API**: Node.js + Express (TypeScript)
 - **Database**: PostgreSQL (Drizzle ORM)
 - **AI Integration**: OpenAI GPT-4o / Anthropic Claude Sonnet
@@ -34,12 +39,14 @@ Computer vision-powered range of motion measurement platform for physiotherapist
 - **Observability**: Pino structured logging
 
 ### Infrastructure
+
 - **Monorepo**: Turborepo (pnpm workspaces)
 - **Package Management**: pnpm 9.15+
 - **Node Runtime**: Node.js 20+
 - **Type Safety**: TypeScript 5.7
 
 ## Project Structure
+
 ```
 physiolens/
 ├── apps/
@@ -86,12 +93,14 @@ physiolens/
 ## Development Workflow
 
 ### Testing
+
 - **Unit Tests**: Vitest with React Testing Library
 - **Coverage**: 29/29 tests passing (100% pass rate)
 - **Type Safety**: Full TypeScript with strict mode
 - **Linting**: ESLint with Next.js config
 
 ### Code Quality
+
 ```bash
 # Run all quality checks
 pnpm typecheck  # TypeScript compilation (0 errors)
@@ -100,6 +109,7 @@ pnpm test       # All test suites (223 tests across 23+ files)
 ```
 
 ### Current Status
+
 - ✅ TypeScript: 0 compilation errors
 - ✅ Tests: 223 passing (api: 106, web: 62, signaling: 5, shared-types: 50)
 - ✅ PostgreSQL persistence active (Drizzle ORM, auto-migrate on startup)
@@ -112,6 +122,7 @@ pnpm test       # All test suites (223 tests across 23+ files)
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js 20+ ([Install via nvm](https://github.com/nvm-sh/nvm))
 - pnpm 9.15+ (`npm install -g pnpm`)
 - PostgreSQL 15+ (for API server)
@@ -166,18 +177,21 @@ pnpm format
 ### Running the Application
 
 1. **Start the API server** (Terminal 1):
+
    ```bash
    cd apps/api
    pnpm dev
    ```
 
 2. **Start the signaling server** for WebRTC (Terminal 2):
+
    ```bash
    cd apps/web
    node src/lib/signaling/server.mjs
    ```
 
 3. **Start the Next.js app** (Terminal 3):
+
    ```bash
    cd apps/web
    pnpm dev
@@ -196,6 +210,7 @@ pnpm format
 ## Roadmap
 
 ### ✅ Phase 1-5: MVP Complete (v0.1.0)
+
 - [x] Camera capture pipeline with MediaPipe
 - [x] Dual-camera WebRTC pairing
 - [x] 3D landmark fusion
@@ -206,18 +221,21 @@ pnpm format
 - [x] Print-ready reports
 
 ### ✅ Wave 1: Production Hardening
+
 - [x] PostgreSQL persistence (Drizzle ORM)
 - [x] Cookie-based auth (httpOnly, SameSite, CSRF)
 - [x] Dashboard, billing, clinic, patient links APIs
 - [x] Stripe billing integration
 
 ### ✅ Wave 2: Deploy & CI/CD
+
 - [x] Docker multi-stage builds (api, web, signaling)
 - [x] docker-compose.prod.yml with Caddy + auto-TLS
 - [x] GitHub Actions CI/CD (ci.yml, pr-checks.yml, deploy.yml)
 - [x] 223 tests passing
 
 ### 🚧 Next: Remaining Hardening
+
 - [ ] Server-side PDF export
 - [ ] Load testing
 - [ ] Feature flags
@@ -225,22 +243,26 @@ pnpm format
 ## Documentation
 
 ### Getting Started
+
 - **[SETUP.md](./SETUP.md)** - Development environment setup
 - **[API.md](./API.md)** - API endpoints and WebRTC signaling
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment and operations
 
 ### Planning & Architecture
+
 - [Product Charter](./docs/planning-v2/01-product-charter.md)
 - [PRD v1.0/v1.1](./docs/planning-v2/02-prd-v1-v1_1.md)
 - [Architecture & Stack](./docs/planning-v2/03-architecture-stack.md)
 - [AI/CV Measurement Design](./docs/planning-v2/04-ai-cv-measurement-design.md)
 
 ### Compliance & Legal
+
 - [Security & Privacy](./docs/planning-v2/05-security-privacy-compliance.md)
 - [Legal & Regulatory](./docs/planning-v2/06-legal-regulatory-doc-pack.md)
 - [Security Baseline Checklist](./docs/security/SECURITY_BASELINE_CHECKLIST.md)
 
 ### Operations
+
 - [Delivery Roadmap](./docs/planning-v2/08-delivery-roadmap-release-ops.md)
 - [Test & Validation Plan](./docs/planning-v2/09-test-validation-clinical-plan.md)
 - [Release Checklist](./docs/release/RELEASE_CHECKLIST.md)
@@ -248,12 +270,14 @@ pnpm format
 ## Regulatory Compliance
 
 ### Current Status
+
 - **Development Phase**: Pre-production MVP
 - **HIPAA**: Infrastructure designed for compliance (not audited)
 - **FDA**: Class II (510k) pathway planned - not submitted
 - **Clinical Validation**: Pending
 
 ### Security Features
+
 - 🔒 Cookie-based auth (httpOnly, SameSite=Lax, Secure in prod)
 - 🔒 CSRF protection via X-Requested-With header
 - 🔒 Dual Bearer/cookie auth on all protected routes
@@ -266,14 +290,18 @@ pnpm format
 ## Contributing
 
 This project is in active development. For questions or contributions:
+
 1. Review the [Architecture Documentation](./docs/planning-v2/03-architecture-stack.md)
 2. Check [Open Questions](./docs/planning-v2/11-open-questions-for-founder.md)
 3. See [Implementation Sprints](./docs/planning-v2/10-backlog-implementation-sprints.md)
 
 ## License
+
 Proprietary - Healthcare Application - Not for Distribution
 
 ---
+
 **Team Lead**: Claude AI Orchestrator
 **Development**: 6 Specialized Sub-Agents (Frontend, Backend, CV, DevOps, QA, Compliance)
+
 # ROM

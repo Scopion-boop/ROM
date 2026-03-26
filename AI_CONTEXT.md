@@ -9,18 +9,22 @@
 **PhysioLens** — a web-based platform that helps physiotherapists, chiropractors, and sports medicine clinicians capture Range-of-Motion (ROM) measurements using computer vision and generate structured clinical exam notes automatically.
 
 ### Core Problem
+
 Manual ROM measurement with goniometers is slow, inconsistent, and documentation-heavy. Clinicians lose time to admin overhead and objective progression tracking is poor.
 
 ### Core Value Proposition
+
 - Reduce per-exam measurement + note time by ≥40%
 - Improve measurement consistency vs visual estimation
 - Produce structured, copy-ready clinical notes immediately
 
 ### Target Users
+
 - **Primary:** Physiotherapists, chiropractors, orthopedic/sports medicine clinicians
 - **Secondary (V1.1):** Nurses in pre-assessment, patients doing guided home ROM checks
 
 ### What This Is NOT
+
 - Not a diagnostic tool — outputs are labeled "measurement assistance"
 - Not an EHR — no billing, payer workflows, or deep EHR write-back
 - Not full-body biomechanical modeling
@@ -31,6 +35,7 @@ Manual ROM measurement with goniometers is slow, inconsistent, and documentation
 ## 2. Product Scope
 
 ### V1 (Current Build Target — Clinical Assisted)
+
 - **Browser-side CV pipeline** — MediaPipe Pose landmark detection running entirely in-browser (edge processing)
 - **Pluggable vision strategies** — auto-detect (body part + movement recognition) and guided capture modes
 - **Dual-camera support** — desktop webcam as primary + phone as secondary camera via QR code pairing over WebRTC
@@ -44,6 +49,7 @@ Manual ROM measurement with goniometers is slow, inconsistent, and documentation
 - Session history and audit trail (backend API)
 
 ### V1.1 (Future — Enhanced Workflow)
+
 - NLP summarization service (Python worker — skeleton exists)
 - Guided patient self-assessment mode (self-guided page exists as shell)
 - Clinician approval queue for remotely collected sessions
@@ -84,25 +90,26 @@ Manual ROM measurement with goniometers is slow, inconsistent, and documentation
 
 ### Tech Stack
 
-| Layer | Technology | Notes |
-|-------|-----------|-------|
-| **Frontend** | Next.js 15, React 19, TypeScript | App Router, Framer Motion, Lucide icons |
-| **Browser CV** | MediaPipe Pose (in-browser) | `worldLandmarks` (3D) + `landmarks` (2D), edge processing |
-| **Vision Strategies** | Auto-detect + Guided | Pluggable strategy pattern with registry |
-| **Dual Camera** | WebRTC + WebSocket signaling | Phone as secondary camera via QR pairing |
-| **LLM Integration** | OpenAI GPT-4o / Anthropic Claude | Server-side via Next.js API route, JSON structured output |
-| **Backend API** | Express 4, TypeScript | Modular monolith, JWT auth, Zod validation |
-| **CV Service** | FastAPI, Python 3.11, NumPy | Pose landmark → angle computation (standalone) |
-| **NLP Service** | FastAPI, Python 3.11 | Stub — V1.1 scope |
-| **Signaling** | ws (WebSocket), Node.js | Port 4001 — relays WebRTC offer/answer/ICE |
-| **Shared Types** | Zod schemas, TypeScript | Domain contracts + 46 normative ROM ranges |
-| **Build** | Turborepo, pnpm workspaces | `turbo run build/test/lint` |
-| **Testing** | Vitest (TS), pytest (Python) | 223 tests across 23+ files (api: 106, web: 62, signaling: 5, shared-types: 50) |
-| **Linting** | ESLint 9 flat config (strict), Ruff | Max cognitive complexity 15, max nesting 4 |
-| **Database** | PostgreSQL 15 (Drizzle ORM) | Programmatic migrations on startup; in-memory fallback for dev/test |
-| **Infra** | DigitalOcean (Docker Compose + Caddy) | CI/CD via GitHub Actions (ci.yml, pr-checks.yml, deploy.yml) |
+| Layer                 | Technology                            | Notes                                                                          |
+| --------------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
+| **Frontend**          | Next.js 15, React 19, TypeScript      | App Router, Framer Motion, Lucide icons                                        |
+| **Browser CV**        | MediaPipe Pose (in-browser)           | `worldLandmarks` (3D) + `landmarks` (2D), edge processing                      |
+| **Vision Strategies** | Auto-detect + Guided                  | Pluggable strategy pattern with registry                                       |
+| **Dual Camera**       | WebRTC + WebSocket signaling          | Phone as secondary camera via QR pairing                                       |
+| **LLM Integration**   | OpenAI GPT-4o / Anthropic Claude      | Server-side via Next.js API route, JSON structured output                      |
+| **Backend API**       | Express 4, TypeScript                 | Modular monolith, JWT auth, Zod validation                                     |
+| **CV Service**        | FastAPI, Python 3.11, NumPy           | Pose landmark → angle computation (standalone)                                 |
+| **NLP Service**       | FastAPI, Python 3.11                  | Stub — V1.1 scope                                                              |
+| **Signaling**         | ws (WebSocket), Node.js               | Port 4001 — relays WebRTC offer/answer/ICE                                     |
+| **Shared Types**      | Zod schemas, TypeScript               | Domain contracts + 46 normative ROM ranges                                     |
+| **Build**             | Turborepo, pnpm workspaces            | `turbo run build/test/lint`                                                    |
+| **Testing**           | Vitest (TS), pytest (Python)          | 223 tests across 23+ files (api: 106, web: 62, signaling: 5, shared-types: 50) |
+| **Linting**           | ESLint 9 flat config (strict), Ruff   | Max cognitive complexity 15, max nesting 4                                     |
+| **Database**          | PostgreSQL 15 (Drizzle ORM)           | Programmatic migrations on startup; in-memory fallback for dev/test            |
+| **Infra**             | DigitalOcean (Docker Compose + Caddy) | CI/CD via GitHub Actions (ci.yml, pr-checks.yml, deploy.yml)                   |
 
 ### Package Names
+
 - `@physiolens/root` — monorepo root
 - `@physiolens/api` — backend API
 - `@physiolens/web` — frontend web app
@@ -118,19 +125,21 @@ All domain types are defined as **Zod schemas** in `packages/shared-types/src/`.
 
 ### Core Entities
 
-| Entity | File | Key Fields |
-|--------|------|------------|
-| **Session** | `session.ts` | `id`, `organizationId`, `clinicianId`, `patientId?`, `status` (created→capture_in_progress→capture_complete→review→finalized→exported→archived), `joints[]` |
-| **Measurement** | `measurement.ts` | `id`, `sessionId`, `joint`, `movement`, `side` (left/right), `romDegrees`, `confidenceScore`, `qualityFlags[]`, `algorithmVersion`, `captureDurationMs` |
-| **Note** | `note.ts` | `id`, `sessionId`, `clinicianId`, `status` (draft→review→approved→exported), `blocks[]` (NoteBlock), `summaryText?` |
-| **NoteBlock** | `note.ts` | `joint`, `movement`, `side`, `romDegrees`, `confidenceScore`, `qualityNote?`, `clinicianComment?` |
-| **AuditEvent** | `audit.ts` | `id`, `action` (enum of ~12 events), `actorId`, `resourceType`, `resourceId`, `metadata?`, `timestamp` |
-| **User** | `user.ts` | `id`, `organizationId`, `email`, `displayName`, `role` (clinic_admin/clinician/reviewer/support_readonly) |
+| Entity          | File             | Key Fields                                                                                                                                                  |
+| --------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Session**     | `session.ts`     | `id`, `organizationId`, `clinicianId`, `patientId?`, `status` (created→capture_in_progress→capture_complete→review→finalized→exported→archived), `joints[]` |
+| **Measurement** | `measurement.ts` | `id`, `sessionId`, `joint`, `movement`, `side` (left/right), `romDegrees`, `confidenceScore`, `qualityFlags[]`, `algorithmVersion`, `captureDurationMs`     |
+| **Note**        | `note.ts`        | `id`, `sessionId`, `clinicianId`, `status` (draft→review→approved→exported), `blocks[]` (NoteBlock), `summaryText?`                                         |
+| **NoteBlock**   | `note.ts`        | `joint`, `movement`, `side`, `romDegrees`, `confidenceScore`, `qualityNote?`, `clinicianComment?`                                                           |
+| **AuditEvent**  | `audit.ts`       | `id`, `action` (enum of ~12 events), `actorId`, `resourceType`, `resourceId`, `metadata?`, `timestamp`                                                      |
+| **User**        | `user.ts`        | `id`, `organizationId`, `email`, `displayName`, `role` (clinic_admin/clinician/reviewer/support_readonly)                                                   |
 
 ### Quality Flags (CV Pipeline)
+
 ```
 { code: string, message: string, severity: "info" | "warning" | "error" }
 ```
+
 Codes: `LOW_VISIBILITY`, `OCCLUSION`
 
 ---
@@ -139,29 +148,30 @@ Codes: `LOW_VISIBILITY`, `OCCLUSION`
 
 Base path: `/api`
 
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| `GET` | `/health` | No | Health check |
-| `GET` | `/health/ready` | No | Readiness probe |
-| `GET` | `/health/metrics` | No | In-process metrics |
-| `POST` | `/auth/register` | No | Register user (email, password, orgId, role) → JWT |
-| `POST` | `/auth/login` | No | Login → JWT |
-| `POST` | `/sessions` | Yes | Create exam session |
-| `GET` | `/sessions` | Yes | List sessions (org-scoped) |
-| `GET` | `/sessions/:id` | Yes | Get single session |
-| `PATCH` | `/sessions/:id/status` | Yes | Update session status |
-| `POST` | `/sessions/:sessionId/measurements` | Yes | Record a measurement |
-| `GET` | `/sessions/:sessionId/measurements` | Yes | List measurements for session |
-| `POST` | `/sessions/:sessionId/notes/generate` | Yes | Generate draft note from measurements |
-| `GET` | `/sessions/:sessionId/notes` | Yes | List notes for session |
-| `PATCH` | `/notes/:noteId/blocks` | Yes | Edit note blocks |
-| `PATCH` | `/notes/:noteId/status` | Yes | Transition note status |
-| `GET` | `/notes/:noteId/export/json` | Yes | Export note as JSON |
-| `GET` | `/notes/:noteId/export/text` | Yes | Export note as plain text |
-| `GET` | `/notes/:noteId/export/pdf` | Yes | PDF export (stub) |
-| `GET` | `/sessions/:sessionId/audit` | Yes | Audit trail for session |
+| Method  | Path                                  | Auth | Description                                        |
+| ------- | ------------------------------------- | ---- | -------------------------------------------------- |
+| `GET`   | `/health`                             | No   | Health check                                       |
+| `GET`   | `/health/ready`                       | No   | Readiness probe                                    |
+| `GET`   | `/health/metrics`                     | No   | In-process metrics                                 |
+| `POST`  | `/auth/register`                      | No   | Register user (email, password, orgId, role) → JWT |
+| `POST`  | `/auth/login`                         | No   | Login → JWT                                        |
+| `POST`  | `/sessions`                           | Yes  | Create exam session                                |
+| `GET`   | `/sessions`                           | Yes  | List sessions (org-scoped)                         |
+| `GET`   | `/sessions/:id`                       | Yes  | Get single session                                 |
+| `PATCH` | `/sessions/:id/status`                | Yes  | Update session status                              |
+| `POST`  | `/sessions/:sessionId/measurements`   | Yes  | Record a measurement                               |
+| `GET`   | `/sessions/:sessionId/measurements`   | Yes  | List measurements for session                      |
+| `POST`  | `/sessions/:sessionId/notes/generate` | Yes  | Generate draft note from measurements              |
+| `GET`   | `/sessions/:sessionId/notes`          | Yes  | List notes for session                             |
+| `PATCH` | `/notes/:noteId/blocks`               | Yes  | Edit note blocks                                   |
+| `PATCH` | `/notes/:noteId/status`               | Yes  | Transition note status                             |
+| `GET`   | `/notes/:noteId/export/json`          | Yes  | Export note as JSON                                |
+| `GET`   | `/notes/:noteId/export/text`          | Yes  | Export note as plain text                          |
+| `GET`   | `/notes/:noteId/export/pdf`           | Yes  | PDF export (stub)                                  |
+| `GET`   | `/sessions/:sessionId/audit`          | Yes  | Audit trail for session                            |
 
 ### Auth Model
+
 - **Dual auth**: Bearer token (`Authorization: Bearer <token>`) + httpOnly cookie (`pl_token`)
 - Cookie config: `httpOnly`, `SameSite=Lax`, `Secure` in production
 - CSRF protection: `X-Requested-With` header required for mutating requests with cookie auth
@@ -179,15 +189,15 @@ Base path: `/api`
 
 The primary CV pipeline runs **entirely in the browser** using MediaPipe Pose. No server round-trip for measurement.
 
-| Module | Purpose |
-|--------|---------|
-| `pose-estimator.ts` | MediaPipe Pose wrapper, captures `worldLandmarks` (3D) and `landmarks` (2D) |
-| `body-detector.ts` | Identifies which body part is visible in frame |
-| `movement-detector.ts` | Detects which movement is being performed |
-| `joint-router.ts` | Maps (joint, movement, side) → landmark triple indices; defaults to 3D (`prefer3D = true`) |
-| `angle-calculator.ts` | Computes angle at joint center from 3 landmarks; supports 2D + 3D + plane projection |
-| `temporal-filter.ts` | Smooths noisy per-frame angles with rolling window |
-| `landmark-fusion.ts` | Fuses landmarks from two cameras (desktop + phone); `isSecondaryUseful()` decides blend weight |
+| Module                 | Purpose                                                                                        |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| `pose-estimator.ts`    | MediaPipe Pose wrapper, captures `worldLandmarks` (3D) and `landmarks` (2D)                    |
+| `body-detector.ts`     | Identifies which body part is visible in frame                                                 |
+| `movement-detector.ts` | Detects which movement is being performed                                                      |
+| `joint-router.ts`      | Maps (joint, movement, side) → landmark triple indices; defaults to 3D (`prefer3D = true`)     |
+| `angle-calculator.ts`  | Computes angle at joint center from 3 landmarks; supports 2D + 3D + plane projection           |
+| `temporal-filter.ts`   | Smooths noisy per-frame angles with rolling window                                             |
+| `landmark-fusion.ts`   | Fuses landmarks from two cameras (desktop + phone); `isSecondaryUseful()` decides blend weight |
 
 ### 6b. Python CV Service (Standalone — `services/cv/`)
 
@@ -199,21 +209,21 @@ Used for batch processing or server-side validation. Same algorithm as browser p
 
 Pluggable capture modes registered in `vision-strategy-registry.ts`:
 
-| Strategy | File | Behavior |
-|----------|------|---------|
+| Strategy      | File                       | Behavior                                                         |
+| ------------- | -------------------------- | ---------------------------------------------------------------- |
 | `auto-detect` | `auto-detect-strategy.tsx` | Detects body part + movement automatically, streams measurements |
-| `guided` | `guided-strategy.tsx` | Step-by-step prompts for specific joint/movement combinations |
+| `guided`      | `guided-strategy.tsx`      | Step-by-step prompts for specific joint/movement combinations    |
 
 Registry auto-detects best strategy based on device capabilities.
 
 ### 6d. Dual Camera + Signaling
 
-| Component | Location | Port |
-|-----------|----------|------|
-| Signaling server | `services/signaling/server.js` | 4001 |
-| Phone remote page | `apps/web/src/app/camera/remote/page.tsx` | — |
-| Phone link + QR | `components/capture/PhoneCameraLink.tsx` | — |
-| Landmark fusion | `src/lib/cv/landmark-fusion.ts` | — |
+| Component         | Location                                  | Port |
+| ----------------- | ----------------------------------------- | ---- |
+| Signaling server  | `services/signaling/server.js`            | 4001 |
+| Phone remote page | `apps/web/src/app/camera/remote/page.tsx` | —    |
+| Phone link + QR   | `components/capture/PhoneCameraLink.tsx`  | —    |
+| Landmark fusion   | `src/lib/cv/landmark-fusion.ts`           | —    |
 
 Flow: Desktop generates QR code → phone scans → WebSocket signaling exchanges WebRTC offer/answer/ICE → phone streams video → desktop runs dual-camera fusion.
 
@@ -225,12 +235,13 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 **Dev port:** `4500` (NEVER 3000 — reserved for other project)
 
 ### Pages
-| Page | Path | Purpose |
-|------|------|---------|
-| Dashboard | `/` | Stats, recent sessions, quick actions |
-| New Session | `/sessions/new` | 3-phase: setup → capture/results → clinical note |
-| Phone Remote | `/camera/remote` | Phone camera page for dual-camera capture |
-| Self-Guided | `/exam/self-guided` | Patient self-assessment (shell — V1.1) |
+
+| Page         | Path                | Purpose                                          |
+| ------------ | ------------------- | ------------------------------------------------ |
+| Dashboard    | `/`                 | Stats, recent sessions, quick actions            |
+| New Session  | `/sessions/new`     | 3-phase: setup → capture/results → clinical note |
+| Phone Remote | `/camera/remote`    | Phone camera page for dual-camera capture        |
+| Self-Guided  | `/exam/self-guided` | Patient self-assessment (shell — V1.1)           |
 
 ### Key Components
 
@@ -255,32 +266,37 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 **Layout (`components/layout/`):** `Sidebar.tsx`, `TopBar.tsx`
 
 ### Hooks
-| Hook | Purpose |
-|------|---------|
-| `useCamera.ts` | Camera stream management |
+
+| Hook                  | Purpose                    |
+| --------------------- | -------------------------- |
+| `useCamera.ts`        | Camera stream management   |
 | `usePoseDetection.ts` | MediaPipe Pose integration |
 
 ### Server-Side Routes (Next.js API)
-| Route | Method | Purpose |
-|-------|--------|---------|
-| `/api/interpret` | POST | LLM interpretation — sends enriched measurements to OpenAI/Claude, returns interpretation + recommendations + clinical test recommendations |
+
+| Route            | Method | Purpose                                                                                                                                     |
+| ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/api/interpret` | POST   | LLM interpretation — sends enriched measurements to OpenAI/Claude, returns interpretation + recommendations + clinical test recommendations |
 
 ### Interpretation Pipeline (`src/lib/interpretation/`)
-| Module | Purpose |
-|--------|---------|
+
+| Module              | Purpose                                                                      |
+| ------------------- | ---------------------------------------------------------------------------- |
 | `clinical-tests.ts` | 23 clinical special tests (8 shoulder, 8 knee, 7 hip) with trigger movements |
-| `system-prompt.ts` | MSK system prompt instructing LLM for JSON output |
-| `prompt-builder.ts` | Builds user prompt from measurements grouped by joint |
-| `llm-client.ts` | Unified LLM client — auto-detects OpenAI/Anthropic from env vars |
+| `system-prompt.ts`  | MSK system prompt instructing LLM for JSON output                            |
+| `prompt-builder.ts` | Builds user prompt from measurements grouped by joint                        |
+| `llm-client.ts`     | Unified LLM client — auto-detects OpenAI/Anthropic from env vars             |
 
 ### ROM Processing (`src/lib/`)
-| Module | Purpose |
-|--------|---------|
-| `rom-utils.ts` | `filterMaxRom()` → `enrichWithNormative()` → `classifyStatus()` pipeline |
-| `note-generator.ts` | Transforms `EnrichedMeasurement[]` into `GeneratedNote` with typed sections |
-| `vision-strategy-registry.ts` | Strategy pattern registry for capture modes |
+
+| Module                        | Purpose                                                                     |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| `rom-utils.ts`                | `filterMaxRom()` → `enrichWithNormative()` → `classifyStatus()` pipeline    |
+| `note-generator.ts`           | Transforms `EnrichedMeasurement[]` into `GeneratedNote` with typed sections |
+| `vision-strategy-registry.ts` | Strategy pattern registry for capture modes                                 |
 
 ### Styling
+
 - CSS variables for theme (defined in `globals.css`)
 - Framer Motion for animations
 - Inter font family
@@ -291,6 +307,7 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 ## 8. Security & Compliance
 
 ### Implemented Controls
+
 - Helmet security headers
 - CORS with explicit origin allowlist (comma-separated `CORS_ORIGIN` env)
 - Rate limiting: 100 requests/minute per IP
@@ -306,6 +323,7 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 - **Signaling rate limiting + ping/pong** — connection keepalive with stale connection cleanup
 
 ### Compliance Posture
+
 - HIPAA-aligned controls from V1
 - SOC 2 Type I readiness target during pilot
 - Privacy-by-design: minimize PHI, prefer edge processing
@@ -313,6 +331,7 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 - Clinician confirmation required before finalizing notes
 
 ### Documents
+
 - `docs/security/THREAT_MODEL_V1.md` — threat model
 - `docs/security/SECURITY_BASELINE_CHECKLIST.md`
 - `docs/legal/` — Privacy policy, ToS, BAA, medical disclaimer templates (all have `[TBD]` placeholders for counsel review)
@@ -322,10 +341,13 @@ Flow: Desktop generates QR code → phone scans → WebSocket signaling exchange
 ## 9. Current State & What's Built
 
 ### Branch
+
 Active development branch: **`main`**
 
 ### Status: Production-Ready MVP ✅
+
 **Waves 1 & 2 complete** — March 6, 2026
+
 - 223 tests passing across 23+ test files (api: 106 in 15 files, web: 62 in 6 files, signaling: 5 in 1 file, shared-types: 50 in 1 file)
 - TypeScript: 0 compilation errors
 - PostgreSQL persistence active with Drizzle ORM
@@ -353,6 +375,7 @@ Active development branch: **`main`**
 | 13 | E2E verification (all green) | — |
 
 **Phase 1 — Browser CV Pipeline** ✅ (committed `358f710` + `a96a2b5` + `93a7738`)
+
 - Pluggable vision strategy architecture with auto-detect
 - MediaPipe Pose integration (pose-estimator, angle-calculator, joint-router)
 - Body detector, movement detector, temporal filter
@@ -371,6 +394,7 @@ Active development branch: **`main`**
 | **Special Tests DB** | 23 tests (shoulder/knee/hip) with recommendations | ✅ Complete |
 
 **Key Implementation Files:**
+
 - `rom-utils.ts` — filterMaxRom, enrichWithNormative, classifyStatus
 - `MeasurementPanel.tsx` — normative comparison with progress bars
 - `PhoneCameraLink.tsx` + `signaling/server.mjs` — QR pairing
@@ -388,14 +412,15 @@ Active development branch: **`main`**
 
 ### Key Schemas (Frontned-Side)
 
-| Type | Location | Fields |
-|------|----------|---------|
-| `CapturedMeasurement` | capture types | `joint`, `movement`, `side`, `romDegrees`, `confidence` (0-1), `timestamp` (number) |
-| `EnrichedMeasurement` | `rom-utils.ts` | extends CapturedMeasurement + `normalRomDegrees`, `percentOfNormal`, `deficitDegrees`, `withinNormal`, `status` |
-| `NoteSection` | `note-generator.ts` | `id`, `type` (header/joint_group/summary/interpretation/recommendations/disclaimer), `title`, `content`, `measurements?` |
-| `GeneratedNote` | `note-generator.ts` | `sections`, `generatedAt`, `measurementCount`, `deficitCount`, `jointsCovered` |
+| Type                  | Location            | Fields                                                                                                                   |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `CapturedMeasurement` | capture types       | `joint`, `movement`, `side`, `romDegrees`, `confidence` (0-1), `timestamp` (number)                                      |
+| `EnrichedMeasurement` | `rom-utils.ts`      | extends CapturedMeasurement + `normalRomDegrees`, `percentOfNormal`, `deficitDegrees`, `withinNormal`, `status`          |
+| `NoteSection`         | `note-generator.ts` | `id`, `type` (header/joint_group/summary/interpretation/recommendations/disclaimer), `title`, `content`, `measurements?` |
+| `GeneratedNote`       | `note-generator.ts` | `sections`, `generatedAt`, `measurementCount`, `deficitCount`, `jointsCovered`                                           |
 
 ### Known Limitations & V1.1 Deferred Items
+
 - **PDF export:** Not started — uses browser print (Cmd/Ctrl+P); server-side PDF generation deferred to V1.1
 - **NLP/OpenAI note enrichment:** Stubbed — Python NLP service skeleton only
 - **Feature flags:** Not implemented
@@ -410,11 +435,13 @@ Active development branch: **`main`**
 ## 10. How to Work in This Codebase
 
 ### Prerequisites
+
 - Node.js ≥ 20
 - pnpm ≥ 9.0
 - Python ≥ 3.11 (for CV/NLP services)
 
 ### Install & Run
+
 ```bash
 # Install all dependencies
 pnpm install
@@ -441,6 +468,7 @@ cd services/nlp && pip install -e ".[dev]" && pytest
 ```
 
 ### Key Commands
+
 ```bash
 turbo run build     # Build all packages
 turbo run test      # Test all packages
@@ -449,6 +477,7 @@ turbo run typecheck # Type check all TS packages
 ```
 
 ### Adding a New API Route
+
 1. Create route file in `apps/api/src/routes/`
 2. Use `requireAuth` middleware for protected routes
 3. Access user context via `req.user` (contains `userId`, `organizationId`, `role`)
@@ -458,11 +487,13 @@ turbo run typecheck # Type check all TS packages
 7. Write tests in `apps/api/src/__tests__/`
 
 ### Adding a New Component
+
 1. Create component in `apps/web/src/components/<domain>/`
 2. Use the CSS variable theming system from `globals.css`
 3. Write tests in `apps/web/src/components/__tests__/`
 
 ### Modifying Domain Contracts
+
 1. Edit Zod schemas in `packages/shared-types/src/`
 2. Update barrel exports in `packages/shared-types/src/index.ts`
 3. Run `turbo run build` — shared-types must build before dependents
@@ -623,6 +654,7 @@ turbo run typecheck # Type check all TS packages
 ## 12. Roadmap
 
 ### ✅ Completed: MVP v0.1.0 (Phase 0-5)
+
 - [x] Monorepo scaffold with Turborepo + pnpm
 - [x] Domain contracts (Zod schemas)
 - [x] Express API with JWT auth infrastructure
@@ -637,6 +669,7 @@ turbo run typecheck # Type check all TS packages
 - [x] Comprehensive documentation
 
 ### ✅ Completed: Wave 1 — Production Hardening
+
 - [x] PostgreSQL persistence with Drizzle ORM (programmatic migration on startup)
 - [x] Cookie-based auth hardening (httpOnly, SameSite=Lax, Secure in prod)
 - [x] CSRF protection via X-Requested-With header
@@ -647,6 +680,7 @@ turbo run typecheck # Type check all TS packages
 - [x] 106 API tests, 62 web tests, 50 shared-types tests
 
 ### ✅ Completed: Wave 2 — Deploy & CI/CD
+
 - [x] 3 Docker multi-stage builds (api, web, signaling) with non-root users
 - [x] docker-compose.prod.yml with Caddy reverse proxy + auto-TLS
 - [x] CI/CD: ci.yml (test/lint/typecheck), pr-checks.yml, deploy.yml
@@ -658,18 +692,21 @@ turbo run typecheck # Type check all TS packages
 - [x] 223 total tests passing across 23+ files
 
 ### 📋 Phase 8: Remaining Hardening (Deferred)
+
 - [ ] **Server-side PDF Export** — Replace browser print with proper PDF generation
 - [ ] **Load Testing** — Performance benchmarks and optimization
 - [ ] **Feature Flags** — Runtime feature toggles
 - [ ] **CV Pipeline Integration Tests** — End-to-end CV validation
 
 ### 🏥 Phase 8: Pilot Launch
+
 16. **Clinic Onboarding Kit** — Training materials, SOPs, admin guides
 17. **Controlled Pilot** — 1-3 clinic deployment
 18. **Metrics Collection** — Accuracy validation, time savings, clinician satisfaction
 19. **Feedback Loop** — Iteration based on pilot results
 
 ### 🚀 Phase 9: V1.1 Enhancements
+
 20. **Additional Joints** — Wrist, ankle, cervical spine
 21. **NLP Summarization** — Wire up Python NLP service
 22. **Patient Self-Assessment** — Complete self-guided flow
@@ -684,6 +721,7 @@ turbo run typecheck # Type check all TS packages
 ## 13. Conventions & Rules
 
 ### Code Style
+
 - TypeScript: strict mode, ESLint 9 flat config, Prettier
 - **ESLint strict rules:** max cognitive complexity 15, max function nesting 4 levels, no nested template literals, no passing functions directly to `.map()` (wrap in arrow), Readonly props required, no multiple `Array#push()` calls, `globalThis` over `window`
 - Python: Ruff linting, mypy strict, Python 3.11+
@@ -691,6 +729,7 @@ turbo run typecheck # Type check all TS packages
 - No `any` types in TypeScript
 
 ### Security Rules
+
 - **NEVER** log PHI (patient names, measurement values, note content)
 - **ALWAYS** scope data access by `organizationId`
 - **ALWAYS** use `requireAuth` on protected endpoints
@@ -698,12 +737,14 @@ turbo run typecheck # Type check all TS packages
 - Label all AI outputs as "measurement assistance"
 
 ### Git Conventions
+
 - Branch naming: `feat/<domain>-<description>`
 - Trunk-based with short-lived feature branches
 - Conventional commit messages (`feat:`, `fix:`, `chore:`, `docs:`)
 - CODEOWNERS gate on security-sensitive paths
 
 ### Testing
+
 - Vitest for all TypeScript packages
 - pytest for Python services
 - Test files: `__tests__/` directories or `*.test.ts` / `test_*.py`
@@ -714,44 +755,48 @@ turbo run typecheck # Type check all TS packages
 ## 14. Documentation Reference
 
 ### Quick Start Guides (Root Directory)
-| Doc | Contents |
-|-----|----------|
-| `README.md` | Project overview, quick start, tech stack, roadmap, status |
-| `SETUP.md` | Development environment setup, installation, configuration, troubleshooting |
-| `API.md` | Complete API reference, WebRTC signaling, data models, error handling |
-| `DEPLOYMENT.md` | Production deployment guide, Docker, Vercel, AWS, monitoring, security |
+
+| Doc             | Contents                                                                    |
+| --------------- | --------------------------------------------------------------------------- |
+| `README.md`     | Project overview, quick start, tech stack, roadmap, status                  |
+| `SETUP.md`      | Development environment setup, installation, configuration, troubleshooting |
+| `API.md`        | Complete API reference, WebRTC signaling, data models, error handling       |
+| `DEPLOYMENT.md` | Production deployment guide, Docker, Vercel, AWS, monitoring, security      |
 
 ### Planning Documents (`docs/planning-v2/`)
-| Doc | Contents |
-|-----|----------|
-| `01-product-charter.md` | Vision, scope, success metrics, constraints |
-| `02-prd-v1-v1_1.md` | User stories, functional requirements, acceptance criteria |
-| `03-architecture-stack.md` | Stack decisions, component boundaries, **Implementation Status v0.1.0** |
-| `04-ai-cv-measurement-design.md` | Pipeline steps, algorithm versioning, clinical guardrails |
-| `05-security-privacy-compliance.md` | Controls, privacy-by-design, compliance tracks |
-| `06-legal-regulatory-doc-pack.md` | Legal artifacts needed, regulatory decision points |
-| `07-dev-agent-orchestration.md` | Agent streams, coordination protocol, tooling |
-| `08-delivery-roadmap-release-ops.md` | Phase roadmap, release gates, SRE baseline, incident response |
-| `09-test-validation-clinical-plan.md` | Test pyramid, clinical validation framework, quality thresholds |
-| `10-backlog-implementation-sprints.md` | Epics, sprint sequence, backlog governance |
-| `11-open-questions-for-founder.md` | 20 unresolved decisions needing founder input |
+
+| Doc                                    | Contents                                                                |
+| -------------------------------------- | ----------------------------------------------------------------------- |
+| `01-product-charter.md`                | Vision, scope, success metrics, constraints                             |
+| `02-prd-v1-v1_1.md`                    | User stories, functional requirements, acceptance criteria              |
+| `03-architecture-stack.md`             | Stack decisions, component boundaries, **Implementation Status v0.1.0** |
+| `04-ai-cv-measurement-design.md`       | Pipeline steps, algorithm versioning, clinical guardrails               |
+| `05-security-privacy-compliance.md`    | Controls, privacy-by-design, compliance tracks                          |
+| `06-legal-regulatory-doc-pack.md`      | Legal artifacts needed, regulatory decision points                      |
+| `07-dev-agent-orchestration.md`        | Agent streams, coordination protocol, tooling                           |
+| `08-delivery-roadmap-release-ops.md`   | Phase roadmap, release gates, SRE baseline, incident response           |
+| `09-test-validation-clinical-plan.md`  | Test pyramid, clinical validation framework, quality thresholds         |
+| `10-backlog-implementation-sprints.md` | Epics, sprint sequence, backlog governance                              |
+| `11-open-questions-for-founder.md`     | 20 unresolved decisions needing founder input                           |
 
 ### Compliance & Legal (`docs/security/`, `docs/legal/`)
-| Doc | Contents |
-|-----|----------|
-| `SECURITY_BASELINE_CHECKLIST.md` | Security controls checklist |
-| `THREAT_MODEL_V1.md` | Threat modeling for HIPAA/SOC2 |
-| `PRIVACY_POLICY_TEMPLATE.md` | Privacy policy template |
-| `TERMS_OF_SERVICE_TEMPLATE.md` | ToS template |
-| `MEDICAL_DISCLAIMER_TEMPLATE.md` | Clinical disclaimer template |
-| `BAA_DPA_CHECKLIST.md` | Business Associate Agreement checklist |
+
+| Doc                              | Contents                               |
+| -------------------------------- | -------------------------------------- |
+| `SECURITY_BASELINE_CHECKLIST.md` | Security controls checklist            |
+| `THREAT_MODEL_V1.md`             | Threat modeling for HIPAA/SOC2         |
+| `PRIVACY_POLICY_TEMPLATE.md`     | Privacy policy template                |
+| `TERMS_OF_SERVICE_TEMPLATE.md`   | ToS template                           |
+| `MEDICAL_DISCLAIMER_TEMPLATE.md` | Clinical disclaimer template           |
+| `BAA_DPA_CHECKLIST.md`           | Business Associate Agreement checklist |
 
 ### Operations (`docs/release/`, `docs/ops/`)
-| Doc | Contents |
-|-----|----------|
-| `RELEASE_CHECKLIST.md` | Pre-release verification checklist |
-| `GO_LIVE_RUNBOOK.md` | Production go-live procedures |
-| `SERVICE_SUPPORT_MODEL.md` | Support tiers and escalation |
+
+| Doc                        | Contents                           |
+| -------------------------- | ---------------------------------- |
+| `RELEASE_CHECKLIST.md`     | Pre-release verification checklist |
+| `GO_LIVE_RUNBOOK.md`       | Production go-live procedures      |
+| `SERVICE_SUPPORT_MODEL.md` | Support tiers and escalation       |
 
 ---
 
@@ -769,37 +814,30 @@ turbo run typecheck # Type check all TS packages
 ### For New Developers
 
 **Before starting ANY task:**
+
 1. ✅ Read `AI_CONTEXT.md` (this file) — comprehensive project context
 2. ✅ Read `README.md` — project overview and quick start
 3. ✅ Read `SETUP.md` — set up your development environment
 4. ✅ Review `API.md` — understand API surface and WebRTC signaling
 5. ✅ Check `IMPACT_GRAPH.md` — dependency graph showing file relationships
 
-**When working on a task:**
-6. ✅ Identify which package your task affects:
-   - `apps/web` — Next.js frontend, CV pipeline, UI components
-   - `apps/api` — Express backend, auth, repositories
-   - `packages/shared-types` — Zod schemas, clinical data
-   - `services/cv` — Python CV worker (standalone)
-   - `services/nlp` — Python NLP worker (V1.1 scope)
+**When working on a task:** 6. ✅ Identify which package your task affects:
+
+- `apps/web` — Next.js frontend, CV pipeline, UI components
+- `apps/api` — Express backend, auth, repositories
+- `packages/shared-types` — Zod schemas, clinical data
+- `services/cv` — Python CV worker (standalone)
+- `services/nlp` — Python NLP worker (V1.1 scope)
+
 7. ✅ Use `IMPACT_GRAPH.md` to find all related files to review/update
 8. ✅ Check existing tests before writing code (`__tests__/` directories)
 9. ✅ Run `pnpm test` after changes to verify nothing breaks
 10. ✅ Run `pnpm typecheck` to ensure TypeScript compiles
 11. ✅ Run `pnpm lint` to verify code style compliance
 
-**Follow these conventions:**
-12. ✅ Security rules: org-scoping, audit logging, no PHI in logs
-13. ✅ Use existing Zod schemas from `@physiolens/shared-types` for validation
-14. ✅ Keep in-memory repos consistent with their interfaces (DB integration pending)
-15. ✅ Max cognitive complexity: 15, max nesting: 4 levels
-16. ✅ JSDoc comments for all functions
-17. ✅ Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`)
+**Follow these conventions:** 12. ✅ Security rules: org-scoping, audit logging, no PHI in logs 13. ✅ Use existing Zod schemas from `@physiolens/shared-types` for validation 14. ✅ Keep in-memory repos consistent with their interfaces (DB integration pending) 15. ✅ Max cognitive complexity: 15, max nesting: 4 levels 16. ✅ JSDoc comments for all functions 17. ✅ Conventional commits (`feat:`, `fix:`, `chore:`, `docs:`)
 
-**After completing your change:**
-18. ✅ Update `IMPACT_GRAPH.md` if you added/removed files or dependencies
-19. ✅ Update relevant documentation (README, API.md, SETUP.md if needed)
-20. ✅ Ensure all tests pass: `pnpm test && pnpm typecheck && pnpm lint`
+**After completing your change:** 18. ✅ Update `IMPACT_GRAPH.md` if you added/removed files or dependencies 19. ✅ Update relevant documentation (README, API.md, SETUP.md if needed) 20. ✅ Ensure all tests pass: `pnpm test && pnpm typecheck && pnpm lint`
 
 ### Quick Command Reference
 

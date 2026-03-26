@@ -51,6 +51,7 @@ This directory contains Terraform configuration for deploying the ROM Platform t
 ## Infrastructure Components
 
 ### Networking (vpc.tf)
+
 - **VPC:** 10.0.0.0/16 with DNS support
 - **Public Subnets:** 2 AZs for Application Load Balancer
 - **Private Subnets:** 2 AZs for ECS tasks and RDS database
@@ -58,6 +59,7 @@ This directory contains Terraform configuration for deploying the ROM Platform t
 - **VPC Flow Logs:** Security monitoring and compliance
 
 ### Database (rds.tf)
+
 - **RDS PostgreSQL 15:** Multi-AZ deployment for HA
 - **Instance Type:** db.t3.medium (2 vCPU, 4 GB RAM)
 - **Storage:** 100 GB encrypted with AWS KMS
@@ -65,29 +67,34 @@ This directory contains Terraform configuration for deploying the ROM Platform t
 - **Security:** Private subnet, security groups, encryption at rest/transit
 
 ### Compute (ecs.tf)
+
 - **ECS Cluster:** Fargate launch type (serverless)
 - **API Service:** 2 tasks (512 CPU, 1024 MB memory each)
 - **Auto Scaling:** Target tracking based on CPU/memory
 - **Health Checks:** ALB health checks + ECS health checks
 
 ### Load Balancing (alb.tf)
+
 - **Application Load Balancer:** Internet-facing
 - **HTTPS Listener:** Port 443 with SSL certificate
 - **HTTP Redirect:** Port 80 → 443
 - **Target Group:** Health checks on /api/health
 
 ### Storage (s3.tf)
+
 - **Backup Bucket:** Versioned, encrypted
 - **Lifecycle Policy:** Transition to Glacier after 90 days
 - **Public Access:** Blocked
 
 ### Monitoring (cloudwatch.tf)
+
 - **Log Groups:** API logs, VPC flow logs
 - **Retention:** 90 days
 - **Alarms:** CPU, memory, error rates
 - **Dashboards:** Application metrics
 
 ### Secrets (secrets.tf)
+
 - **JWT Secret:** Automatically generated
 - **DB Credentials:** Stored securely
 - **Rotation:** Manual (quarterly recommended)
@@ -318,6 +325,7 @@ See outputs from `terraform output deployment_commands` for Docker build/push co
 ## Cost Estimation
 
 **Staging Environment:** ~$120/month
+
 - RDS db.t3.small: $40/month
 - ECS Fargate (1 task): $30/month
 - ALB: $25/month
@@ -325,6 +333,7 @@ See outputs from `terraform output deployment_commands` for Docker build/push co
 - Other: $10/month
 
 **Production Environment:** ~$250/month
+
 - RDS db.t3.medium Multi-AZ: $100/month
 - ECS Fargate (2 tasks): $70/month
 - ALB: $30/month
@@ -332,6 +341,7 @@ See outputs from `terraform output deployment_commands` for Docker build/push co
 - CloudWatch, S3, KMS: $20/month
 
 **Cost Optimization Tips:**
+
 1. Use Reserved Instances for RDS (30-50% savings)
 2. Enable ECS auto-scaling to reduce task count during low traffic
 3. Use S3 Intelligent-Tiering for backups
@@ -460,6 +470,7 @@ terraform destroy -var-file=production.tfvars
 ## Support
 
 For issues with this infrastructure:
+
 1. Check CloudWatch Logs
 2. Review ECS service events
 3. Check RDS monitoring

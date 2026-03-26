@@ -5,6 +5,7 @@
 ## Related Issue
 
 <!-- Link to the GitHub issue this PR resolves -->
+
 Closes #
 
 ## Type of Change
@@ -23,20 +24,20 @@ Closes #
 ### Artifacts
 
 | Type | Path/URL | Description |
-|------|----------|-------------|
-| | | |
+| ---- | -------- | ----------- |
+|      |          |             |
 
 ### Validation Metrics
 
 | Metric | Value | Threshold | Pass? |
-|--------|-------|-----------|-------|
-| | | | |
+| ------ | ----- | --------- | ----- |
+|        |       |           |       |
 
 ### Source Citations
 
 | Claim | Source URL | Source Date | Jurisdiction | Verified? |
-|-------|-----------|------------|--------------|-----------|
-| | | | | |
+| ----- | ---------- | ----------- | ------------ | --------- |
+|       |            |             |              |           |
 
 ### Confidence Level
 

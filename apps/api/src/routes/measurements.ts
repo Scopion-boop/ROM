@@ -12,59 +12,77 @@ measurementRouter.use(requireAuth);
 /**
  * POST /api/sessions/:sessionId/measurements — record a ROM measurement.
  */
-measurementRouter.post('/:sessionId/measurements', validateParams(sessionIdParamSchema), validateBody(createMeasurementSchema), async (req: Request, res: Response): Promise<void> => {
+measurementRouter.post(
+  '/:sessionId/measurements',
+  validateParams(sessionIdParamSchema),
+  validateBody(createMeasurementSchema),
+  async (req: Request, res: Response): Promise<void> => {
     const { sessions, measurements, audit } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
-        res.status(404).json({ error: 'Session not found' });
-        return;
+      res.status(404).json({ error: 'Session not found' });
+      return;
     }
 
-    const { joint, movement, side, romDegrees, confidenceScore, qualityFlags, algorithmVersion, captureDurationMs } = req.body;
+    const {
+      joint,
+      movement,
+      side,
+      romDegrees,
+      confidenceScore,
+      qualityFlags,
+      algorithmVersion,
+      captureDurationMs,
+    } = req.body;
 
     const measurement = await measurements.create({
+      sessionId: session.id,
+      joint,
+      movement,
+      side,
+      romDegrees,
+      confidenceScore,
+      qualityFlags,
+      algorithmVersion,
+      captureDurationMs,
+    });
+
+    // Audit log: measurement recorded (PHI data captured)
+    await audit.record({
+      eventType: 'measurement.recorded',
+      entityType: 'measurement',
+      entityId: measurement.id,
+      actorId: req.user!.userId,
+      organizationId: req.user!.organizationId,
+      metadata: {
         sessionId: session.id,
         joint,
         movement,
         side,
         romDegrees,
-        confidenceScore,
-        qualityFlags,
-        algorithmVersion,
-        captureDurationMs,
-    });
-
-    // Audit log: measurement recorded (PHI data captured)
-    await audit.record({
-        eventType: 'measurement.recorded',
-        entityType: 'measurement',
-        entityId: measurement.id,
-        actorId: req.user!.userId,
-        organizationId: req.user!.organizationId,
-        metadata: {
-            sessionId: session.id,
-            joint,
-            movement,
-            side,
-            romDegrees,
-            confidenceScore: measurement.confidenceScore,
-        },
+        confidenceScore: measurement.confidenceScore,
+      },
     });
 
     res.status(201).json(measurement);
-});
+  },
+);
 
 /**
  * GET /api/sessions/:sessionId/measurements — list measurements for a session.
  */
-measurementRouter.get('/:sessionId/measurements', validateParams(sessionIdParamSchema), async (req: Request, res: Response): Promise<void> => {
+measurementRouter.get(
+  '/:sessionId/measurements',
+  validateParams(sessionIdParamSchema),
+  async (req: Request, res: Response): Promise<void> => {
     const { sessions, measurements } = getRepos();
     const session = await sessions.getById(String(req.params.sessionId));
     if (!session || session.organizationId !== req.user!.organizationId) {
-        res.status(404).json({ error: 'Session not found' });
-        return;
+      res.status(404).json({ error: 'Session not found' });
+      return;
     }
 
     const list = await measurements.listBySession(session.id);
     res.json(list);
-});
+  },
+);

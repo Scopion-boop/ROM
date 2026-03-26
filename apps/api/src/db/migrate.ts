@@ -8,9 +8,9 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { getDb } from './connection';
 
 export async function runMigrations(): Promise<void> {
-    if (!process.env.DATABASE_URL) return; // skip in-memory mode
+  if (!process.env.DATABASE_URL) return; // skip in-memory mode
 
-    console.log('[db] Running migrations...');
-    await migrate(getDb(), { migrationsFolder: './drizzle' });
-    console.log('[db] Migrations complete');
+  console.log('[db] Running migrations...');
+  await migrate(getDb(), { migrationsFolder: './drizzle' });
+  console.log('[db] Migrations complete');
 }

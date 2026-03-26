@@ -1,7 +1,7 @@
 ---
 name: Risk Item
 about: Flag a risk that requires tracking and mitigation
-title: "[RISK] "
+title: '[RISK] '
 labels: ''
 assignees: ''
 ---
@@ -67,5 +67,6 @@ assignees: ''
 ## Monitoring
 
 <!-- How will we know if this risk is materializing? -->
+
 - Trigger indicator:
 - Review frequency:

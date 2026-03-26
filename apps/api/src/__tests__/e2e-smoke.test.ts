@@ -23,205 +23,201 @@ const SMOKE_EMAIL = `smoke-e2e-${Date.now()}@test.com`;
 const SMOKE_PASSWORD = 'Test123!@#';
 
 describe('E2E Smoke: Full User Journey', () => {
-    let token: string;
-    let userId: string;
-    let sessionId: string;
-    let noteId: string;
+  let token: string;
+  let userId: string;
+  let sessionId: string;
+  let noteId: string;
 
-    beforeAll(async () => {
-        const repos = getRepos();
-        await repos.users._clear();
-        await repos.orgs._clear();
-        await repos.sessions._clear();
-        await repos.measurements._clear();
-        await repos.notes._clear();
-        await repos.audit._clear();
-        await repos.subscriptions._clear();
+  beforeAll(async () => {
+    const repos = getRepos();
+    await repos.users._clear();
+    await repos.orgs._clear();
+    await repos.sessions._clear();
+    await repos.measurements._clear();
+    await repos.notes._clear();
+    await repos.audit._clear();
+    await repos.subscriptions._clear();
+  });
+
+  // ── Step 1: Register ────────────────────────────────────────────
+
+  it('POST /api/auth/register — registers a new clinician account', async () => {
+    const res = await request(app).post('/api/auth/register').send({
+      email: SMOKE_EMAIL,
+      password: SMOKE_PASSWORD,
+      clinicName: 'Smoke Test Clinic',
+      role: 'clinician',
     });
 
-    // ── Step 1: Register ────────────────────────────────────────────
+    expect(res.status).toBe(201);
+    expect(res.body.token).toBeDefined();
+    expect(typeof res.body.token).toBe('string');
+    expect(res.body.userId).toBeDefined();
+    expect(res.body.organizationId).toBeDefined();
 
-    it('POST /api/auth/register — registers a new clinician account', async () => {
-        const res = await request(app)
-            .post('/api/auth/register')
-            .send({
-                email: SMOKE_EMAIL,
-                password: SMOKE_PASSWORD,
-                clinicName: 'Smoke Test Clinic',
-                role: 'clinician',
-            });
+    // Cookie should be set
+    const cookies = res.headers['set-cookie'];
+    expect(cookies).toBeDefined();
+    expect(String(cookies)).toContain('pl_token');
 
-        expect(res.status).toBe(201);
-        expect(res.body.token).toBeDefined();
-        expect(typeof res.body.token).toBe('string');
-        expect(res.body.userId).toBeDefined();
-        expect(res.body.organizationId).toBeDefined();
+    token = res.body.token;
+    userId = res.body.userId;
+  });
 
-        // Cookie should be set
-        const cookies = res.headers['set-cookie'];
-        expect(cookies).toBeDefined();
-        expect(String(cookies)).toContain('pl_token');
+  // ── Step 2: Login ───────────────────────────────────────────────
 
-        token = res.body.token;
-        userId = res.body.userId;
-    });
+  it('POST /api/auth/login — logs in with same credentials', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: SMOKE_EMAIL, password: SMOKE_PASSWORD });
 
-    // ── Step 2: Login ───────────────────────────────────────────────
+    expect(res.status).toBe(200);
+    expect(res.body.token).toBeDefined();
+    expect(typeof res.body.token).toBe('string');
+    expect(res.body.userId).toBe(userId);
 
-    it('POST /api/auth/login — logs in with same credentials', async () => {
-        const res = await request(app)
-            .post('/api/auth/login')
-            .send({ email: SMOKE_EMAIL, password: SMOKE_PASSWORD });
+    // Use the fresh login token for subsequent requests
+    token = res.body.token;
+  });
 
-        expect(res.status).toBe(200);
-        expect(res.body.token).toBeDefined();
-        expect(typeof res.body.token).toBe('string');
-        expect(res.body.userId).toBe(userId);
+  // ── Step 3: Get current user ────────────────────────────────────
 
-        // Use the fresh login token for subsequent requests
-        token = res.body.token;
-    });
+  it('GET /api/auth/me — returns authenticated user info', async () => {
+    const res = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${token}`);
 
-    // ── Step 3: Get current user ────────────────────────────────────
+    expect(res.status).toBe(200);
+    expect(res.body.email).toBe(SMOKE_EMAIL);
+    expect(res.body.role).toBe('clinician');
+    expect(res.body.passwordHash).toBeUndefined();
+  });
 
-    it('GET /api/auth/me — returns authenticated user info', async () => {
-        const res = await request(app)
-            .get('/api/auth/me')
-            .set('Authorization', `Bearer ${token}`);
+  // ── Step 4: Create a session ────────────────────────────────────
 
-        expect(res.status).toBe(200);
-        expect(res.body.email).toBe(SMOKE_EMAIL);
-        expect(res.body.role).toBe('clinician');
-        expect(res.body.passwordHash).toBeUndefined();
-    });
+  it('POST /api/sessions — creates a ROM assessment session', async () => {
+    const res = await request(app)
+      .post('/api/sessions')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        joints: ['left_shoulder'],
+        patientId: 'smoke-patient-001',
+      });
 
-    // ── Step 4: Create a session ────────────────────────────────────
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBeDefined();
+    expect(res.body.status).toBe('created');
+    expect(res.body.joints).toContain('left_shoulder');
 
-    it('POST /api/sessions — creates a ROM assessment session', async () => {
-        const res = await request(app)
-            .post('/api/sessions')
-            .set('Authorization', `Bearer ${token}`)
-            .send({
-                joints: ['left_shoulder'],
-                patientId: 'smoke-patient-001',
-            });
+    sessionId = res.body.id;
+  });
 
-        expect(res.status).toBe(201);
-        expect(res.body.id).toBeDefined();
-        expect(res.body.status).toBe('created');
-        expect(res.body.joints).toContain('left_shoulder');
+  // ── Step 5: Add a measurement ───────────────────────────────────
 
-        sessionId = res.body.id;
-    });
+  it('POST /api/sessions/:sessionId/measurements — records a ROM measurement', async () => {
+    const res = await request(app)
+      .post(`/api/sessions/${sessionId}/measurements`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        joint: 'shoulder',
+        movement: 'flexion',
+        side: 'left',
+        romDegrees: 165,
+        confidenceScore: 0.94,
+        qualityFlags: [],
+        algorithmVersion: 'v1.0',
+        captureDurationMs: 2100,
+      });
 
-    // ── Step 5: Add a measurement ───────────────────────────────────
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBeDefined();
+    expect(res.body.sessionId).toBe(sessionId);
+    expect(res.body.joint).toBe('shoulder');
+    expect(res.body.romDegrees).toBe(165);
+    expect(res.body.confidenceScore).toBe(0.94);
+  });
 
-    it('POST /api/sessions/:sessionId/measurements — records a ROM measurement', async () => {
-        const res = await request(app)
-            .post(`/api/sessions/${sessionId}/measurements`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({
-                joint: 'shoulder',
-                movement: 'flexion',
-                side: 'left',
-                romDegrees: 165,
-                confidenceScore: 0.94,
-                qualityFlags: [],
-                algorithmVersion: 'v1.0',
-                captureDurationMs: 2100,
-            });
+  // ── Step 6: Generate a clinical note ────────────────────────────
 
-        expect(res.status).toBe(201);
-        expect(res.body.id).toBeDefined();
-        expect(res.body.sessionId).toBe(sessionId);
-        expect(res.body.joint).toBe('shoulder');
-        expect(res.body.romDegrees).toBe(165);
-        expect(res.body.confidenceScore).toBe(0.94);
-    });
+  it('POST /api/sessions/:sessionId/notes/generate — generates a clinical note', async () => {
+    const res = await request(app)
+      .post(`/api/sessions/${sessionId}/notes/generate`)
+      .set('Authorization', `Bearer ${token}`)
+      .send();
 
-    // ── Step 6: Generate a clinical note ────────────────────────────
+    expect(res.status).toBe(201);
+    expect(res.body.id).toBeDefined();
+    expect(res.body.sessionId).toBe(sessionId);
+    expect(res.body.blocks).toBeDefined();
+    expect(Array.isArray(res.body.blocks)).toBe(true);
 
-    it('POST /api/sessions/:sessionId/notes/generate — generates a clinical note', async () => {
-        const res = await request(app)
-            .post(`/api/sessions/${sessionId}/notes/generate`)
-            .set('Authorization', `Bearer ${token}`)
-            .send();
+    noteId = res.body.id;
+  });
 
-        expect(res.status).toBe(201);
-        expect(res.body.id).toBeDefined();
-        expect(res.body.sessionId).toBe(sessionId);
-        expect(res.body.blocks).toBeDefined();
-        expect(Array.isArray(res.body.blocks)).toBe(true);
+  // ── Step 7: Dashboard stats ─────────────────────────────────────
 
-        noteId = res.body.id;
-    });
+  it('GET /api/dashboard/stats — returns stats with at least 1 session', async () => {
+    const res = await request(app)
+      .get('/api/dashboard/stats')
+      .set('Authorization', `Bearer ${token}`);
 
-    // ── Step 7: Dashboard stats ─────────────────────────────────────
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('totalSessions');
+    expect(res.body).toHaveProperty('totalMeasurements');
+    expect(res.body).toHaveProperty('sessionsThisMonth');
+    expect(res.body).toHaveProperty('sessionLimit');
+    expect(res.body).toHaveProperty('sessionChange');
+    expect(res.body.totalSessions).toBeGreaterThanOrEqual(1);
+    expect(res.body.totalMeasurements).toBeGreaterThanOrEqual(1);
+  });
 
-    it('GET /api/dashboard/stats — returns stats with at least 1 session', async () => {
-        const res = await request(app)
-            .get('/api/dashboard/stats')
-            .set('Authorization', `Bearer ${token}`);
+  // ── Step 8: ROM trend ───────────────────────────────────────────
 
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty('totalSessions');
-        expect(res.body).toHaveProperty('totalMeasurements');
-        expect(res.body).toHaveProperty('sessionsThisMonth');
-        expect(res.body).toHaveProperty('sessionLimit');
-        expect(res.body).toHaveProperty('sessionChange');
-        expect(res.body.totalSessions).toBeGreaterThanOrEqual(1);
-        expect(res.body.totalMeasurements).toBeGreaterThanOrEqual(1);
-    });
+  it('GET /api/dashboard/rom-trend — returns trend data arrays', async () => {
+    const res = await request(app)
+      .get('/api/dashboard/rom-trend')
+      .set('Authorization', `Bearer ${token}`);
 
-    // ── Step 8: ROM trend ───────────────────────────────────────────
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('dates');
+    expect(res.body).toHaveProperty('avgRom');
+    expect(Array.isArray(res.body.dates)).toBe(true);
+    expect(Array.isArray(res.body.avgRom)).toBe(true);
+    expect(res.body.dates.length).toBe(res.body.avgRom.length);
+  });
 
-    it('GET /api/dashboard/rom-trend — returns trend data arrays', async () => {
-        const res = await request(app)
-            .get('/api/dashboard/rom-trend')
-            .set('Authorization', `Bearer ${token}`);
+  // ── Step 9: Export note as JSON ─────────────────────────────────
 
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty('dates');
-        expect(res.body).toHaveProperty('avgRom');
-        expect(Array.isArray(res.body.dates)).toBe(true);
-        expect(Array.isArray(res.body.avgRom)).toBe(true);
-        expect(res.body.dates.length).toBe(res.body.avgRom.length);
-    });
+  it('GET /api/notes/:noteId/export/json — exports the clinical note', async () => {
+    expect(noteId).toBeDefined();
 
-    // ── Step 9: Export note as JSON ─────────────────────────────────
+    const res = await request(app)
+      .get(`/api/notes/${noteId}/export/json`)
+      .set('Authorization', `Bearer ${token}`);
 
-    it('GET /api/notes/:noteId/export/json — exports the clinical note', async () => {
-        expect(noteId).toBeDefined();
+    expect(res.status).toBe(200);
+    expect(res.body.format).toBe('json');
+    expect(res.body.note).toBeDefined();
+    expect(res.body.note.id).toBe(noteId);
+    expect(res.body.note.sessionId).toBe(sessionId);
+  });
 
-        const res = await request(app)
-            .get(`/api/notes/${noteId}/export/json`)
-            .set('Authorization', `Bearer ${token}`);
+  // ── Step 10: Audit trail ────────────────────────────────────────
 
-        expect(res.status).toBe(200);
-        expect(res.body.format).toBe('json');
-        expect(res.body.note).toBeDefined();
-        expect(res.body.note.id).toBe(noteId);
-        expect(res.body.note.sessionId).toBe(sessionId);
-    });
+  it('GET /api/sessions/:sessionId/audit — contains audit events including export', async () => {
+    const res = await request(app)
+      .get(`/api/sessions/${sessionId}/audit`)
+      .set('Authorization', `Bearer ${token}`);
 
-    // ── Step 10: Audit trail ────────────────────────────────────────
+    expect(res.status).toBe(200);
+    expect(res.body.sessionId).toBe(sessionId);
+    expect(res.body.events).toBeDefined();
+    expect(Array.isArray(res.body.events)).toBe(true);
+    expect(res.body.events.length).toBeGreaterThan(0);
 
-    it('GET /api/sessions/:sessionId/audit — contains audit events including export', async () => {
-        const res = await request(app)
-            .get(`/api/sessions/${sessionId}/audit`)
-            .set('Authorization', `Bearer ${token}`);
-
-        expect(res.status).toBe(200);
-        expect(res.body.sessionId).toBe(sessionId);
-        expect(res.body.events).toBeDefined();
-        expect(Array.isArray(res.body.events)).toBe(true);
-        expect(res.body.events.length).toBeGreaterThan(0);
-
-        // Verify key event types present (audit queries by entityId=sessionId;
-        // measurement.recorded and note.generated use their own entityIds,
-        // so only session.created and note.exported appear here)
-        const eventTypes = res.body.events.map((e: { eventType: string }) => e.eventType);
-        expect(eventTypes).toContain('session.created');
-        expect(eventTypes).toContain('note.exported');
-    });
+    // Verify key event types present (audit queries by entityId=sessionId;
+    // measurement.recorded and note.generated use their own entityIds,
+    // so only session.created and note.exported appear here)
+    const eventTypes = res.body.events.map((e: { eventType: string }) => e.eventType);
+    expect(eventTypes).toContain('session.created');
+    expect(eventTypes).toContain('note.exported');
+  });
 });

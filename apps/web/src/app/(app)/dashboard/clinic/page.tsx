@@ -96,7 +96,7 @@ export default function ClinicDashboardPage() {
       if (res.ok) {
         const { token } = await res.json();
         const link = `${window.location.origin}/patient/${token}`;
-        setPatientLinkMap(prev => ({ ...prev, [clinicianId]: link }));
+        setPatientLinkMap((prev) => ({ ...prev, [clinicianId]: link }));
       }
     } catch (error) {
       console.error('Failed to generate patient link:', error);
@@ -122,7 +122,7 @@ export default function ClinicDashboardPage() {
     return (
       <div style={{ padding: 'var(--space-6)' }}>
         <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <ShimmerCard key={i} />
           ))}
         </div>
@@ -133,16 +133,20 @@ export default function ClinicDashboardPage() {
   // Plan guard
   if (plan !== 'pro') {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <UpgradePrompt
-          feature="Clinic Admin Dashboard"
-          onDismiss={() => undefined}
-        />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+        }}
+      >
+        <UpgradePrompt feature="Clinic Admin Dashboard" onDismiss={() => undefined} />
       </div>
     );
   }
 
-  const chartData = clinicians.map(c => ({
+  const chartData = clinicians.map((c) => ({
     name: c.displayName?.split(' ')[0] || 'Unknown',
     sessions: c.sessionCount || 0,
   }));
@@ -150,18 +154,22 @@ export default function ClinicDashboardPage() {
   return (
     <div style={{ padding: 'var(--space-6)', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Page Header */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 'var(--space-6)',
-      }}>
-        <h1 style={{
-          fontSize: '1.75rem',
-          fontWeight: 600,
-          color: 'var(--text-primary)',
-          margin: 0,
-        }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 'var(--space-6)',
+        }}
+      >
+        <h1
+          style={{
+            fontSize: '1.75rem',
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            margin: 0,
+          }}
+        >
           Clinic Dashboard
         </h1>
         <button
@@ -180,8 +188,8 @@ export default function ClinicDashboardPage() {
             cursor: 'pointer',
             transition: 'background-color 0.2s',
           }}
-          onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--accent-dark)')}
-          onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'var(--accent)')}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent-dark)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent)')}
         >
           <Plus size={18} />
           Invite Clinician
@@ -190,23 +198,27 @@ export default function ClinicDashboardPage() {
 
       {/* Stat Cards */}
       {loadingData ? (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-6)',
-        }}>
-          {[1, 2, 3, 4].map(i => (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 'var(--space-4)',
+            marginBottom: 'var(--space-6)',
+          }}
+        >
+          {[1, 2, 3, 4].map((i) => (
             <ShimmerCard key={i} />
           ))}
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 'var(--space-4)',
-          marginBottom: 'var(--space-6)',
-        }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 'var(--space-4)',
+            marginBottom: 'var(--space-6)',
+          }}
+        >
           <StatCard
             icon={<Activity size={24} />}
             label="Total Sessions"
@@ -231,112 +243,165 @@ export default function ClinicDashboardPage() {
       )}
 
       {/* Clinicians Table */}
-      <div style={{
-        backgroundColor: 'var(--bg-card)',
-        border: '1px solid var(--border-primary)',
-        borderRadius: 'var(--radius-lg)',
-        marginBottom: 'var(--space-6)',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          padding: 'var(--space-4)',
-          borderBottom: '1px solid var(--border-primary)',
-        }}>
-          <h2 style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            margin: 0,
-          }}>
+      <div
+        style={{
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--border-primary)',
+          borderRadius: 'var(--radius-lg)',
+          marginBottom: 'var(--space-6)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            padding: 'var(--space-4)',
+            borderBottom: '1px solid var(--border-primary)',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              margin: 0,
+            }}
+          >
             Clinicians
           </h2>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            fontSize: '0.875rem',
-          }}>
+          <table
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '0.875rem',
+            }}
+          >
             <thead>
               <tr style={{ backgroundColor: 'var(--bg-tertiary)' }}>
-                {['Name', 'Email', 'Role', 'Sessions', 'Last Active', 'Status', 'Action'].map(header => (
-                  <th key={header} scope="col" style={{
-                    padding: 'var(--space-3) var(--space-4)',
-                    textAlign: 'left',
-                    fontWeight: 500,
-                    color: 'var(--text-secondary)',
-                    borderBottom: '1px solid var(--border-primary)',
-                  }}>
-                    {header}
-                  </th>
-                ))}
+                {['Name', 'Email', 'Role', 'Sessions', 'Last Active', 'Status', 'Action'].map(
+                  (header) => (
+                    <th
+                      key={header}
+                      scope="col"
+                      style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        textAlign: 'left',
+                        fontWeight: 500,
+                        color: 'var(--text-secondary)',
+                        borderBottom: '1px solid var(--border-primary)',
+                      }}
+                    >
+                      {header}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>
               {clinicians.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{
-                    padding: 'var(--space-8)',
-                    textAlign: 'center',
-                    color: 'var(--text-muted)',
-                  }}>
+                  <td
+                    colSpan={7}
+                    style={{
+                      padding: 'var(--space-8)',
+                      textAlign: 'center',
+                      color: 'var(--text-muted)',
+                    }}
+                  >
                     No clinicians found. Invite your team to get started.
                   </td>
                 </tr>
               ) : (
-                clinicians.map(clinician => (
-                  <tr key={clinician.id} style={{
-                    borderBottom: '1px solid var(--border-secondary)',
-                  }}>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-primary)' }}>
+                clinicians.map((clinician) => (
+                  <tr
+                    key={clinician.id}
+                    style={{
+                      borderBottom: '1px solid var(--border-secondary)',
+                    }}
+                  >
+                    <td
+                      style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       {clinician.displayName}
                     </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)' }}>
+                    <td
+                      style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
                       {clinician.email}
                     </td>
                     <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '2px 8px',
-                        backgroundColor: clinician.role === 'clinic_admin' ? 'rgba(14, 205, 186, 0.15)' : 'rgba(14, 205, 186, 0.15)',
-                        color: clinician.role === 'clinic_admin' ? 'var(--accent)' : 'var(--accent)',
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                        textTransform: 'capitalize',
-                      }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          backgroundColor:
+                            clinician.role === 'clinic_admin'
+                              ? 'rgba(14, 205, 186, 0.15)'
+                              : 'rgba(14, 205, 186, 0.15)',
+                          color:
+                            clinician.role === 'clinic_admin' ? 'var(--accent)' : 'var(--accent)',
+                          borderRadius: 'var(--radius-full)',
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                          textTransform: 'capitalize',
+                        }}
+                      >
                         {clinician.role.replace('_', ' ')}
                       </span>
                     </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-primary)' }}>
+                    <td
+                      style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        color: 'var(--text-primary)',
+                      }}
+                    >
                       {clinician.sessionCount || 0}
                     </td>
-                    <td style={{ padding: 'var(--space-3) var(--space-4)', color: 'var(--text-secondary)' }}>
+                    <td
+                      style={{
+                        padding: 'var(--space-3) var(--space-4)',
+                        color: 'var(--text-secondary)',
+                      }}
+                    >
                       {formatDate(clinician.lastActive)}
                     </td>
                     <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '2px 8px',
-                        backgroundColor: 'rgba(34, 197, 94, 0.15)',
-                        color: 'var(--success)',
-                        borderRadius: 'var(--radius-full)',
-                        fontSize: '0.75rem',
-                        fontWeight: 500,
-                      }}>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                          color: 'var(--success)',
+                          borderRadius: 'var(--radius-full)',
+                          fontSize: '0.75rem',
+                          fontWeight: 500,
+                        }}
+                      >
                         Active
                       </span>
                     </td>
                     <td style={{ padding: 'var(--space-3) var(--space-4)' }}>
                       {patientLinkMap[clinician.id] ? (
                         <button
-                          onClick={() => copyToClipboard(patientLinkMap[clinician.id]!, clinician.id)}
+                          onClick={() =>
+                            copyToClipboard(patientLinkMap[clinician.id]!, clinician.id)
+                          }
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '6px',
                             padding: '6px 12px',
-                            backgroundColor: copiedLink === clinician.id ? 'rgba(34, 197, 94, 0.15)' : 'rgba(14, 205, 186, 0.1)',
+                            backgroundColor:
+                              copiedLink === clinician.id
+                                ? 'rgba(34, 197, 94, 0.15)'
+                                : 'rgba(14, 205, 186, 0.1)',
                             color: copiedLink === clinician.id ? 'var(--success)' : 'var(--accent)',
                             border: `1px solid ${copiedLink === clinician.id ? 'rgba(34, 197, 94, 0.3)' : 'rgba(14, 205, 186, 0.2)'}`,
                             borderRadius: 'var(--radius-md)',
@@ -389,19 +454,23 @@ export default function ClinicDashboardPage() {
 
       {/* Sessions Per Clinician Chart */}
       {clinicians.length > 0 && (
-        <div style={{
-          backgroundColor: 'var(--bg-card)',
-          border: '1px solid var(--border-primary)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 'var(--space-4)',
-        }}>
-          <h2 style={{
-            fontSize: '1.125rem',
-            fontWeight: 600,
-            color: 'var(--text-primary)',
-            margin: 0,
-            marginBottom: 'var(--space-4)',
-          }}>
+        <div
+          style={{
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border-primary)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--space-4)',
+          }}
+        >
+          <h2
+            style={{
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              margin: 0,
+              marginBottom: 'var(--space-4)',
+            }}
+          >
             Sessions Per Clinician
           </h2>
           <ResponsiveContainer width="100%" height={240}>
@@ -434,27 +503,31 @@ export default function ClinicDashboardPage() {
 
       {/* Invite Modal */}
       {showInviteModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }}>
-          <div style={{
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--border-primary)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-6)',
-            maxWidth: '400px',
-            width: '100%',
-            position: 'relative',
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-primary)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'var(--space-6)',
+              maxWidth: '400px',
+              width: '100%',
+              position: 'relative',
+            }}
+          >
             <button
               onClick={() => {
                 setShowInviteModal(false);
@@ -476,59 +549,70 @@ export default function ClinicDashboardPage() {
             </button>
 
             {inviteSuccess ? (
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 'var(--space-4)',
-                padding: 'var(--space-6)',
-              }}>
-                <div style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 'var(--radius-full)',
-                  backgroundColor: 'rgba(34, 197, 94, 0.15)',
+              <div
+                style={{
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
+                  gap: 'var(--space-4)',
+                  padding: 'var(--space-6)',
+                }}
+              >
+                <div
+                  style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 'var(--radius-full)',
+                    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <Check size={32} color="var(--success)" />
                 </div>
-                <span style={{
-                  fontSize: '1.125rem',
-                  fontWeight: 500,
-                  color: 'var(--text-primary)',
-                }}>
+                <span
+                  style={{
+                    fontSize: '1.125rem',
+                    fontWeight: 500,
+                    color: 'var(--text-primary)',
+                  }}
+                >
                   Invite sent!
                 </span>
               </div>
             ) : (
               <>
-                <h2 style={{
-                  fontSize: '1.25rem',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  margin: 0,
-                  marginBottom: 'var(--space-6)',
-                }}>
+                <h2
+                  style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    margin: 0,
+                    marginBottom: 'var(--space-6)',
+                  }}
+                >
                   Invite Clinician
                 </h2>
 
                 <div style={{ marginBottom: 'var(--space-4)' }}>
-                  <label htmlFor="invite-email" style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: 'var(--text-secondary)',
-                    marginBottom: 'var(--space-2)',
-                  }}>
+                  <label
+                    htmlFor="invite-email"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: 'var(--text-secondary)',
+                      marginBottom: 'var(--space-2)',
+                    }}
+                  >
                     Email Address
                   </label>
                   <input
                     id="invite-email"
                     type="email"
                     value={inviteEmail}
-                    onChange={e => setInviteEmail(e.target.value)}
+                    onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="clinician@example.com"
                     style={{
                       width: '100%',
@@ -545,19 +629,22 @@ export default function ClinicDashboardPage() {
                 </div>
 
                 <div style={{ marginBottom: 'var(--space-6)' }}>
-                  <label htmlFor="invite-role" style={{
-                    display: 'block',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    color: 'var(--text-secondary)',
-                    marginBottom: 'var(--space-2)',
-                  }}>
+                  <label
+                    htmlFor="invite-role"
+                    style={{
+                      display: 'block',
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: 'var(--text-secondary)',
+                      marginBottom: 'var(--space-2)',
+                    }}
+                  >
                     Role
                   </label>
                   <select
                     id="invite-role"
                     value={inviteRole}
-                    onChange={e => setInviteRole(e.target.value)}
+                    onChange={(e) => setInviteRole(e.target.value)}
                     style={{
                       width: '100%',
                       padding: 'var(--space-3)',
@@ -582,7 +669,8 @@ export default function ClinicDashboardPage() {
                   style={{
                     width: '100%',
                     padding: 'var(--space-3)',
-                    backgroundColor: !inviteEmail || inviteLoading ? 'var(--text-muted)' : 'var(--accent)',
+                    backgroundColor:
+                      !inviteEmail || inviteLoading ? 'var(--text-muted)' : 'var(--accent)',
                     color: '#000',
                     border: 'none',
                     borderRadius: 'var(--radius-md)',
@@ -605,41 +693,49 @@ export default function ClinicDashboardPage() {
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div style={{
-      backgroundColor: 'var(--bg-card)',
-      border: '1px solid var(--border-primary)',
-      borderRadius: 'var(--radius-lg)',
-      padding: 'var(--space-4)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'var(--space-4)',
-    }}>
-      <div style={{
-        width: 48,
-        height: 48,
-        borderRadius: 'var(--radius-md)',
-        backgroundColor: 'rgba(14, 205, 186, 0.15)',
+    <div
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        border: '1px solid var(--border-primary)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-4)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        color: 'var(--accent)',
-        flexShrink: 0,
-      }}>
+        gap: 'var(--space-4)',
+      }}
+    >
+      <div
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: 'var(--radius-md)',
+          backgroundColor: 'rgba(14, 205, 186, 0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--accent)',
+          flexShrink: 0,
+        }}
+      >
         {icon}
       </div>
       <div>
-        <div style={{
-          fontSize: '0.75rem',
-          color: 'var(--text-muted)',
-          marginBottom: '2px',
-        }}>
+        <div
+          style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-muted)',
+            marginBottom: '2px',
+          }}
+        >
           {label}
         </div>
-        <div style={{
-          fontSize: '1.5rem',
-          fontWeight: 600,
-          color: 'var(--text-primary)',
-        }}>
+        <div
+          style={{
+            fontSize: '1.5rem',
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+          }}
+        >
           {value}
         </div>
       </div>
@@ -649,42 +745,53 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 
 function ShimmerCard() {
   return (
-    <div style={{
-      backgroundColor: 'var(--bg-card)',
-      border: '1px solid var(--border-primary)',
-      borderRadius: 'var(--radius-lg)',
-      padding: 'var(--space-4)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 'var(--space-4)',
-      flex: '1 1 200px',
-    }}>
-      <div style={{
-        width: 48,
-        height: 48,
-        borderRadius: 'var(--radius-md)',
-        background: 'linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%)',
-        backgroundSize: '200% 100%',
-        animation: 'shimmer 1.5s infinite',
-      }} />
+    <div
+      style={{
+        backgroundColor: 'var(--bg-card)',
+        border: '1px solid var(--border-primary)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'var(--space-4)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 'var(--space-4)',
+        flex: '1 1 200px',
+      }}
+    >
+      <div
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: 'var(--radius-md)',
+          background:
+            'linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 1.5s infinite',
+        }}
+      />
       <div style={{ flex: 1 }}>
-        <div style={{
-          width: '60%',
-          height: 12,
-          borderRadius: 4,
-          marginBottom: 8,
-          background: 'linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%)',
-          backgroundSize: '200% 100%',
-          animation: 'shimmer 1.5s infinite',
-        }} />
-        <div style={{
-          width: '40%',
-          height: 24,
-          borderRadius: 4,
-          background: 'linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%)',
-          backgroundSize: '200% 100%',
-          animation: 'shimmer 1.5s infinite',
-        }} />
+        <div
+          style={{
+            width: '60%',
+            height: 12,
+            borderRadius: 4,
+            marginBottom: 8,
+            background:
+              'linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 1.5s infinite',
+          }}
+        />
+        <div
+          style={{
+            width: '40%',
+            height: 24,
+            borderRadius: 4,
+            background:
+              'linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 1.5s infinite',
+          }}
+        />
       </div>
       <style>{`
         @keyframes shimmer {

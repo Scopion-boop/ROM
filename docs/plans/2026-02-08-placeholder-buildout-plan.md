@@ -10,30 +10,32 @@
 
 PhysioLens has a **polished UI shell** and a **well-structured API skeleton**, but almost everything behind the surface is a placeholder. Here's the current state:
 
-| Component | Visual | Functional | Key Gap |
-|---|---|---|---|
-| Dashboard | ✅ 90% | ❌ 0% | All stats/sessions are hardcoded mock arrays |
-| Session Wizard | ✅ 80% | ❌ 0% | "Start Capture" does nothing; measurements are fake |
-| Camera | ✅ Preview box | ❌ 0% | No `getUserMedia`, no `<video>`, no frame capture |
-| CV Pipeline | — | ⚠️ 20% | Angle calc works from pre-computed landmarks; **no pose estimation model** |
-| API Routes | — | ⚠️ 70% | Endpoints work but all data is in-memory Maps (dies on restart) |
-| Database | — | ❌ 0% | No PostgreSQL, no ORM, no migrations |
-| Frontend↔API | — | ❌ 0% | Only call is a health check; data never flows |
-| NLP Service | — | ❌ 5% | Health endpoint only; no note generation |
-| PDF Export | — | ❌ 0% | Returns stub text |
-| Auth in UI | — | ❌ 0% | No login page, no token storage |
-| Missing Pages | — | ❌ 0% | /sessions, /reports, /compliance, /settings — don't exist |
+| Component      | Visual         | Functional | Key Gap                                                                    |
+| -------------- | -------------- | ---------- | -------------------------------------------------------------------------- |
+| Dashboard      | ✅ 90%         | ❌ 0%      | All stats/sessions are hardcoded mock arrays                               |
+| Session Wizard | ✅ 80%         | ❌ 0%      | "Start Capture" does nothing; measurements are fake                        |
+| Camera         | ✅ Preview box | ❌ 0%      | No `getUserMedia`, no `<video>`, no frame capture                          |
+| CV Pipeline    | —              | ⚠️ 20%     | Angle calc works from pre-computed landmarks; **no pose estimation model** |
+| API Routes     | —              | ⚠️ 70%     | Endpoints work but all data is in-memory Maps (dies on restart)            |
+| Database       | —              | ❌ 0%      | No PostgreSQL, no ORM, no migrations                                       |
+| Frontend↔API   | —              | ❌ 0%      | Only call is a health check; data never flows                              |
+| NLP Service    | —              | ❌ 5%      | Health endpoint only; no note generation                                   |
+| PDF Export     | —              | ❌ 0%      | Returns stub text                                                          |
+| Auth in UI     | —              | ❌ 0%      | No login page, no token storage                                            |
+| Missing Pages  | —              | ❌ 0%      | /sessions, /reports, /compliance, /settings — don't exist                  |
 
 ---
 
-## Phase 1 — Clinical Data Model & Joint Movement Matrix *(Week 1)*
+## Phase 1 — Clinical Data Model & Joint Movement Matrix _(Week 1)_
 
 ### Why First
+
 Everything downstream (CV, camera, API, UI) depends on a correct, validated clinical data model. Right now `joint` and `movement` are unvalidated free-text strings.
 
 ### Tasks
 
 #### 1.1 — Joint–Movement–Landmark Matrix
+
 Create a canonical clinical reference that defines every valid combination:
 
 ```
@@ -75,12 +77,14 @@ packages/domain-contracts/src/clinical/
 | Right Knee | Flexion/Extension | RIGHT_HIP (24) | RIGHT_KNEE (26) | RIGHT_ANKLE (28) | Sagittal |
 
 #### 1.2 — Update Shared Types
+
 - Replace `joint: z.string()` → `joint: JointTypeEnum`
 - Replace `movement: z.string()` → `movement: MovementTypeEnum`
 - Add `plane: z.enum(['sagittal', 'frontal', 'transverse'])`
 - Validate joint↔movement combos at schema level
 
 #### 1.3 — Reconcile Schema Mismatches
+
 - Note statuses: unify `shared-types` (`draft | review | approved | exported`) with API (`draft | reviewed | finalized | amended`)
 - Pick one canonical set and update both sides
 
@@ -88,10 +92,12 @@ packages/domain-contracts/src/clinical/
 
 ---
 
-## Phase 2 — Computer Vision Pipeline *(Weeks 2–3)* 🔴 CRITICAL
+## Phase 2 — Computer Vision Pipeline _(Weeks 2–3)_ 🔴 CRITICAL
 
 ### Current State
+
 The CV service at `services/cv/` has:
+
 - ✅ `_angle_between_points()` — correct 2D angle calculation from 3 landmarks
 - ✅ `_assess_quality()` — basic visibility/occlusion detection
 - ✅ `POST /api/v1/pipeline/measure` — accepts pre-computed landmarks, returns angle
@@ -140,6 +146,7 @@ The CV service at `services/cv/` has:
 ### Tasks
 
 #### 2.1 — Install & Integrate MediaPipe Pose
+
 - Add `mediapipe>=0.10.14` to `services/cv/pyproject.toml`
 - Create `services/cv/app/pose_estimator.py`:
   - Initialize `mp.solutions.pose.Pose(model_complexity=2, min_detection_confidence=0.7, min_tracking_confidence=0.5)`
@@ -148,6 +155,7 @@ The CV service at `services/cv/` has:
   - Handle edge cases: no person detected, multiple people, partial body
 
 #### 2.2 — Joint Routing Layer
+
 - Create `services/cv/app/joint_router.py`:
   - Given a target `(joint, movement, side)` and the full 33-landmark set, extract the correct 3 landmarks
   - Uses the `landmark-map` from Phase 1
@@ -156,6 +164,7 @@ The CV service at `services/cv/` has:
   - Validates that the required landmarks are visible above threshold
 
 #### 2.3 — Frame Processing Endpoint
+
 - Create `POST /api/v1/pipeline/process-frame`:
   - Accepts: `{ frame: base64_image, joints: [JointMovement], side: "left"|"right" }`
   - Pipeline: decode frame → MediaPipe → extract landmarks → route per joint → compute angles → return measurements
@@ -163,6 +172,7 @@ The CV service at `services/cv/` has:
   - The `pose_overlay` is the frame with skeleton drawn on it (for UI display)
 
 #### 2.4 — WebSocket Streaming Endpoint
+
 - Create `WS /api/v1/pipeline/stream`:
   - Client sends binary frames (JPEG/WebP)
   - Server processes each frame through the full pipeline
@@ -171,6 +181,7 @@ The CV service at `services/cv/` has:
   - Target: 15+ FPS processing (MediaPipe is fast enough)
 
 #### 2.5 — Temporal Smoothing (Multi-Frame Averaging)
+
 - Create `services/cv/app/temporal_filter.py`:
   - Sliding window of last N frames (e.g., 10)
   - Exponential moving average for angle stability
@@ -179,12 +190,14 @@ The CV service at `services/cv/` has:
   - This prevents jitter and gives the clinician a "hold still" → "captured" flow
 
 #### 2.6 — Normative Range Comparison
+
 - Create `services/cv/app/normative.py`:
   - Load normative ranges from the Phase 1 matrix
   - Compare measured ROM to normal range
   - Return: `{ within_normal: bool, percent_of_normal: float, deficit_degrees: float }`
 
 #### 2.7 — Pose Overlay Renderer
+
 - Create `services/cv/app/overlay.py`:
   - Draw detected skeleton on frame using OpenCV
   - Highlight the measured joint angle with an arc visualization
@@ -192,11 +205,13 @@ The CV service at `services/cv/` has:
   - Return as base64 PNG overlay
 
 #### 2.8 — 3D Angle Support
+
 - Extend `_angle_between_points()` to use (x, y, z) when the z-coordinate is available
   - BlazePose provides z-coordinates in world-space landmarks
   - Critical for rotation measurements (IR/ER) which can't be accurately measured in 2D
 
 **New dependencies:**
+
 ```toml
 dependencies = [
     "mediapipe>=0.10.14",
@@ -210,7 +225,7 @@ dependencies = [
 
 ---
 
-## Phase 3 — Dual Camera System *(Week 3–4)* 🔴 CRITICAL
+## Phase 3 — Dual Camera System _(Week 3–4)_ 🔴 CRITICAL
 
 ### Architecture: Webcam + Phone Camera
 
@@ -251,6 +266,7 @@ dependencies = [
 ### Tasks
 
 #### 3.1 — Webcam Capture Component
+
 - Create `apps/web/src/components/capture/WebcamCapture.tsx`:
   - `navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' } })`
   - `<video ref>` with `autoPlay playsInline muted`
@@ -261,6 +277,7 @@ dependencies = [
   - Mirror mode toggle for user-facing camera
 
 #### 3.2 — Phone Camera via WebRTC
+
 - Create `apps/web/src/components/capture/PhoneCameraLink.tsx`:
   - Generate a unique session room ID
   - Display QR code (use `qrcode.react`) that opens `/camera/remote?room=XXXX`
@@ -282,6 +299,7 @@ dependencies = [
   - Auto-cleanup on disconnect
 
 #### 3.3 — Dual Feed Compositor
+
 - Create `apps/web/src/components/capture/DualFeedView.tsx`:
   - Side-by-side or picture-in-picture layout for two camera feeds
   - Clinician can designate "primary" feed per joint measurement
@@ -293,6 +311,7 @@ dependencies = [
     - Frontal plane movements → front view (usually the webcam)
 
 #### 3.4 — Frame Transport to CV Service
+
 - Create `apps/web/src/lib/cv/frame-streamer.ts`:
   - WebSocket connection to `ws://localhost:8001/api/v1/pipeline/stream`
   - Send frames as binary blobs at 10 FPS (throttled)
@@ -301,6 +320,7 @@ dependencies = [
   - Buffer management (drop frames if processing falls behind)
 
 #### 3.5 — Pose Overlay Canvas
+
 - Create `apps/web/src/components/capture/PoseOverlay.tsx`:
   - Canvas overlay on top of `<video>` element
   - Receives landmark data from WebSocket
@@ -310,7 +330,9 @@ dependencies = [
   - Shows real-time ROM reading as a heads-up overlay
 
 #### 3.6 — Rewrite CameraSetupWizard
+
 Complete rewrite of the existing placeholder:
+
 1. **Select Joints** — keep existing UI but add movement selection per joint (dropdown/chips)
 2. **Camera Setup** — replace placeholder box with real WebcamCapture, device selector, PhoneCameraLink QR code
 3. **Capture** — real-time video with pose overlay, per-joint capture flow:
@@ -322,6 +344,7 @@ Complete rewrite of the existing placeholder:
 4. **Review** — show captured measurements with angle values, confidence scores, and a thumbnail/snapshot of the capture moment
 
 **New dependencies:**
+
 ```json
 {
   "qrcode.react": "^4.0.0"
@@ -332,11 +355,12 @@ Complete rewrite of the existing placeholder:
 
 ---
 
-## Phase 4 — Database & API Integration *(Week 4)*
+## Phase 4 — Database & API Integration _(Week 4)_
 
 ### Tasks
 
 #### 4.1 — PostgreSQL Database Setup
+
 - Add `prisma` or `drizzle-orm` to `apps/api`
 - Create schema:
   - `users` (id, email, passwordHash, role, orgId, createdAt)
@@ -350,6 +374,7 @@ Complete rewrite of the existing placeholder:
 - Add `DATABASE_URL` env variable + connection pool config
 
 #### 4.2 — Replace In-Memory Repositories
+
 - Rewrite `session-repo.ts` → Prisma/Drizzle queries
 - Rewrite `measurement-repo.ts` → Prisma/Drizzle queries
 - Rewrite `audit-repo.ts` → Prisma/Drizzle queries
@@ -358,6 +383,7 @@ Complete rewrite of the existing placeholder:
 - Data persists across restarts
 
 #### 4.3 — PDF Export Implementation
+
 - Replace the stub in `export.ts`
 - Use `@react-pdf/renderer` or `puppeteer` to generate real clinical PDF:
   - Header: clinic logo, patient info, exam date
@@ -368,6 +394,7 @@ Complete rewrite of the existing placeholder:
 - Store PDF in filesystem or S3-compatible storage
 
 #### 4.4 — Environment Configuration
+
 - Create `.env.example` with all required variables
 - `DATABASE_URL`, `JWT_SECRET`, `CV_SERVICE_URL`, `NLP_SERVICE_URL`, `API_PORT`, `CORS_ORIGINS`
 - Docker Compose for local development (API + PostgreSQL + CV + NLP)
@@ -376,17 +403,19 @@ Complete rewrite of the existing placeholder:
 
 ---
 
-## Phase 5 — Frontend ↔ API Integration *(Week 5)*
+## Phase 5 — Frontend ↔ API Integration _(Week 5)_
 
 ### Tasks
 
 #### 5.1 — API Client Layer
+
 - Create `apps/web/src/lib/api/client.ts`:
   - Typed fetch wrapper with auth headers, error handling, base URL config
   - Request/response interceptors
   - Token refresh logic
 
 #### 5.2 — Auth Flow in UI
+
 - Create `/app/login/page.tsx` — login form
 - Create `/app/register/page.tsx` — registration form (for pilot, may be invite-only)
 - Create `apps/web/src/context/AuthContext.tsx`:
@@ -396,12 +425,14 @@ Complete rewrite of the existing placeholder:
   - Expose `user`, `login()`, `logout()` to all components
 
 #### 5.3 — Dashboard → Real Data
+
 - Replace hardcoded `STATS` array with API calls:
   - `GET /api/sessions` → count sessions, extract recent list
   - `GET /api/measurements` → count, compute average confidence
   - Show real data with loading skeletons
 
 #### 5.4 — Session Workflow → API Writes
+
 - `POST /api/sessions` on wizard start → get real session ID
 - `POST /api/sessions/:id/measurements` after each joint capture
 - `POST /api/sessions/:id/notes/generate` when entering note phase
@@ -409,23 +440,25 @@ Complete rewrite of the existing placeholder:
 - `POST /api/sessions/:id/finalize` on completion
 
 #### 5.5 — Build Missing Pages
-| Route | Description |
-|---|---|
-| `/sessions` | Paginated session list with filters (status, date, patient) |
-| `/sessions/[id]` | Session detail: measurements, note, export button |
-| `/reports` | Analytics dashboard: ROM trends, patient progress, clinic stats |
-| `/compliance` | Audit log viewer, data retention settings |
-| `/settings` | User profile, clinic settings, camera defaults |
+
+| Route            | Description                                                     |
+| ---------------- | --------------------------------------------------------------- |
+| `/sessions`      | Paginated session list with filters (status, date, patient)     |
+| `/sessions/[id]` | Session detail: measurements, note, export button               |
+| `/reports`       | Analytics dashboard: ROM trends, patient progress, clinic stats |
+| `/compliance`    | Audit log viewer, data retention settings                       |
+| `/settings`      | User profile, clinic settings, camera defaults                  |
 
 **Deliverables:** All pages functional, all data flows through the API, auth-gated UI.
 
 ---
 
-## Phase 6 — NLP Note Generation *(Week 5)*
+## Phase 6 — NLP Note Generation _(Week 5)_
 
 ### Tasks
 
 #### 6.1 — Intelligent Note Builder
+
 - Expand `services/nlp/` service with actual routes
 - `POST /api/v1/notes/generate`:
   - Input: `{ measurements: Measurement[], patient_context?: string }`
@@ -440,6 +473,7 @@ Complete rewrite of the existing placeholder:
     - Human review required before finalizing
 
 #### 6.2 — Note Status Workflow
+
 - Implement: `draft → reviewed → finalized → amended`
 - Only finalized notes can be exported
 - Amendment creates a new version with diff tracking
@@ -448,31 +482,36 @@ Complete rewrite of the existing placeholder:
 
 ---
 
-## Phase 7 — Observability, Testing & Hardening *(Week 6)*
+## Phase 7 — Observability, Testing & Hardening _(Week 6)_
 
 ### Tasks
 
 #### 7.1 — Re-run & Fix All Existing Tests
+
 - Verify 83 existing tests still pass after all changes
 - Update tests that reference old schemas/interfaces
 
 #### 7.2 — E2E Tests for Critical Flows
+
 - Playwright tests:
   - Login → Dashboard → New Session → Select Joints → Capture → Results → Note → Export
   - Dual camera connection flow
   - Session list filtering and pagination
 
 #### 7.3 — CV Pipeline Test Suite
+
 - Unit tests with synthetic landmarks (known angles)
 - Integration tests with real test images (annotated reference frames)
 - WebSocket streaming load test
 - Multi-frame smoothing accuracy tests
 
 #### 7.4 — CI/CD Pipeline
+
 - Replace `echo "Tests would run here"` with actual test commands
 - Add: lint, type-check, unit test, integration test, build stages
 
 #### 7.5 — Error Handling & Edge Cases
+
 - Camera disconnection during capture
 - WebSocket reconnection
 - CV service unavailable (graceful degradation)
@@ -509,6 +548,7 @@ This is the camera problem: nothing works without the CV pipeline processing rea
 ## Complete Placeholder Inventory (for tracking)
 
 ### Frontend Placeholders
+
 - [ ] Dashboard `STATS` array — 4 hardcoded stats
 - [ ] Dashboard `RECENT_SESSIONS` — 5 fake sessions with fake patients
 - [ ] Dashboard `QUICK_ACTIONS` — 3 of 4 link to `#` (dead links)
@@ -529,6 +569,7 @@ This is the camera problem: nothing works without the CV pipeline processing rea
 - [ ] No API calls from frontend (except health check)
 
 ### API Placeholders
+
 - [ ] User store — in-memory `Map`
 - [ ] Session store — in-memory `Map`
 - [ ] Measurement store — in-memory `Map`
@@ -539,6 +580,7 @@ This is the camera problem: nothing works without the CV pipeline processing rea
 - [ ] No database connection
 
 ### CV Service Placeholders
+
 - [ ] No MediaPipe/pose estimation model
 - [ ] No image/video input endpoint
 - [ ] No frame processing
@@ -552,15 +594,18 @@ This is the camera problem: nothing works without the CV pipeline processing rea
 - [ ] Readiness check always returns `true` (TODO comment)
 
 ### NLP Service Placeholders
+
 - [ ] Only health endpoint exists
 - [ ] No note generation routes
 - [ ] No clinical language processing
 - [ ] Test file labeled "Placeholder test"
 
 ### CI/CD Placeholders
+
 - [ ] Test job runs `echo "Tests would run here"`
 
 ### Schema Issues
+
 - [ ] `joint` and `movement` are unvalidated `z.string()`
 - [ ] No `MovementType` enum exists
 - [ ] No `JointType` enum with validation
@@ -571,16 +616,16 @@ This is the camera problem: nothing works without the CV pipeline processing rea
 
 ## Estimated Effort
 
-| Phase | Duration | Complexity | Dependencies |
-|---|---|---|---|
-| Phase 1 — Clinical Data Model | 3–4 days | Medium | None |
-| Phase 2 — CV Pipeline | 7–10 days | **Very High** | Phase 1 |
-| Phase 3 — Dual Camera | 5–7 days | **High** | Phase 2 |
-| Phase 4 — Database + API | 4–5 days | Medium | Phase 1 |
-| Phase 5 — Frontend Integration | 5–7 days | Medium–High | Phase 3, 4 |
-| Phase 6 — NLP Notes | 2–3 days | Medium | Phase 4 |
-| Phase 7 — Testing & Hardening | 4–5 days | Medium | All |
-| **Total** | **~6 weeks** | | |
+| Phase                          | Duration     | Complexity    | Dependencies |
+| ------------------------------ | ------------ | ------------- | ------------ |
+| Phase 1 — Clinical Data Model  | 3–4 days     | Medium        | None         |
+| Phase 2 — CV Pipeline          | 7–10 days    | **Very High** | Phase 1      |
+| Phase 3 — Dual Camera          | 5–7 days     | **High**      | Phase 2      |
+| Phase 4 — Database + API       | 4–5 days     | Medium        | Phase 1      |
+| Phase 5 — Frontend Integration | 5–7 days     | Medium–High   | Phase 3, 4   |
+| Phase 6 — NLP Notes            | 2–3 days     | Medium        | Phase 4      |
+| Phase 7 — Testing & Hardening  | 4–5 days     | Medium        | All          |
+| **Total**                      | **~6 weeks** |               |              |
 
 ---
 

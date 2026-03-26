@@ -1,7 +1,7 @@
 ---
 name: Feature Request
 about: Propose a new feature or capability
-title: "[FEATURE] "
+title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---
@@ -9,6 +9,7 @@ assignees: ''
 ## Phase
 
 <!-- Which phase does this belong to? -->
+
 - [ ] Phase A — Evidence Lock
 - [ ] Phase B — Precision Prototyping
 - [ ] Phase C — Product Core Build
@@ -19,6 +20,7 @@ assignees: ''
 ## Owner Agent
 
 <!-- Which agent should own this? -->
+
 - [ ] agent:orchestrator
 - [ ] agent:frontend
 - [ ] agent:backend
@@ -35,6 +37,7 @@ assignees: ''
 ## Acceptance Criteria
 
 <!-- Specific, testable criteria that must be met -->
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
@@ -42,12 +45,14 @@ assignees: ''
 ## Evidence Requirements
 
 <!-- What evidence must the closing PR/bundle contain? -->
+
 - [ ] Evidence item 1
 - [ ] Evidence item 2
 
 ## Dependencies
 
 <!-- List any issues that must be completed first -->
+
 - Depends on #
 
 ## Risk Classification

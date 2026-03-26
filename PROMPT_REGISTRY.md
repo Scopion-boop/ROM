@@ -559,6 +559,6 @@ UI copy, or issue comment), the following rules apply:
 
 ### Changelog
 
-| Date | Version | Change | Approved By |
-|------|---------|--------|-------------|
-| 2026-02-08 | 1.0.0 | Initial locked prompt registry | Founder |
+| Date       | Version | Change                         | Approved By |
+| ---------- | ------- | ------------------------------ | ----------- |
+| 2026-02-08 | 1.0.0   | Initial locked prompt registry | Founder     |

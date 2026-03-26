@@ -14,9 +14,11 @@ This document describes the comprehensive audit logging system implemented acros
 ### Regulatory Requirements
 
 **HIPAA Security Rule - Audit Controls (45 CFR § 164.312(b)):**
+
 > Implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems that contain or use electronic protected health information (ePHI).
 
 **Key Requirements:**
+
 - Log all PHI access (read operations)
 - Log all PHI modifications (create, update, delete)
 - Log authentication events (login, logout, failures)
@@ -105,92 +107,96 @@ CREATE INDEX idx_audit_event_type ON audit_events(event_type, created_at DESC);
 
 ### Authentication Events
 
-| Event Type       | Description                          | entityType | When Logged                          |
-|-----------------|--------------------------------------|------------|--------------------------------------|
-| `auth.login`    | Successful user login                | `user`     | After password verification succeeds |
-| `auth.failed`   | Failed authentication attempt        | `user` or `auth` | Invalid credentials, user not found |
-| `user.created`  | New user registration                | `user`     | After user account creation          |
+| Event Type     | Description                   | entityType       | When Logged                          |
+| -------------- | ----------------------------- | ---------------- | ------------------------------------ |
+| `auth.login`   | Successful user login         | `user`           | After password verification succeeds |
+| `auth.failed`  | Failed authentication attempt | `user` or `auth` | Invalid credentials, user not found  |
+| `user.created` | New user registration         | `user`           | After user account creation          |
 
 **Example:**
+
 ```typescript
 await audit.record({
-    eventType: 'auth.login',
-    entityType: 'user',
-    entityId: user.id,
-    actorId: user.id,
-    organizationId: user.organizationId,
-    metadata: { email: user.email },
+  eventType: 'auth.login',
+  entityType: 'user',
+  entityId: user.id,
+  actorId: user.id,
+  organizationId: user.organizationId,
+  metadata: { email: user.email },
 });
 ```
 
 ### Session Events (PHI Access Initiation)
 
-| Event Type                | Description                    | entityType | When Logged                     |
-|--------------------------|--------------------------------|------------|---------------------------------|
-| `session.created`        | New assessment session started | `session`  | After session creation          |
-| `session.finalized`      | Session marked as complete     | `session`  | Status changed to 'finalized'   |
-| `session.status_updated` | Session status changed         | `session`  | Any other status transition     |
+| Event Type               | Description                    | entityType | When Logged                   |
+| ------------------------ | ------------------------------ | ---------- | ----------------------------- |
+| `session.created`        | New assessment session started | `session`  | After session creation        |
+| `session.finalized`      | Session marked as complete     | `session`  | Status changed to 'finalized' |
+| `session.status_updated` | Session status changed         | `session`  | Any other status transition   |
 
 **Example:**
+
 ```typescript
 await audit.record({
-    eventType: 'session.created',
-    entityType: 'session',
-    entityId: session.id,
-    actorId: req.user!.userId,
-    organizationId: req.user!.organizationId,
-    metadata: { joints: ['shoulder', 'knee'], patientId: 'patient-001' },
+  eventType: 'session.created',
+  entityType: 'session',
+  entityId: session.id,
+  actorId: req.user!.userId,
+  organizationId: req.user!.organizationId,
+  metadata: { joints: ['shoulder', 'knee'], patientId: 'patient-001' },
 });
 ```
 
 ### Measurement Events (PHI Data Capture)
 
-| Event Type              | Description                  | entityType    | When Logged                  |
-|------------------------|------------------------------|---------------|------------------------------|
-| `measurement.recorded` | ROM measurement captured     | `measurement` | After measurement creation   |
+| Event Type             | Description              | entityType    | When Logged                |
+| ---------------------- | ------------------------ | ------------- | -------------------------- |
+| `measurement.recorded` | ROM measurement captured | `measurement` | After measurement creation |
 
 **Example:**
+
 ```typescript
 await audit.record({
-    eventType: 'measurement.recorded',
-    entityType: 'measurement',
-    entityId: measurement.id,
-    actorId: req.user!.userId,
-    organizationId: req.user!.organizationId,
-    metadata: {
-        sessionId: session.id,
-        joint: 'shoulder',
-        movement: 'flexion',
-        side: 'left',
-        romDegrees: 150.5,
-        confidenceScore: 0.92,
-    },
+  eventType: 'measurement.recorded',
+  entityType: 'measurement',
+  entityId: measurement.id,
+  actorId: req.user!.userId,
+  organizationId: req.user!.organizationId,
+  metadata: {
+    sessionId: session.id,
+    joint: 'shoulder',
+    movement: 'flexion',
+    side: 'left',
+    romDegrees: 150.5,
+    confidenceScore: 0.92,
+  },
 });
 ```
 
 ### Note Events (PHI Documentation)
 
-| Event Type              | Description                       | entityType | When Logged                     |
-|------------------------|-----------------------------------|------------|---------------------------------|
-| `note.generated`       | Clinical note auto-generated      | `note`     | After note generation           |
-| `note.edited`          | Clinician manually edited note    | `note`     | After note blocks updated       |
-| `note.approved`        | Note approved/finalized/reviewed  | `note`     | Status → 'finalized'/'reviewed' |
-| `note.status_updated`  | Other note status changes         | `note`     | Status → 'draft' or custom      |
-| `note.exported`        | Note exported to external format  | `note`     | After export operation          |
+| Event Type            | Description                      | entityType | When Logged                     |
+| --------------------- | -------------------------------- | ---------- | ------------------------------- |
+| `note.generated`      | Clinical note auto-generated     | `note`     | After note generation           |
+| `note.edited`         | Clinician manually edited note   | `note`     | After note blocks updated       |
+| `note.approved`       | Note approved/finalized/reviewed | `note`     | Status → 'finalized'/'reviewed' |
+| `note.status_updated` | Other note status changes        | `note`     | Status → 'draft' or custom      |
+| `note.exported`       | Note exported to external format | `note`     | After export operation          |
 
 **Example:**
+
 ```typescript
 await audit.record({
-    eventType: 'note.approved',
-    entityType: 'note',
-    entityId: note.id,
-    actorId: req.user!.userId,
-    organizationId: req.user!.organizationId,
-    metadata: {
-        sessionId: note.sessionId,
-        previousStatus: 'draft',
-        newStatus: 'finalized',
-    },
+  eventType: 'note.approved',
+  entityType: 'note',
+  entityId: note.id,
+  actorId: req.user!.userId,
+  organizationId: req.user!.organizationId,
+  metadata: {
+    sessionId: note.sessionId,
+    previousStatus: 'draft',
+    newStatus: 'finalized',
+  },
 });
 ```
 
@@ -201,46 +207,51 @@ await audit.record({
 ### Auth Routes (`/api/auth`)
 
 **Routes with Audit Logging:**
+
 - `POST /api/auth/register` → `user.created`
 - `POST /api/auth/login` → `auth.login` (success) OR `auth.failed` (failure)
 
 **Failed Authentication Logging:**
+
 ```typescript
 // User not found
 await audit.record({
-    eventType: 'auth.failed',
-    entityType: 'auth',
-    entityId: 'unknown',
-    actorId: 'unknown',
-    organizationId: 'unknown',
-    metadata: { email, reason: 'user_not_found' },
+  eventType: 'auth.failed',
+  entityType: 'auth',
+  entityId: 'unknown',
+  actorId: 'unknown',
+  organizationId: 'unknown',
+  metadata: { email, reason: 'user_not_found' },
 });
 
 // Invalid password
 await audit.record({
-    eventType: 'auth.failed',
-    entityType: 'user',
-    entityId: user.id,
-    actorId: user.id,
-    organizationId: user.organizationId,
-    metadata: { email, reason: 'invalid_password' },
+  eventType: 'auth.failed',
+  entityType: 'user',
+  entityId: user.id,
+  actorId: user.id,
+  organizationId: user.organizationId,
+  metadata: { email, reason: 'invalid_password' },
 });
 ```
 
 ### Session Routes (`/api/sessions`)
 
 **Routes with Audit Logging:**
+
 - `POST /api/sessions` → `session.created`
 - `PATCH /api/sessions/:id/status` → `session.finalized` OR `session.status_updated`
 
 ### Measurement Routes (`/api/sessions/:sessionId/measurements`)
 
 **Routes with Audit Logging:**
+
 - `POST /api/sessions/:sessionId/measurements` → `measurement.recorded`
 
 ### Note Routes (`/api/sessions/:sessionId/notes`, `/api/notes`)
 
 **Routes with Audit Logging:**
+
 - `POST /api/sessions/:sessionId/notes/generate` → `note.generated`
 - `PATCH /api/notes/:noteId/blocks` → `note.edited`
 - `PATCH /api/notes/:noteId/status` → `note.approved` OR `note.status_updated`
@@ -248,6 +259,7 @@ await audit.record({
 ### Export Routes (`/api/export`)
 
 **Routes with Audit Logging:**
+
 - `GET /api/export/:noteId/json` → `note.exported`
 - `GET /api/export/:noteId/text` → `note.exported`
 - `GET /api/export/:noteId/pdf` → `note.exported`
@@ -260,7 +272,7 @@ await audit.record({
 
 ```typescript
 const events = await getRepos().audit.list({
-    organizationId: 'org-001',
+  organizationId: 'org-001',
 });
 ```
 
@@ -268,8 +280,8 @@ const events = await getRepos().audit.list({
 
 ```typescript
 const events = await getRepos().audit.list({
-    entityType: 'session',
-    entityId: 'session-001',
+  entityType: 'session',
+  entityId: 'session-001',
 });
 ```
 
@@ -277,7 +289,7 @@ const events = await getRepos().audit.list({
 
 ```typescript
 const exportEvents = await getRepos().audit.list({
-    eventType: 'note.exported',
+  eventType: 'note.exported',
 });
 ```
 
@@ -285,9 +297,9 @@ const exportEvents = await getRepos().audit.list({
 
 ```typescript
 const events = await getRepos().audit.list({
-    organizationId: 'org-001',
-    entityType: 'measurement',
-    eventType: 'measurement.recorded',
+  organizationId: 'org-001',
+  entityType: 'measurement',
+  eventType: 'measurement.recorded',
 });
 ```
 
@@ -306,14 +318,18 @@ const count = await getRepos().audit.count();
 **Requirement:** Audit logs cannot be modified or deleted once created.
 
 **Implementation:**
+
 - `AuditRepo` interface does NOT expose `update()` or `delete()` methods
 - Only methods: `record()`, `list()`, `count()`, `_clear()` (test-only)
 - Database-level constraints prevent updates to `created_at`
 - No UI or API endpoints allow audit log modification
 
 **Verification:**
+
 ```typescript
-const event = await audit.record({ /* ... */ });
+const event = await audit.record({
+  /* ... */
+});
 // event.id is immutable - no way to modify or delete via API
 ```
 
@@ -322,6 +338,7 @@ const event = await audit.record({ /* ... */ });
 **Requirement:** All PHI access and modifications must be logged.
 
 **Implementation:**
+
 - ✅ Authentication events (login, logout, failures)
 - ✅ User registration
 - ✅ Session creation (PHI access initiation)
@@ -339,12 +356,14 @@ const event = await audit.record({ /* ... */ });
 **Requirement:** Retain audit logs for minimum 6 years.
 
 **Implementation:**
+
 - PostgreSQL RDS with automated backups (7 days)
 - Monthly snapshots exported to S3 (6+ years retention via Glacier)
 - No automatic deletion of audit_events table records
 - Retention policy documented in Privacy Policy
 
 **Configuration:**
+
 ```sql
 -- No TTL or expiration on audit_events table
 -- Manual archival only after 6+ years via compliance team
@@ -355,6 +374,7 @@ const event = await audit.record({ /* ... */ });
 **Requirement:** Multi-tenant isolation for audit logs.
 
 **Implementation:**
+
 - Every audit event includes `organizationId`
 - Indexes optimize org-scoped queries
 - API endpoints filter by `req.user!.organizationId`
@@ -365,6 +385,7 @@ const event = await audit.record({ /* ... */ });
 **Requirement:** Sufficient context to understand the action.
 
 **Implementation:**
+
 - All events include `metadata` JSON field
 - Captures relevant context:
   - Email addresses (auth events)
@@ -382,6 +403,7 @@ const event = await audit.record({ /* ... */ });
 **File:** [`apps/api/src/repositories/drizzle/__tests__/audit-repo.integration.test.ts`](../../apps/api/src/repositories/drizzle/__tests__/audit-repo.integration.test.ts)
 
 **Coverage:**
+
 - ✅ Record audit events with all fields
 - ✅ Record all critical PHI operations
 - ✅ Failed authentication attempts
@@ -396,6 +418,7 @@ const event = await audit.record({ /* ... */ });
 - ✅ Concurrent audit writes
 
 **Run Tests:**
+
 ```bash
 # Requires PostgreSQL test database
 export TEST_DATABASE_URL=postgresql://postgres:test@localhost:5433/postgres
@@ -407,6 +430,7 @@ npm test -- audit-repo.integration.test.ts
 ### Unit Tests
 
 All 53 API unit tests pass with audit logging enabled:
+
 ```bash
 JWT_SECRET=test-secret npm test -- --exclude '**/drizzle/__tests__/**'
 ```
@@ -418,11 +442,13 @@ JWT_SECRET=test-secret npm test -- --exclude '**/drizzle/__tests__/**'
 ### 1. Audit Log Access Control
 
 **Current Implementation:**
+
 - Audit logs accessible via `getRepos().audit` service
 - No public API endpoints for audit log queries
 - Access restricted to internal services only
 
 **Future Enhancement:**
+
 - Admin-only API endpoint: `GET /api/admin/audit?organizationId=...`
 - Role-based access: only `admin` role can query audit logs
 - Rate limiting: 100 queries/hour per admin user
@@ -430,11 +456,13 @@ JWT_SECRET=test-secret npm test -- --exclude '**/drizzle/__tests__/**'
 ### 2. Sensitive Data in Metadata
 
 **Guidelines:**
+
 - ✅ DO log: email addresses, joint names, status transitions, export formats
 - ❌ DO NOT log: passwords, JWT tokens, full patient names, SSNs, credit cards
 - ⚠️ CAUTION: Patient IDs may be PHI if they contain identifying information
 
 **Example - Safe Metadata:**
+
 ```typescript
 metadata: {
     joint: 'shoulder',         // ✅ Clinical data
@@ -445,6 +473,7 @@ metadata: {
 ```
 
 **Example - Unsafe Metadata:**
+
 ```typescript
 metadata: {
     password: 'secret123',      // ❌ NEVER log passwords
@@ -459,12 +488,14 @@ metadata: {
 **Requirement:** Audit logs must be encrypted at rest.
 
 **Implementation:**
+
 - PostgreSQL RDS with AWS KMS encryption enabled
 - AES-256 encryption for all data at rest
 - TLS 1.3 for data in transit
 - Encryption keys rotated quarterly via AWS KMS
 
 **Verification:**
+
 ```bash
 # Check RDS encryption status
 aws rds describe-db-instances --db-instance-identifier rom-production \
@@ -474,6 +505,7 @@ aws rds describe-db-instances --db-instance-identifier rom-production \
 ### 4. Concurrent Writes
 
 **Handling:** PostgreSQL ACID guarantees ensure:
+
 - No race conditions on concurrent `INSERT`
 - Unique UUIDs via `gen_random_uuid()`
 - Transaction isolation prevents data corruption
@@ -487,6 +519,7 @@ aws rds describe-db-instances --db-instance-identifier rom-production \
 ### 1. Audit Log Review (Monthly)
 
 **Checklist:**
+
 1. Query failed authentication attempts: `eventType = 'auth.failed'`
 2. Review unusual patterns (e.g., 10+ failed logins by same user)
 3. Verify all exports are logged: `eventType = 'note.exported'`
@@ -498,9 +531,10 @@ aws rds describe-db-instances --db-instance-identifier rom-production \
 If a data breach is suspected:
 
 1. **Identify Timeframe:**
+
    ```typescript
    const events = await audit.list({
-       organizationId: 'affected-org-id',
+     organizationId: 'affected-org-id',
    });
    // Filter by createdAt >= breach_start_time
    ```
@@ -520,13 +554,16 @@ If a data breach is suspected:
 **Policy:** Retain audit logs for 6+ years, then archive to cold storage.
 
 **Procedure (Annual):**
+
 1. Identify audit events older than 6 years:
+
    ```sql
    SELECT COUNT(*) FROM audit_events
    WHERE created_at < NOW() - INTERVAL '6 years';
    ```
 
 2. Export to S3 Glacier:
+
    ```bash
    pg_dump --table=audit_events \
        --where="created_at < NOW() - INTERVAL '6 years'" \
@@ -549,13 +586,16 @@ If a data breach is suspected:
 **Symptoms:** `audit.record()` succeeds but no rows in `audit_events` table.
 
 **Diagnosis:**
+
 1. Check if using in-memory fallback:
+
    ```typescript
    // apps/api/src/repositories/repo-factory.ts
    // Look for: return createMemoryAuditRepo();
    ```
 
 2. Verify DATABASE_URL is set:
+
    ```bash
    echo $DATABASE_URL
    ```
@@ -566,6 +606,7 @@ If a data breach is suspected:
    ```
 
 **Resolution:**
+
 - Ensure `DATABASE_URL` is set in production environment
 - Verify Drizzle migration has run: `npm run db:push`
 
@@ -574,7 +615,9 @@ If a data breach is suspected:
 **Symptoms:** `audit_events` table growing >1GB/month.
 
 **Diagnosis:**
+
 1. Check event count by type:
+
    ```sql
    SELECT event_type, COUNT(*) as count
    FROM audit_events
@@ -593,6 +636,7 @@ If a data breach is suspected:
    ```
 
 **Resolution:**
+
 - If legitimate: scale up RDS storage
 - If suspicious: investigate potential attack or bot
 - Consider adding rate limiting on API endpoints
@@ -602,7 +646,9 @@ If a data breach is suspected:
 **Symptoms:** Audit list queries taking >1 second.
 
 **Diagnosis:**
+
 1. Check query plan:
+
    ```sql
    EXPLAIN ANALYZE
    SELECT * FROM audit_events
@@ -617,6 +663,7 @@ If a data breach is suspected:
    ```
 
 **Resolution:**
+
 - Add missing indexes (see Data Model section)
 - Consider partitioning by `created_at` for large tables
 - Implement pagination on audit queries

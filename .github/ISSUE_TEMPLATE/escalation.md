@@ -1,7 +1,7 @@
 ---
 name: Escalation
 about: Escalate a blocker, ambiguity, or safety concern
-title: "[ESCALATION] "
+title: '[ESCALATION] '
 labels: ''
 assignees: ''
 ---
@@ -18,6 +18,7 @@ assignees: ''
 ## Originating Issue
 
 <!-- Link to the issue that triggered this escalation -->
+
 Related to #
 
 ## Originating Agent

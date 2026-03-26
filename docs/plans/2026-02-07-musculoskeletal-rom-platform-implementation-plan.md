@@ -13,6 +13,7 @@
 ### Task 1: Initialize Monorepo and Core Tooling
 
 **Files:**
+
 - Create: `package.json`, `pnpm-workspace.yaml`, `turbo.json`
 - Create: `apps/web/`, `apps/api/`, `services/cv/`, `services/nlp/`, `packages/shared-types/`
 - Create: `.github/workflows/ci.yml`
@@ -37,6 +38,7 @@ Run: `git add . && git commit -m "chore: bootstrap monorepo and CI skeleton"`
 ### Task 2: Define Domain Contracts and Shared Types
 
 **Files:**
+
 - Create: `packages/shared-types/src/measurement.ts`
 - Create: `packages/shared-types/src/note.ts`
 - Create: `packages/shared-types/src/session.ts`
@@ -62,6 +64,7 @@ Run: `git add packages/shared-types && git commit -m "feat: add shared domain co
 ### Task 3: Implement Authentication and RBAC Baseline
 
 **Files:**
+
 - Create: `apps/api/src/auth/`
 - Create: `apps/api/src/middleware/authz.ts`
 - Create: `apps/api/src/routes/auth.ts`
@@ -86,6 +89,7 @@ Run: `git add apps/api/src/auth apps/api/src/middleware apps/api/src/routes/auth
 ### Task 4: Build Session and Measurement APIs
 
 **Files:**
+
 - Create: `apps/api/src/routes/sessions.ts`
 - Create: `apps/api/src/routes/measurements.ts`
 - Create: `apps/api/src/repositories/session-repo.ts`
@@ -111,6 +115,7 @@ Run: `git add apps/api/src/routes apps/api/src/repositories && git commit -m "fe
 ### Task 5: Implement Note Generation and Editing API
 
 **Files:**
+
 - Create: `apps/api/src/services/note-builder.ts`
 - Create: `apps/api/src/routes/notes.ts`
 - Test: `apps/api/src/services/__tests__/note-builder.test.ts`
@@ -134,6 +139,7 @@ Run: `git add apps/api/src/services apps/api/src/routes/notes.ts && git commit -
 ### Task 6: Build Web Capture Workflow (Clinician UI)
 
 **Files:**
+
 - Create: `apps/web/src/app/sessions/new/page.tsx`
 - Create: `apps/web/src/components/capture/CameraSetupWizard.tsx`
 - Create: `apps/web/src/components/capture/MeasurementPanel.tsx`
@@ -159,6 +165,7 @@ Run: `git add apps/web/src && git commit -m "feat: add clinician capture and not
 ### Task 7: Integrate CV Worker (V1 Algorithm Path)
 
 **Files:**
+
 - Create: `services/cv/app/main.py`
 - Create: `services/cv/app/pipeline.py`
 - Create: `services/cv/app/schemas.py`
@@ -183,6 +190,7 @@ Run: `git add services/cv && git commit -m "feat: add cv pipeline service skelet
 ### Task 8: Implement Export and Audit Event Trail
 
 **Files:**
+
 - Create: `apps/api/src/routes/export.ts`
 - Create: `apps/api/src/services/audit-log.ts`
 - Create: `apps/api/src/repositories/audit-repo.ts`
@@ -207,6 +215,7 @@ Run: `git add apps/api/src/routes/export.ts apps/api/src/services/audit-log.ts a
 ### Task 9: Enforce Security Baseline in Code and CI
 
 **Files:**
+
 - Create: `apps/api/src/middleware/rate-limit.ts`
 - Create: `apps/api/src/middleware/security-headers.ts`
 - Modify: `.github/workflows/ci.yml`
@@ -231,6 +240,7 @@ Run: `git add apps/api/src/middleware .github/workflows/ci.yml docs/security/THR
 ### Task 10: Add Observability and Operational Hooks
 
 **Files:**
+
 - Create: `apps/api/src/observability/logger.ts`
 - Create: `apps/api/src/observability/metrics.ts`
 - Create: `apps/api/src/routes/health.ts`
@@ -255,6 +265,7 @@ Run: `git add apps/api/src/observability apps/api/src/routes/health.ts docs/ops/
 ### Task 11: Prepare Legal/Compliance Launch Pack
 
 **Files:**
+
 - Modify: `docs/legal/PRIVACY_POLICY_TEMPLATE.md`
 - Modify: `docs/legal/TERMS_OF_SERVICE_TEMPLATE.md`
 - Modify: `docs/legal/MEDICAL_DISCLAIMER_TEMPLATE.md`
@@ -276,6 +287,7 @@ Run: `git add docs/legal && git commit -m "docs: add pilot legal/compliance pack
 ### Task 12: Pilot Release Execution and Evidence Capture
 
 **Files:**
+
 - Modify: `docs/release/RELEASE_CHECKLIST.md`
 - Modify: `docs/release/GO_LIVE_RUNBOOK.md`
 - Create: `docs/release/PILOT_RELEASE_EVIDENCE_TEMPLATE.md`
@@ -296,6 +308,7 @@ Run: `git add docs/release && git commit -m "docs: finalize pilot release runboo
 ### Task 13: End-to-End Verification and Readiness Report
 
 **Files:**
+
 - Create: `docs/planning-v2/PILOT_READINESS_REPORT_TEMPLATE.md`
 
 **Step 1: Run full verification suite**
@@ -312,6 +325,7 @@ Run: `git add docs/planning-v2/PILOT_READINESS_REPORT_TEMPLATE.md && git commit 
 ---
 
 ## Execution Notes
+
 - Use one implementer subagent per task.
 - After each task: spec-compliance review, then code-quality review.
 - Do not parallelize tasks that touch shared schema or shared API contracts.

@@ -5,13 +5,13 @@ import { verifyToken, TokenPayload } from '../auth/jwt';
  * Extend Express Request with authenticated user context.
  */
 declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace Express {
-        interface Request {
-            user?: TokenPayload;
-            plan?: string;
-        }
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      user?: TokenPayload;
+      plan?: string;
     }
+  }
 }
 
 /**
@@ -24,25 +24,29 @@ declare global {
  * Populates req.user on success, returns 401 on failure.
  */
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {
-    // 1. Try Authorization header first
-    const header = req.headers.authorization;
-    if (header?.startsWith('Bearer ')) {
-        try {
-            req.user = verifyToken(header.slice(7));
-            return next();
-        } catch { /* fall through to cookie */ }
+  // 1. Try Authorization header first
+  const header = req.headers.authorization;
+  if (header?.startsWith('Bearer ')) {
+    try {
+      req.user = verifyToken(header.slice(7));
+      return next();
+    } catch {
+      /* fall through to cookie */
     }
+  }
 
-    // 2. Fallback: check httpOnly cookie
-    const cookieToken = req.cookies?.pl_token;
-    if (cookieToken) {
-        try {
-            req.user = verifyToken(cookieToken);
-            return next();
-        } catch { /* invalid cookie */ }
+  // 2. Fallback: check httpOnly cookie
+  const cookieToken = req.cookies?.pl_token;
+  if (cookieToken) {
+    try {
+      req.user = verifyToken(cookieToken);
+      return next();
+    } catch {
+      /* invalid cookie */
     }
+  }
 
-    res.status(401).json({ error: 'Missing or invalid authorization' });
+  res.status(401).json({ error: 'Missing or invalid authorization' });
 }
 
 /**
@@ -50,15 +54,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
  * Must be used after requireAuth.
  */
 export function requireRole(...allowedRoles: string[]) {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        if (!req.user) {
-            res.status(401).json({ error: 'Authentication required' });
-            return;
-        }
-        if (!allowedRoles.includes(req.user.role)) {
-            res.status(403).json({ error: 'Insufficient permissions' });
-            return;
-        }
-        next();
-    };
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+    if (!allowedRoles.includes(req.user.role)) {
+      res.status(403).json({ error: 'Insufficient permissions' });
+      return;
+    }
+    next();
+  };
 }

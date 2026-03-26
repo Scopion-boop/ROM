@@ -3,6 +3,7 @@
 Complete API reference for the PhysioLens platform.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Authentication](#authentication)
 - [API Endpoints](#api-endpoints)
@@ -19,26 +20,31 @@ Complete API reference for the PhysioLens platform.
 ## Overview
 
 ### Base URLs
+
 - **Web App**: http://localhost:2000 (development)
 - **API Server**: http://localhost:3000 (development)
 - **WebRTC Signaling**: http://localhost:4001 (development)
 
 ### API Architecture
+
 - **Next.js API Routes**: `/api/*` endpoints (server-side)
 - **Express API**: RESTful endpoints for sessions, measurements, notes
 - **WebRTC Signaling**: WebSocket server for dual-camera pairing
 
 ### Content Type
+
 All API endpoints use `application/json` unless otherwise specified.
 
 ## Authentication
 
 ### Current Status
+
 ⚠️ **Development Mode**: Authentication infrastructure is implemented but **not enforced** in MVP v0.1.0.
 
 ### Future: JWT Authentication
 
 **Login** to obtain a JWT token:
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -50,6 +56,7 @@ Content-Type: application/json
 ```
 
 **Response**:
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -62,6 +69,7 @@ Content-Type: application/json
 ```
 
 **Using the token**:
+
 ```http
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
@@ -77,6 +85,7 @@ GET /health
 ```
 
 **Response**:
+
 ```json
 {
   "status": "ok",
@@ -101,6 +110,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "token": "string",
@@ -113,6 +123,7 @@ Content-Type: application/json
 ```
 
 **Response (401 Unauthorized)**:
+
 ```json
 {
   "error": "Invalid credentials"
@@ -139,6 +150,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created)**:
+
 ```json
 {
   "id": "session_abc123",
@@ -162,6 +174,7 @@ Authorization: Bearer {token}
 ```
 
 **Response (200 OK)**:
+
 ```json
 [
   {
@@ -187,6 +200,7 @@ Authorization: Bearer {token}
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "id": "session_abc123",
@@ -215,6 +229,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "id": "session_abc123",
@@ -249,6 +264,7 @@ Content-Type: application/json
 ```
 
 **Response (201 Created)**:
+
 ```json
 {
   "id": "measurement_xyz789",
@@ -275,6 +291,7 @@ Authorization: Bearer {token}
 ```
 
 **Response (200 OK)**:
+
 ```json
 [
   {
@@ -312,6 +329,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "noteId": "note_123",
@@ -332,6 +350,7 @@ Authorization: Bearer {token}
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "noteId": "note_123",
@@ -375,17 +394,16 @@ Content-Type: application/json
 ```
 
 **Request Body Types**:
+
 - `measurements`: Array of `EnrichedMeasurement` objects
 - `metadata`: Optional contextual information
 
 **Response (200 OK)**:
+
 ```json
 {
   "interpretation": "The patient demonstrates restricted shoulder flexion bilaterally...",
-  "recommendations": [
-    "Consider rotator cuff assessment",
-    "Evaluate for adhesive capsulitis"
-  ],
+  "recommendations": ["Consider rotator cuff assessment", "Evaluate for adhesive capsulitis"],
   "clinicalTests": [
     {
       "joint": "shoulder",
@@ -406,6 +424,7 @@ Content-Type: application/json
 **Error Responses**:
 
 **400 Bad Request**:
+
 ```json
 {
   "error": "measurements array is required and must be non-empty"
@@ -413,6 +432,7 @@ Content-Type: application/json
 ```
 
 **503 Service Unavailable**:
+
 ```json
 {
   "error": "LLM API key not configured. Add OPENAI_API_KEY or ANTHROPIC_API_KEY to .env.local"
@@ -420,6 +440,7 @@ Content-Type: application/json
 ```
 
 **500 Internal Server Error**:
+
 ```json
 {
   "error": "OpenAI API error: Rate limit exceeded"
@@ -433,6 +454,7 @@ Content-Type: application/json
 The signaling server enables dual-camera pairing for 3D ROM measurement.
 
 ### Server Details
+
 - **Protocol**: WebSocket (Socket.io)
 - **Port**: 4001
 - **URL**: http://localhost:4001
@@ -465,11 +487,13 @@ socket.on('room-joined', () => {
 #### 3. WebRTC Signaling
 
 **Desktop sends offer**:
+
 ```javascript
 socket.emit('offer', { roomId, offer: peerConnection.localDescription });
 ```
 
 **Phone receives offer**:
+
 ```javascript
 socket.on('offer', async ({ offer }) => {
   await peerConnection.setRemoteDescription(offer);
@@ -480,6 +504,7 @@ socket.on('offer', async ({ offer }) => {
 ```
 
 **Desktop receives answer**:
+
 ```javascript
 socket.on('answer', async ({ answer }) => {
   await peerConnection.setRemoteDescription(answer);
@@ -487,6 +512,7 @@ socket.on('answer', async ({ answer }) => {
 ```
 
 **ICE Candidate Exchange**:
+
 ```javascript
 // Send ICE candidates
 peerConnection.onicecandidate = (event) => {
@@ -503,19 +529,20 @@ socket.on('ice-candidate', async ({ candidate }) => {
 
 ### Signaling Events
 
-| Event | Direction | Payload | Description |
-|-------|-----------|---------|-------------|
-| `create-room` | Client → Server | - | Request new room creation |
-| `room-created` | Server → Client | `{ roomId }` | Room created successfully |
-| `join-room` | Client → Server | `{ roomId }` | Join existing room |
-| `room-joined` | Server → Client | - | Successfully joined room |
-| `offer` | Client → Server → Client | `{ roomId, offer }` | WebRTC offer |
-| `answer` | Client → Server → Client | `{ roomId, answer }` | WebRTC answer |
-| `ice-candidate` | Client → Server → Client | `{ roomId, candidate }` | ICE candidate |
+| Event           | Direction                | Payload                 | Description               |
+| --------------- | ------------------------ | ----------------------- | ------------------------- |
+| `create-room`   | Client → Server          | -                       | Request new room creation |
+| `room-created`  | Server → Client          | `{ roomId }`            | Room created successfully |
+| `join-room`     | Client → Server          | `{ roomId }`            | Join existing room        |
+| `room-joined`   | Server → Client          | -                       | Successfully joined room  |
+| `offer`         | Client → Server → Client | `{ roomId, offer }`     | WebRTC offer              |
+| `answer`        | Client → Server → Client | `{ roomId, answer }`    | WebRTC answer             |
+| `ice-candidate` | Client → Server → Client | `{ roomId, candidate }` | ICE candidate             |
 
 ### QR Code Format
 
 The QR code encodes a URL with the room ID:
+
 ```
 http://localhost:2000/camera/remote?room=room_abc123
 ```
@@ -547,15 +574,15 @@ interface Session {
 interface Measurement {
   id: string;
   sessionId: string;
-  joint: string;           // 'shoulder' | 'elbow' | 'wrist' | 'hip' | 'knee' | 'ankle'
-  movement: string;        // 'flexion' | 'extension' | 'abduction' | 'adduction' | 'rotation'
+  joint: string; // 'shoulder' | 'elbow' | 'wrist' | 'hip' | 'knee' | 'ankle'
+  movement: string; // 'flexion' | 'extension' | 'abduction' | 'adduction' | 'rotation'
   side: 'left' | 'right';
   romDegrees: number;
   confidenceScore: number; // 0.0 to 1.0
   qualityFlags: string[];
   algorithmVersion: string;
   captureDurationMs: number;
-  timestamp: string;       // ISO 8601
+  timestamp: string; // ISO 8601
 }
 ```
 
@@ -611,19 +638,20 @@ interface SpecialTest {
 
 ### HTTP Status Codes
 
-| Code | Meaning | Common Causes |
-|------|---------|---------------|
-| 200 | OK | Request successful |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Missing required fields, invalid data format |
-| 401 | Unauthorized | Missing or invalid authentication token |
-| 404 | Not Found | Resource does not exist |
-| 500 | Internal Server Error | Unexpected server error |
-| 503 | Service Unavailable | External service (LLM API) unavailable |
+| Code | Meaning               | Common Causes                                |
+| ---- | --------------------- | -------------------------------------------- |
+| 200  | OK                    | Request successful                           |
+| 201  | Created               | Resource created successfully                |
+| 400  | Bad Request           | Missing required fields, invalid data format |
+| 401  | Unauthorized          | Missing or invalid authentication token      |
+| 404  | Not Found             | Resource does not exist                      |
+| 500  | Internal Server Error | Unexpected server error                      |
+| 503  | Service Unavailable   | External service (LLM API) unavailable       |
 
 ### Error Examples
 
 **Missing required field**:
+
 ```json
 {
   "error": "joints array is required and must not be empty"
@@ -631,6 +659,7 @@ interface SpecialTest {
 ```
 
 **Resource not found**:
+
 ```json
 {
   "error": "Session not found"
@@ -638,6 +667,7 @@ interface SpecialTest {
 ```
 
 **LLM API error**:
+
 ```json
 {
   "error": "OpenAI API error: Rate limit exceeded"
@@ -651,6 +681,7 @@ interface SpecialTest {
 ⚠️ **Not Implemented**: Rate limiting is planned for production but not enforced in MVP v0.1.0.
 
 **Future implementation**:
+
 - 100 requests/minute per user
 - 10 AI interpretation requests/hour per organization
 - 429 Too Many Requests response when exceeded
@@ -660,10 +691,12 @@ interface SpecialTest {
 ## CORS Configuration
 
 **Development**:
+
 - Allowed origins: `http://localhost:2000`
 - Credentials: Enabled
 
 **Production** (planned):
+
 - Allowed origins: Configured via `CORS_ORIGIN` environment variable
 - Credentials: Enabled
 - Preflight caching: 600 seconds
@@ -675,11 +708,13 @@ interface SpecialTest {
 ### Using cURL
 
 **Health check**:
+
 ```bash
 curl http://localhost:3000/health
 ```
 
 **AI Interpretation** (requires API key in .env.local):
+
 ```bash
 curl -X POST http://localhost:2000/api/interpret \
   -H "Content-Type: application/json" \
@@ -710,12 +745,14 @@ curl -X POST http://localhost:2000/api/interpret \
 ## Changelog
 
 ### v0.1.0 (2026-02-08)
+
 - ✅ AI interpretation endpoint (`POST /api/interpret`)
 - ✅ WebRTC signaling server (port 4001)
 - ✅ Session, measurement, and note endpoints (infrastructure ready)
 - ⚠️ Authentication not enforced (development mode)
 
 ### Planned
+
 - [ ] Enable JWT authentication
 - [ ] Database persistence integration
 - [ ] Rate limiting
@@ -728,6 +765,7 @@ curl -X POST http://localhost:2000/api/interpret \
 ## Support
 
 For API questions or issues:
+
 - Check [SETUP.md](./SETUP.md) for environment configuration
 - Review [Architecture docs](./docs/planning-v2/03-architecture-stack.md)
 - See [Troubleshooting](./SETUP.md#troubleshooting)

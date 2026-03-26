@@ -8,8 +8,8 @@ import type { Request, Response, NextFunction } from 'express';
 import { z, type ZodSchema } from 'zod';
 
 export interface ValidationError {
-    field: string;
-    message: string;
+  field: string;
+  message: string;
 }
 
 /**
@@ -27,26 +27,26 @@ export interface ValidationError {
  * router.post('/sessions', validateBody(createSessionSchema), handler);
  */
 export function validateBody(schema: ZodSchema) {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        const result = schema.safeParse(req.body);
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.body);
 
-        if (!result.success) {
-            const errors: ValidationError[] = result.error.errors.map((err) => ({
-                field: err.path.join('.'),
-                message: err.message,
-            }));
+    if (!result.success) {
+      const errors: ValidationError[] = result.error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
 
-            res.status(400).json({
-                error: 'Validation failed',
-                details: errors,
-            });
-            return;
-        }
+      res.status(400).json({
+        error: 'Validation failed',
+        details: errors,
+      });
+      return;
+    }
 
-        // Replace req.body with parsed & validated data
-        req.body = result.data;
-        next();
-    };
+    // Replace req.body with parsed & validated data
+    req.body = result.data;
+    next();
+  };
 }
 
 /**
@@ -63,25 +63,25 @@ export function validateBody(schema: ZodSchema) {
  * router.get('/sessions/:sessionId', validateParams(paramsSchema), handler);
  */
 export function validateParams(schema: ZodSchema) {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        const result = schema.safeParse(req.params);
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.params);
 
-        if (!result.success) {
-            const errors: ValidationError[] = result.error.errors.map((err) => ({
-                field: err.path.join('.'),
-                message: err.message,
-            }));
+    if (!result.success) {
+      const errors: ValidationError[] = result.error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
 
-            res.status(400).json({
-                error: 'Invalid request parameters',
-                details: errors,
-            });
-            return;
-        }
+      res.status(400).json({
+        error: 'Invalid request parameters',
+        details: errors,
+      });
+      return;
+    }
 
-        req.params = result.data;
-        next();
-    };
+    req.params = result.data;
+    next();
+  };
 }
 
 /**
@@ -99,53 +99,53 @@ export function validateParams(schema: ZodSchema) {
  * router.get('/sessions', validateQuery(querySchema), handler);
  */
 export function validateQuery(schema: ZodSchema) {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        const result = schema.safeParse(req.query);
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.query);
 
-        if (!result.success) {
-            const errors: ValidationError[] = result.error.errors.map((err) => ({
-                field: err.path.join('.'),
-                message: err.message,
-            }));
+    if (!result.success) {
+      const errors: ValidationError[] = result.error.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
 
-            res.status(400).json({
-                error: 'Invalid query parameters',
-                details: errors,
-            });
-            return;
-        }
+      res.status(400).json({
+        error: 'Invalid query parameters',
+        details: errors,
+      });
+      return;
+    }
 
-        req.query = result.data;
-        next();
-    };
+    req.query = result.data;
+    next();
+  };
 }
 
 /**
  * Common validation schemas for reuse across routes.
  */
 export const commonSchemas = {
-    /** UUID string validation */
-    uuid: z.string().uuid({ message: 'Must be a valid UUID' }),
+  /** UUID string validation */
+  uuid: z.string().uuid({ message: 'Must be a valid UUID' }),
 
-    /** Non-empty string validation */
-    nonEmptyString: z.string().min(1, { message: 'Cannot be empty' }),
+  /** Non-empty string validation */
+  nonEmptyString: z.string().min(1, { message: 'Cannot be empty' }),
 
-    /** Positive number validation */
-    positiveNumber: z.number().positive({ message: 'Must be a positive number' }),
+  /** Positive number validation */
+  positiveNumber: z.number().positive({ message: 'Must be a positive number' }),
 
-    /** Confidence score (0-1) validation */
-    confidenceScore: z.number().min(0).max(1, { message: 'Must be between 0 and 1' }),
+  /** Confidence score (0-1) validation */
+  confidenceScore: z.number().min(0).max(1, { message: 'Must be between 0 and 1' }),
 
-    /** ROM degrees validation (0-360) */
-    romDegrees: z.number().min(0).max(200, { message: 'Must be between 0 and 200' }),
+  /** ROM degrees validation (0-360) */
+  romDegrees: z.number().min(0).max(200, { message: 'Must be between 0 and 200' }),
 
-    /** Side validation */
-    side: z.enum(['left', 'right'], { message: 'Must be "left" or "right"' }),
+  /** Side validation */
+  side: z.enum(['left', 'right'], { message: 'Must be "left" or "right"' }),
 
-    /** Session status validation */
-    sessionStatus: z.enum(['created', 'in_progress', 'completed', 'cancelled'], {
-        message: 'Invalid session status',
-    }),
+  /** Session status validation */
+  sessionStatus: z.enum(['created', 'in_progress', 'completed', 'cancelled'], {
+    message: 'Invalid session status',
+  }),
 };
 
 /**
@@ -160,10 +160,10 @@ export const commonSchemas = {
  * });
  */
 export function sanitizeString(maxLength: number = 1000) {
-    return z
-        .string()
-        .trim()
-        .max(maxLength, { message: `Cannot exceed ${maxLength} characters` });
+  return z
+    .string()
+    .trim()
+    .max(maxLength, { message: `Cannot exceed ${maxLength} characters` });
 }
 
 /**
@@ -180,9 +180,9 @@ export function sanitizeString(maxLength: number = 1000) {
  * });
  */
 export function validateArray<T extends ZodSchema>(
-    itemSchema: T,
-    min: number = 0,
-    max: number = 100,
+  itemSchema: T,
+  min: number = 0,
+  max: number = 100,
 ) {
-    return z.array(itemSchema).min(min).max(max);
+  return z.array(itemSchema).min(min).max(max);
 }

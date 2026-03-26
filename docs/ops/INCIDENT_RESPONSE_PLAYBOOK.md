@@ -29,6 +29,7 @@ This Incident Response Playbook provides standardized procedures for detecting, 
 ### 1.2 Scope
 
 This playbook covers:
+
 - **Security incidents:** Unauthorized access, data breaches, cyberattacks
 - **System outages:** Service disruptions, infrastructure failures
 - **Data incidents:** Data loss, corruption, or accidental disclosure
@@ -47,16 +48,17 @@ This playbook covers:
 
 ### 2.1 Severity Levels
 
-| Severity | Definition | Response Time | Escalation |
-|----------|-----------|---------------|------------|
-| **Sev1 (Critical)** | Data breach affecting PHI, complete service outage, active cyberattack | **Immediate** (<15 min) | CEO, Legal, All hands |
-| **Sev2 (High)** | Partial service degradation, suspected security incident, compliance violation | **<1 hour** | CTO, Security Lead |
-| **Sev3 (Medium)** | Minor service issues, performance degradation, isolated errors | **<4 hours** | On-call Engineer |
-| **Sev4 (Low)** | Non-critical bugs, documentation issues, feature requests | **<1 business day** | Product Team |
+| Severity            | Definition                                                                     | Response Time           | Escalation            |
+| ------------------- | ------------------------------------------------------------------------------ | ----------------------- | --------------------- |
+| **Sev1 (Critical)** | Data breach affecting PHI, complete service outage, active cyberattack         | **Immediate** (<15 min) | CEO, Legal, All hands |
+| **Sev2 (High)**     | Partial service degradation, suspected security incident, compliance violation | **<1 hour**             | CTO, Security Lead    |
+| **Sev3 (Medium)**   | Minor service issues, performance degradation, isolated errors                 | **<4 hours**            | On-call Engineer      |
+| **Sev4 (Low)**      | Non-critical bugs, documentation issues, feature requests                      | **<1 business day**     | Product Team          |
 
 ### 2.2 Incident Categories
 
 #### Security Incidents
+
 - **Data Breach:** Unauthorized access to PHI/PII
 - **Ransomware:** System infected with ransomware
 - **Account Compromise:** Unauthorized access to user accounts
@@ -64,18 +66,21 @@ This playbook covers:
 - **Insider Threat:** Malicious or negligent employee action
 
 #### System Incidents
+
 - **Service Outage:** Platform completely unavailable
 - **Database Failure:** Database connectivity or corruption issues
 - **API Degradation:** Slow or failing API endpoints
 - **Infrastructure Failure:** AWS services down, network issues
 
 #### Data Incidents
+
 - **Data Loss:** Accidental deletion of patient data
 - **Data Corruption:** Database integrity issues
 - **Accidental Disclosure:** PHI sent to wrong recipient
 - **Backup Failure:** Backup process not working
 
 #### Compliance Incidents
+
 - **HIPAA Violation:** Breach of HIPAA privacy or security rules
 - **BAA Violation:** Unauthorized PHI disclosure to business associate
 - **Access Control Failure:** Inadequate user permissions
@@ -86,14 +91,14 @@ This playbook covers:
 
 ### 3.1 Incident Response Team (IRT)
 
-| Role | Responsibilities | Contact |
-|------|-----------------|---------|
-| **Incident Commander (IC)** | Overall incident coordination, decision authority | [NAME], [PHONE] |
-| **Security Lead** | Security investigation, containment, forensics | [NAME], [PHONE] |
-| **Technical Lead** | System restoration, root cause analysis | [NAME], [PHONE] |
-| **Communications Lead** | Internal/external communications, customer updates | [NAME], [PHONE] |
-| **Legal Counsel** | Legal implications, regulatory reporting | [LAW FIRM], [PHONE] |
-| **Compliance Officer** | HIPAA/regulatory compliance, breach determination | [NAME], [PHONE] |
+| Role                        | Responsibilities                                   | Contact             |
+| --------------------------- | -------------------------------------------------- | ------------------- |
+| **Incident Commander (IC)** | Overall incident coordination, decision authority  | [NAME], [PHONE]     |
+| **Security Lead**           | Security investigation, containment, forensics     | [NAME], [PHONE]     |
+| **Technical Lead**          | System restoration, root cause analysis            | [NAME], [PHONE]     |
+| **Communications Lead**     | Internal/external communications, customer updates | [NAME], [PHONE]     |
+| **Legal Counsel**           | Legal implications, regulatory reporting           | [LAW FIRM], [PHONE] |
+| **Compliance Officer**      | HIPAA/regulatory compliance, breach determination  | [NAME], [PHONE]     |
 
 ### 3.2 Escalation Path
 
@@ -118,12 +123,14 @@ Sev1 → CEO + All IRT Members (immediate)
 ### 4.1 Detection and Alerting
 
 **Automated Detection:**
+
 - CloudWatch alarms (error rates, latency, health checks)
 - Security Information and Event Management (SIEM) alerts
 - Database query monitoring
 - Failed login attempt thresholds
 
 **Manual Detection:**
+
 - User reports via support@[YOUR DOMAIN].com
 - Team member observations
 - External security researcher reports
@@ -137,6 +144,7 @@ Detection → Triage → Containment → Eradication → Recovery → Post-Incid
 ### 4.3 Phase 1: Detection and Triage (0-15 minutes)
 
 **Actions:**
+
 1. **Receive alert** via PagerDuty, email, or phone
 2. **Acknowledge incident** in incident tracking system (Jira, ServiceNow, or Slack)
 3. **Assess severity** using classification matrix
@@ -144,6 +152,7 @@ Detection → Triage → Containment → Eradication → Recovery → Post-Incid
 5. **Create incident channel** (Slack: `#incident-YYYY-MM-DD-###`)
 
 **Decision Points:**
+
 - Is this a real incident or false positive?
 - What is the severity level?
 - Is PHI affected? (If yes → HIPAA breach procedures)
@@ -152,11 +161,13 @@ Detection → Triage → Containment → Eradication → Recovery → Post-Incid
 ### 4.4 Phase 2: Containment (15 min - 2 hours)
 
 **Goals:**
+
 - Stop the incident from spreading
 - Prevent further data loss or damage
 - Preserve evidence for forensics
 
 **Actions:**
+
 1. **Isolate affected systems**
    - Block malicious IP addresses (security groups)
    - Disable compromised user accounts
@@ -173,6 +184,7 @@ Detection → Triage → Containment → Eradication → Recovery → Post-Incid
    - What systems are impacted?
 
 **Example Commands:**
+
 ```bash
 # Block malicious IP in security group
 aws ec2 revoke-security-group-ingress --group-id sg-xxx --protocol tcp --port 443 --cidr <bad-ip>/32
@@ -187,11 +199,13 @@ aws ec2 create-snapshot --volume-id vol-xxx --description "Incident evidence YYY
 ### 4.5 Phase 3: Eradication (2-8 hours)
 
 **Goals:**
+
 - Remove the root cause of the incident
 - Patch vulnerabilities
 - Restore system integrity
 
 **Actions:**
+
 1. **Identify root cause**
    - Review logs and forensic evidence
    - Check for malware or backdoors
@@ -208,6 +222,7 @@ aws ec2 create-snapshot --volume-id vol-xxx --description "Incident evidence YYY
    - Confirm no persistence mechanisms remain
 
 **Security Patches:**
+
 ```bash
 # Rotate compromised secrets
 aws secretsmanager rotate-secret --secret-id rom/jwt-secret
@@ -222,11 +237,13 @@ aws iam update-assume-role-policy --role-name romApiTaskRole --policy-document f
 ### 4.6 Phase 4: Recovery (8-24 hours)
 
 **Goals:**
+
 - Restore normal operations
 - Validate system functionality
 - Monitor for recurrence
 
 **Actions:**
+
 1. **Restore services**
    - Bring systems back online in controlled manner
    - Test functionality before full restoration
@@ -248,6 +265,7 @@ aws iam update-assume-role-policy --role-name romApiTaskRole --policy-document f
    - Watch for related activity
 
 **Recovery Checklist:**
+
 - [ ] All affected systems restored
 - [ ] Data integrity verified
 - [ ] User access restored
@@ -258,11 +276,13 @@ aws iam update-assume-role-policy --role-name romApiTaskRole --policy-document f
 ### 4.7 Phase 5: Post-Incident Review (24-72 hours)
 
 **Goals:**
+
 - Document lessons learned
 - Improve detection and response
 - Implement preventive measures
 
 **Actions:**
+
 1. **Conduct post-mortem**
    - Timeline of events
    - Root cause analysis
@@ -288,6 +308,7 @@ aws iam update-assume-role-policy --role-name romApiTaskRole --policy-document f
 ### 5.1 Scenario: Data Breach (Sev1)
 
 **Indicators:**
+
 - CloudWatch alarm: "Unusual data export volume"
 - SIEM alert: "Multiple failed authentication attempts from foreign IP"
 - User report: "I can see another clinic's patient data"
@@ -295,6 +316,7 @@ aws iam update-assume-role-policy --role-name romApiTaskRole --policy-document f
 **Response:**
 
 **1. Immediate Actions (0-15 min)**
+
 ```bash
 # Disable affected user accounts
 aws cognito-idp admin-disable-user --user-pool-id xxx --username <user>
@@ -307,7 +329,9 @@ aws logs put-retention-policy --log-group-name /ecs/rom-api --retention-in-days 
 ```
 
 **2. Assess Scope (15-30 min)**
+
 - Query audit logs for affected patients:
+
 ```sql
 SELECT DISTINCT patient_id, accessed_by, accessed_at
 FROM audit_events
@@ -315,20 +339,24 @@ WHERE event_type = 'data.accessed'
 AND accessed_at > NOW() - INTERVAL '24 hours'
 AND accessed_by IN (<suspected-accounts>);
 ```
+
 - Count affected individuals
 - Determine if PHI was exported/downloaded
 
 **3. Containment (30-60 min)**
+
 - Rotate all JWT secrets
 - Force all users to re-authenticate
 - Temporarily disable API endpoints if necessary
 
 **4. Notification (72 hours)**
+
 - **If ≥500 individuals affected:** Notify HHS and media
 - **If <500 individuals affected:** Notify individuals within 60 days
 - See Breach Notification Procedure (separate document)
 
 **5. Remediation**
+
 - Implement additional access controls
 - Add data loss prevention (DLP) rules
 - Enhance audit logging
@@ -338,6 +366,7 @@ AND accessed_by IN (<suspected-accounts>);
 ### 5.2 Scenario: Ransomware Attack (Sev1)
 
 **Indicators:**
+
 - Files encrypted with `.encrypted` extension
 - Ransom note displayed on servers
 - Database inaccessible
@@ -345,6 +374,7 @@ AND accessed_by IN (<suspected-accounts>);
 **Response:**
 
 **1. Immediate Actions (0-5 min)**
+
 ```bash
 # Isolate all affected systems
 aws ec2 modify-instance-attribute --instance-id i-xxx --no-source-dest-check
@@ -354,11 +384,13 @@ aws ec2 stop-instances --instance-ids i-xxx i-yyy
 ```
 
 **2. Do NOT Pay Ransom**
+
 - FBI and CISA recommend against paying ransoms
 - No guarantee of data recovery
 - Funds criminal activity
 
 **3. Restore from Backups**
+
 ```bash
 # Restore RDS from snapshot (latest clean backup)
 aws rds restore-db-instance-from-db-snapshot \
@@ -370,6 +402,7 @@ aws rds restore-db-instance-from-db-snapshot \
 ```
 
 **4. Report to Authorities**
+
 - FBI Internet Crime Complaint Center (IC3): https://www.ic3.gov/
 - CISA: report@cisa.gov
 
@@ -378,6 +411,7 @@ aws rds restore-db-instance-from-db-snapshot \
 ### 5.3 Scenario: Database Failure (Sev1/Sev2)
 
 **Indicators:**
+
 - CloudWatch alarm: "RDS CPU 100%"
 - API errors: "Connection timeout to database"
 - Users cannot load patient data
@@ -385,12 +419,14 @@ aws rds restore-db-instance-from-db-snapshot \
 **Response:**
 
 **1. Check RDS Status**
+
 ```bash
 aws rds describe-db-instances --db-instance-identifier rom-production-db \
   --query "DBInstances[0].DBInstanceStatus"
 ```
 
 **2. Immediate Actions**
+
 ```bash
 # Check for long-running queries
 # Connect to RDS and run:
@@ -407,11 +443,13 @@ aws rds modify-db-instance --db-instance-identifier rom-production-db \
 ```
 
 **3. Failover to Standby (Multi-AZ)**
+
 ```bash
 aws rds reboot-db-instance --db-instance-identifier rom-production-db --force-failover
 ```
 
 **4. If Corruption Detected**
+
 ```bash
 # Restore from latest backup
 aws rds restore-db-instance-to-point-in-time \
@@ -425,6 +463,7 @@ aws rds restore-db-instance-to-point-in-time \
 ### 5.4 Scenario: Service Outage (Sev2)
 
 **Indicators:**
+
 - Status page reports: "Platform unavailable"
 - CloudWatch alarm: "ALB Healthy Host Count = 0"
 - Users cannot log in
@@ -432,6 +471,7 @@ aws rds restore-db-instance-to-point-in-time \
 **Response:**
 
 **1. Check Service Health**
+
 ```bash
 # Check ALB target health
 aws elbv2 describe-target-health --target-group-arn <arn>
@@ -444,6 +484,7 @@ aws ecs list-task-definitions --family-prefix rom-api --max-items 5
 ```
 
 **2. Common Fixes**
+
 ```bash
 # Restart ECS service (force new deployment)
 aws ecs update-service --cluster rom-production-cluster \
@@ -459,6 +500,7 @@ aws ecs update-service --cluster rom-production-cluster \
 ```
 
 **3. Monitor Recovery**
+
 ```bash
 # Watch service stabilize
 watch -n 5 "aws ecs describe-services --cluster rom-production-cluster \
@@ -470,22 +512,26 @@ watch -n 5 "aws ecs describe-services --cluster rom-production-cluster \
 ### 5.5 Scenario: Accidental PHI Disclosure (Sev1)
 
 **Indicators:**
+
 - User report: "I accidentally emailed PHI to wrong recipient"
 - Support ticket: "Export went to wrong email address"
 
 **Response:**
 
 **1. Immediate Actions (0-10 min)**
+
 - Document exact details: What PHI? Sent where? When?
 - Attempt to recall email (if possible)
 - Contact recipient to request deletion
 
 **2. Assess Scope (10-30 min)**
+
 - How many patients affected?
 - What specific PHI disclosed?
 - Is recipient covered by BAA? (If yes, lower risk)
 
 **3. Risk Assessment**
+
 ```
 Low Risk:
 - PHI sent to another clinician in same organization
@@ -499,10 +545,12 @@ High Risk:
 ```
 
 **4. Notification Requirements**
+
 - **If Low Risk:** May not meet HIPAA "breach" threshold (document risk assessment)
 - **If High Risk:** HIPAA breach notification required (see separate procedure)
 
 **5. Remediation**
+
 - Retrain user on data handling procedures
 - Implement technical controls (e.g., recipient validation)
 - Review similar incidents for patterns
@@ -514,6 +562,7 @@ High Risk:
 ### 6.1 Incident Documentation
 
 **Required Information:**
+
 - Incident ID and severity
 - Date/time of detection and resolution
 - Root cause analysis
@@ -527,10 +576,12 @@ High Risk:
 ### 6.2 Reporting Requirements
 
 **Internal Reporting:**
+
 - All Sev1/Sev2 incidents: Report to CEO within 24 hours
 - Monthly incident summary to board of directors
 
 **External Reporting:**
+
 - **HIPAA breaches:** HHS within 60 days (or immediately if ≥500 individuals)
 - **SEC reporting:** If publicly traded, material incidents require 8-K filing
 - **Cyber insurance:** Notify carrier within policy timeframe (typically 24-48 hours)
@@ -547,46 +598,55 @@ High Risk:
 **Incident Commander:** [Name]
 
 ## Summary
+
 [Brief description of incident]
 
 ## Impact
+
 - Users Affected: [number]
 - Patients Affected: [number]
 - Downtime: [duration]
 - Data Loss: [yes/no, scope]
 
 ## Timeline
-| Time | Event |
-|------|-------|
-| 10:15 | Alert received: RDS CPU 100% |
-| 10:20 | Incident declared Sev2 |
+
+| Time  | Event                         |
+| ----- | ----------------------------- |
+| 10:15 | Alert received: RDS CPU 100%  |
+| 10:20 | Incident declared Sev2        |
 | 10:25 | Identified long-running query |
-| ... | ... |
+| ...   | ...                           |
 
 ## Root Cause
+
 [Detailed explanation]
 
 ## Resolution
+
 [What fixed the issue]
 
 ## What Went Well
+
 - Rapid detection (5 minutes)
 - Clear escalation path
 - Effective communication
 
 ## What Went Wrong
+
 - Lack of automated query timeout
 - Insufficient monitoring alerts
 - Outdated runbook
 
 ## Action Items
-| Action | Owner | Due Date | Priority |
-|--------|-------|----------|----------|
-| Implement query timeout | Alice | 2026-02-15 | P0 |
-| Add RDS query monitoring | Bob | 2026-02-20 | P1 |
-| Update runbook | Carol | 2026-02-10 | P2 |
+
+| Action                   | Owner | Due Date   | Priority |
+| ------------------------ | ----- | ---------- | -------- |
+| Implement query timeout  | Alice | 2026-02-15 | P0       |
+| Add RDS query monitoring | Bob   | 2026-02-20 | P1       |
+| Update runbook           | Carol | 2026-02-10 | P2       |
 
 ## Lessons Learned
+
 [Key takeaways]
 ```
 
@@ -665,17 +725,20 @@ Sincerely,
 ## 8. Contact Information
 
 **Incident Response Team:**
+
 - **Incident Commander:** [NAME], [PHONE], [EMAIL]
 - **Security Lead:** [NAME], [PHONE], [EMAIL]
 - **Technical Lead:** [NAME], [PHONE], [EMAIL]
 
 **External Contacts:**
+
 - **Legal Counsel:** [LAW FIRM], [PHONE]
 - **Cyber Insurance:** [CARRIER], Policy #[NUMBER], [PHONE]
 - **FBI Cyber Division:** (855) 292-3937
 - **CISA:** report@cisa.gov, (888) 282-0870
 
 **Escalation:**
+
 - **CEO:** [NAME], [PHONE]
 - **Board Chair:** [NAME], [PHONE] (Sev1 only, if CEO unavailable)
 

@@ -26,6 +26,7 @@ This Platform is **NOT** a medical device as defined by the U.S. Food and Drug A
 - **Healthcare professional use only:** Intended for use by trained clinicians as part of a comprehensive clinical examination
 
 **Regulatory Basis:** This Platform qualifies for FDA enforcement discretion under the following criteria:
+
 - Does not analyze patient-specific data to diagnose or treat disease
 - Provides general clinical guidance, not patient-specific diagnoses
 - Explicitly requires healthcare professional review and interpretation
@@ -53,6 +54,7 @@ This Platform is an FDA-cleared Class II medical device under 21 CFR 890.1925 (G
 ### 2.1 Intended Clinical Use
 
 The Platform is intended to:
+
 - **Measure range of motion** of major joints (shoulder, elbow, wrist, hip, knee, ankle)
 - **Document clinical findings** for patient records and longitudinal tracking
 - **Generate clinical reports** summarizing ROM measurements with normative comparisons
@@ -61,6 +63,7 @@ The Platform is intended to:
 ### 2.2 Limitations of Use
 
 **The Platform is NOT intended to:**
+
 - Replace physical examination or clinical assessment
 - Diagnose specific medical conditions or pathologies
 - Determine treatment plans or medical management
@@ -72,6 +75,7 @@ The Platform is intended to:
 Users must be aware of the following limitations:
 
 **Measurement Accuracy:**
+
 - **Typical Accuracy:** ±5° mean absolute error compared to manual goniometry
 - **Confidence Intervals:** Measurements include confidence scores (0-1.0) indicating reliability
 - **Patient Factors:** Accuracy may be reduced in patients with:
@@ -81,12 +85,14 @@ Users must be aware of the following limitations:
   - Uncooperative behavior or poor positioning
 
 **Environmental Factors:**
+
 - **Lighting:** Poor lighting conditions may affect computer vision accuracy
 - **Camera Positioning:** Suboptimal camera angles reduce measurement reliability
 - **Clothing:** Loose or bulky clothing may interfere with landmark detection
 - **Movement:** Patient instability or tremor may affect measurements
 
 **Computer Vision Limitations:**
+
 - **Landmark Detection:** The system may fail to detect body landmarks in:
   - Extreme body positions
   - Partial body occlusion
@@ -94,6 +100,7 @@ Users must be aware of the following limitations:
 - **False Positives/Negatives:** The system may incorrectly identify body landmarks in complex scenes
 
 **AI-Generated Interpretation Limitations:**
+
 - **General Guidance Only:** AI recommendations are based on general clinical data and may not apply to specific patients
 - **Not Personalized:** AI does not account for patient-specific factors (comorbidities, surgical history, medications)
 - **Algorithmic Bias:** AI training data may not represent all populations equally
@@ -118,6 +125,7 @@ Users must be aware of the following limitations:
 ### 3.2 Required Clinical Competencies
 
 Users of this Platform must:
+
 - Hold a valid healthcare professional license (PT, OT, MD, DO, DC, etc.)
 - Be trained in musculoskeletal examination and range of motion assessment
 - Understand normal and pathological joint mechanics
@@ -129,12 +137,14 @@ Users of this Platform must:
 Do NOT use this Platform in the following situations:
 
 **Absolute Contraindications:**
+
 - **Acute fractures or dislocations:** Use only after fracture healing and medical clearance
 - **Severe joint instability:** Risk of injury with active ROM testing
 - **Post-operative patients:** Only use per surgeon's protocol (typically >6 weeks post-op)
 - **Acute inflammatory conditions:** Avoid ROM testing during active flare-ups
 
 **Relative Contraindications (Use Clinical Judgment):**
+
 - **Severe pain:** May limit patient ability to achieve full ROM
 - **Recent trauma:** Wait until acute inflammation subsides
 - **Neurological impairment:** May affect patient ability to cooperate
@@ -143,6 +153,7 @@ Do NOT use this Platform in the following situations:
 ### 3.4 When to Use Manual Goniometry Instead
 
 Consider manual goniometry or other assessment methods when:
+
 - High precision required for surgical planning (±1° accuracy needed)
 - Patient factors prevent reliable computer vision (body habitus, scarring)
 - Legal documentation required (workers' compensation, disability evaluations)
@@ -158,12 +169,14 @@ Consider manual goniometry or other assessment methods when:
 **Purpose:** Provides advisory clinical interpretation based on ROM deficits and suggests relevant special orthopedic tests.
 
 **Limitations:**
+
 - **Not diagnostic:** AI does NOT diagnose conditions (e.g., "rotator cuff tear," "meniscal injury")
 - **General recommendations:** Based on clinical literature, not patient-specific data
 - **Requires context:** Clinician must consider patient history, symptoms, physical exam findings
 - **May miss rare conditions:** AI trained on common pathologies; rare conditions may not be identified
 
 **User Responsibility:**
+
 - Independently verify all AI-generated recommendations
 - Perform special tests only if clinically indicated
 - Interpret results in context of full clinical presentation
@@ -172,11 +185,13 @@ Consider manual goniometry or other assessment methods when:
 ### 4.2 AI Training Data and Bias
 
 **Training Data Sources:**
+
 - Published clinical literature on ROM normative values (AMA, AAOS guidelines)
 - De-identified ROM measurement datasets
 - Clinical special test databases
 
 **Potential Biases:**
+
 - **Age bias:** Normative values based primarily on adults 18-65 years
 - **Ethnic/racial bias:** Limited representation of diverse populations in training data
 - **Gender bias:** May not account for sex-based differences in flexibility
@@ -199,12 +214,14 @@ Consider manual goniometry or other assessment methods when:
 **WARNING:** Active range of motion testing may cause injury if performed improperly.
 
 **Risks include:**
+
 - Muscle strain or ligament sprain
 - Exacerbation of existing injuries
 - Acute pain or discomfort
 - Cardiovascular stress (in elderly or deconditioned patients)
 
 **Mitigation:**
+
 - Obtain thorough medical history before ROM testing
 - Screen for contraindications
 - Instruct patients to stop if they experience sharp pain
@@ -215,17 +232,20 @@ Consider manual goniometry or other assessment methods when:
 **WARNING:** Electronic health data is subject to cybersecurity risks.
 
 **Risks include:**
+
 - Unauthorized access to patient data (data breaches)
 - Interception of data during transmission (man-in-the-middle attacks)
 - Loss of data due to technical failures
 
 **Mitigation:**
+
 - We use industry-standard encryption (AES-256 at rest, TLS 1.3 in transit)
 - Regular security audits and penetration testing
 - HIPAA-compliant data handling procedures
 - See Privacy Policy for full details
 
 **User Responsibility:**
+
 - Use strong passwords and enable multi-factor authentication
 - Do not access the Platform on public or unsecured Wi-Fi
 - Log out after each session
@@ -236,12 +256,14 @@ Consider manual goniometry or other assessment methods when:
 **WARNING:** Video and image data may reveal patient identity.
 
 **Privacy Considerations:**
+
 - Video data is processed locally on the device (browser-side computer vision)
 - By default, video is NOT uploaded to servers (processed in real-time and discarded)
 - If video storage is enabled (optional feature), videos are encrypted and access-controlled
 - Patients must consent to video capture and storage
 
 **User Responsibility:**
+
 - Obtain patient consent before video capture
 - Inform patients if video will be stored
 - Ensure camera does not capture identifying background elements (whiteboards, other patients)
@@ -253,11 +275,13 @@ Consider manual goniometry or other assessment methods when:
 ### 6.1 Supported Environments
 
 **Tested Configurations:**
+
 - **Browsers:** Chrome 100+, Edge 100+, Safari 15+ (desktop and mobile)
 - **Operating Systems:** Windows 10+, macOS 11+, iOS 14+, Android 10+
 - **Camera:** Minimum 720p resolution, 30 FPS
 
 **Unsupported Configurations:**
+
 - Internet Explorer (not supported)
 - Browsers with JavaScript disabled
 - Cameras <720p resolution
@@ -266,10 +290,12 @@ Consider manual goniometry or other assessment methods when:
 ### 6.2 Internet Connectivity
 
 **Requirements:**
+
 - **Minimum:** 5 Mbps download, 1 Mbps upload
 - **Recommended:** 25 Mbps download, 5 Mbps upload (for dual-camera mode)
 
 **Offline Use:** Not supported. Internet connection required for:
+
 - User authentication
 - Data synchronization
 - AI interpretation (requires server-side processing)
@@ -279,16 +305,19 @@ Consider manual goniometry or other assessment methods when:
 **Service Level Objective:** 99% uptime (excluding planned maintenance)
 
 **Planned Maintenance:**
+
 - Scheduled during off-peak hours (typically 2-4 AM ET)
 - Notice provided 48 hours in advance
 - Expected duration <2 hours
 
 **Unplanned Outages:**
+
 - We strive for rapid resolution (<1 hour for critical issues)
 - Status updates posted at status.[YOUR DOMAIN].com
 - Email notifications for extended outages
 
 **User Impact:** During outages:
+
 - Platform unavailable (no ROM measurements)
 - Existing data remains secure and accessible post-restoration
 - No data loss expected (automatic backups)
@@ -300,11 +329,13 @@ Consider manual goniometry or other assessment methods when:
 ### 7.1 Research Use Restrictions
 
 **Platform data may be used for research ONLY with:**
+
 - Institutional Review Board (IRB) approval
 - Patient informed consent (HIPAA authorization if PHI is used)
 - Data Use Agreement (DUA) executed with [YOUR COMPANY NAME]
 
 **Prohibited Research Uses:**
+
 - Publication of identifiable patient data
 - Sharing of data outside approved research team
 - Commercial use of research findings without license
@@ -312,6 +343,7 @@ Consider manual goniometry or other assessment methods when:
 ### 7.2 De-Identified Data for Product Improvement
 
 We may use de-identified data (HIPAA Safe Harbor or Expert Determination method) to:
+
 - Improve computer vision algorithms
 - Validate AI clinical recommendations
 - Publish aggregate statistics (no patient-level data)
@@ -325,6 +357,7 @@ We may use de-identified data (HIPAA Safe Harbor or Expert Determination method)
 ### 8.1 Adverse Event Definition
 
 An **adverse event** is any undesirable experience associated with use of the Platform, including:
+
 - Patient injury during ROM testing (falls, strains, cardiovascular events)
 - Incorrect measurements leading to clinical errors
 - Data breaches exposing patient information
@@ -333,11 +366,13 @@ An **adverse event** is any undesirable experience associated with use of the Pl
 ### 8.2 Reporting Procedures
 
 **Report adverse events immediately:**
+
 - **Email:** safety@[YOUR DOMAIN].com
 - **Phone:** [YOUR SAFETY HOTLINE] (24/7)
 - **Online Form:** [YOUR WEBSITE]/report-adverse-event
 
 **Information to Include:**
+
 - Date and time of event
 - Description of what happened
 - Patient outcome (if applicable)
@@ -349,6 +384,7 @@ An **adverse event** is any undesirable experience associated with use of the Pl
 ### 8.3 Product Complaints and Technical Issues
 
 For non-safety-related issues (bugs, performance problems, feature requests):
+
 - **Email:** support@[YOUR DOMAIN].com
 - **In-Platform:** Use the "Report Issue" button
 
@@ -361,12 +397,14 @@ For non-safety-related issues (bugs, performance problems, feature requests):
 **The healthcare professional using this Platform retains full malpractice liability** for patient care decisions, regardless of Platform output.
 
 **Examples of Professional Liability:**
+
 - Misdiagnosis based on incorrect interpretation of ROM data
 - Failure to perform additional diagnostic testing when indicated
 - Treatment complications arising from ROM-based clinical decisions
 - Patient injury during ROM testing
 
 **Platform Provider Liability:**
+
 - [YOUR COMPANY NAME] is NOT liable for clinical decisions made by users
 - Professional liability insurance should cover Platform-assisted assessments
 - See Terms of Service for full liability limitations
@@ -374,6 +412,7 @@ For non-safety-related issues (bugs, performance problems, feature requests):
 ### 9.2 Insurance Recommendations
 
 **Users should ensure their professional liability insurance covers:**
+
 - Use of digital health tools and AI-assisted decision support
 - Telemedicine or remote patient assessment (if applicable)
 - Computer-based ROM measurement (vs. traditional manual goniometry)
@@ -385,12 +424,14 @@ For non-safety-related issues (bugs, performance problems, feature requests):
 ## 10. Changes to This Disclaimer
 
 We may update this Medical Disclaimer to reflect:
+
 - Changes in medical device regulatory status
 - New clinical validation data
 - Updated AI algorithms or features
 - Regulatory guidance or legal requirements
 
 **Notice of Changes:**
+
 - Updated disclaimer posted on website with "Last Updated" date
 - Material changes announced via email to registered users
 - Continued use after changes constitutes acceptance

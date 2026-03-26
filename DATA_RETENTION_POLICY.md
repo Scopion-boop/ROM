@@ -20,18 +20,18 @@ This policy defines data retention, processing, and disposal rules for all data 
 
 ## 3. Data Classification
 
-| Data Type | Classification | Retention Default | Override Allowed? |
-|-----------|---------------|-------------------|-------------------|
-| Raw video frames | Sensitive / PHI-adjacent | **Process-then-discard** (immediate) | Yes — founder approval + DPA update |
-| Extracted pose landmarks | De-identified measurement data | Session duration + 30 days | Yes — with consent |
-| ROM measurement values | Clinical documentation data | Per clinician's EHR policy or 7 years | N/A — follows EHR retention |
-| Session metadata | Operational data | 90 days | Yes |
-| Clinical notes (generated) | PHI | Per EHR retention policy | N/A |
-| Application logs | Operational (no PII) | 90 days rolling | Yes |
-| Audit trail | Compliance | 7 years minimum | No — regulatory floor |
-| Error/crash reports | Operational (no PII) | 30 days | Yes |
-| User account data | PII | Account lifetime + 30 days post-deletion | No |
-| Consent records | Compliance | 7 years minimum | No — regulatory floor |
+| Data Type                  | Classification                 | Retention Default                        | Override Allowed?                   |
+| -------------------------- | ------------------------------ | ---------------------------------------- | ----------------------------------- |
+| Raw video frames           | Sensitive / PHI-adjacent       | **Process-then-discard** (immediate)     | Yes — founder approval + DPA update |
+| Extracted pose landmarks   | De-identified measurement data | Session duration + 30 days               | Yes — with consent                  |
+| ROM measurement values     | Clinical documentation data    | Per clinician's EHR policy or 7 years    | N/A — follows EHR retention         |
+| Session metadata           | Operational data               | 90 days                                  | Yes                                 |
+| Clinical notes (generated) | PHI                            | Per EHR retention policy                 | N/A                                 |
+| Application logs           | Operational (no PII)           | 90 days rolling                          | Yes                                 |
+| Audit trail                | Compliance                     | 7 years minimum                          | No — regulatory floor               |
+| Error/crash reports        | Operational (no PII)           | 30 days                                  | Yes                                 |
+| User account data          | PII                            | Account lifetime + 30 days post-deletion | No                                  |
+| Consent records            | Compliance                     | 7 years minimum                          | No — regulatory floor               |
 
 ---
 
@@ -54,12 +54,12 @@ Camera Input → Frame Buffer (memory only)
 
 ### 4.2 Encryption Requirements
 
-| State | Standard | Notes |
-|-------|----------|-------|
-| At rest | AES-256 | All persistent data stores |
-| In transit | TLS 1.2+ | All network communication |
-| In memory | OS-level protections | Sensitive data cleared on scope exit |
-| Backups | AES-256 | Same standard as primary storage |
+| State      | Standard             | Notes                                |
+| ---------- | -------------------- | ------------------------------------ |
+| At rest    | AES-256              | All persistent data stores           |
+| In transit | TLS 1.2+             | All network communication            |
+| In memory  | OS-level protections | Sensitive data cleared on scope exit |
+| Backups    | AES-256              | Same standard as primary storage     |
 
 ---
 
@@ -88,13 +88,13 @@ Camera Input → Frame Buffer (memory only)
 
 ## 6. Disposal Procedures
 
-| Data Type | Disposal Method | Verification |
-|-----------|----------------|--------------|
-| Raw video | Memory flush (no persistence) | Automated — no recovery possible |
-| Database records | Cryptographic erasure or row deletion | Logged in audit trail |
-| File storage | Secure delete with overwrite | Logged in audit trail |
-| Backups | Encrypted backup expiry per retention schedule | Automated lifecycle policy |
-| Logs | Rolling window auto-purge | CloudWatch/S3 lifecycle rules |
+| Data Type        | Disposal Method                                | Verification                     |
+| ---------------- | ---------------------------------------------- | -------------------------------- |
+| Raw video        | Memory flush (no persistence)                  | Automated — no recovery possible |
+| Database records | Cryptographic erasure or row deletion          | Logged in audit trail            |
+| File storage     | Secure delete with overwrite                   | Logged in audit trail            |
+| Backups          | Encrypted backup expiry per retention schedule | Automated lifecycle policy       |
+| Logs             | Rolling window auto-purge                      | CloudWatch/S3 lifecycle rules    |
 
 ---
 
@@ -121,6 +121,6 @@ To override the default process-then-discard policy for any data type:
 
 ## 9. Changelog
 
-| Date | Version | Change | Approved By |
-|------|---------|--------|-------------|
-| 2026-02-08 | 1.0.0 | Initial locked policy — process-then-discard default | Founder |
+| Date       | Version | Change                                               | Approved By |
+| ---------- | ------- | ---------------------------------------------------- | ----------- |
+| 2026-02-08 | 1.0.0   | Initial locked policy — process-then-discard default | Founder     |

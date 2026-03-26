@@ -1,7 +1,7 @@
 ---
 name: Research Outcome
 about: Define a research question with evidence requirements
-title: "[RESEARCH] "
+title: '[RESEARCH] '
 labels: ''
 assignees: ''
 ---
@@ -36,12 +36,14 @@ Phase A — Evidence Lock
 ## Acceptance Criteria
 
 <!-- What constitutes a complete answer? -->
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 
 ## Required Citations
 
 <!-- Minimum citation requirements -->
+
 - [ ] Minimum 3 primary sources per major claim
 - [ ] Sources dated within 24 months
 - [ ] Government/regulatory sources for compliance claims

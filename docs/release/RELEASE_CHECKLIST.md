@@ -3,6 +3,7 @@
 ## Pre-release Gates
 
 ### Engineering
+
 - [ ] All unit tests pass (`pnpm -r test` — 0 failures)
 - [ ] All lint checks pass (`pnpm -r lint` — 0 warnings treated as errors)
 - [ ] TypeScript build succeeds (`pnpm -r build` — 0 errors)
@@ -11,6 +12,7 @@
 - [ ] API contract matches shared-types schemas
 
 ### Security
+
 - [ ] Dependency audit clean (`pnpm audit --audit-level=high`)
 - [ ] No `eval()` or `innerHTML` patterns in source
 - [ ] THREAT_MODEL_V1.md reviewed and signed off
@@ -19,6 +21,7 @@
 - [ ] SECURITY_BASELINE_CHECKLIST.md completed
 
 ### Compliance
+
 - [ ] Privacy Policy reviewed by counsel
 - [ ] Terms of Service reviewed by counsel
 - [ ] Medical Disclaimer reviewed by counsel
@@ -26,6 +29,7 @@
 - [ ] PILOT_CONTRACT_REQUIREMENTS.md signed off
 
 ### Operations
+
 - [ ] Health endpoint responding (`GET /api/health`)
 - [ ] Readiness probe passing (`GET /api/health/ready`)
 - [ ] Metrics endpoint functional (`GET /api/health/metrics`)
@@ -35,14 +39,16 @@
 ## Deployment
 
 ### SLO Targets (Pilot)
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Availability | ≥ 99% (business hours) | Health probe uptime |
-| API latency (p95) | < 500ms | Request logger timestamps |
-| Error rate | < 1% | Error counter / total requests |
-| Measurement success | ≥ 90% | Session completion rate |
+
+| Metric              | Target                 | Measurement                    |
+| ------------------- | ---------------------- | ------------------------------ |
+| Availability        | ≥ 99% (business hours) | Health probe uptime            |
+| API latency (p95)   | < 500ms                | Request logger timestamps      |
+| Error rate          | < 1%                   | Error counter / total requests |
+| Measurement success | ≥ 90%                  | Session completion rate        |
 
 ### Deploy Sequence
+
 - [ ] Deploy to staging environment
 - [ ] Execute smoke test suite against staging
 - [ ] Deploy canary to production (10% traffic)
@@ -51,7 +57,9 @@
 - [ ] Confirm stability window (60 minutes minimum at 100%)
 
 ### Rollback Criteria
+
 If ANY of the following occur, execute immediate rollback:
+
 - Error rate exceeds 5% for 5+ consecutive minutes
 - Health endpoint returns non-200 for 2+ consecutive checks
 - Any PHI data exposure detected
@@ -59,6 +67,7 @@ If ANY of the following occur, execute immediate rollback:
 - Severity 1 security incident
 
 ## Post-release
+
 - [ ] Confirm stability window completed
 - [ ] Publish release notes to stakeholders
 - [ ] Monitor incident channel for 24 hours

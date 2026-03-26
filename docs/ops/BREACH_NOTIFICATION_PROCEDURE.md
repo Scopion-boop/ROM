@@ -30,6 +30,7 @@ This procedure establishes requirements and procedures for responding to breache
 ### 1.2 Scope
 
 This procedure applies to:
+
 - All employees, contractors, and business associates of [YOUR COMPANY NAME]
 - All breaches involving unsecured PHI maintained or transmitted by the ROM Measurement Platform
 - Breaches discovered by [YOUR COMPANY NAME] or reported by business associates
@@ -37,12 +38,14 @@ This procedure applies to:
 ### 1.3 Regulatory Authority
 
 **HIPAA Breach Notification Rule (45 CFR Part 164, Subpart D) requires:**
+
 - **Individual Notification:** Within 60 days of breach discovery
 - **HHS Notification:** Within 60 days (or immediately if ≥500 individuals)
 - **Media Notification:** Immediately if ≥500 individuals in a jurisdiction
 - **Business Associate Notification:** Within 60 days to covered entities
 
 **Penalties for Non-Compliance:**
+
 - **Tier 1:** $100-$50,000 per violation (unknowing violation)
 - **Tier 2:** $1,000-$50,000 per violation (reasonable cause)
 - **Tier 3:** $10,000-$50,000 per violation (willful neglect, corrected)
@@ -62,6 +65,7 @@ This procedure applies to:
 ### 2.2 Unsecured PHI
 
 PHI that is **not** rendered unusable, unreadable, or indecipherable to unauthorized persons through:
+
 - **Encryption:** AES-256 or equivalent (as specified by NIST)
 - **Destruction:** Shredding, burning, pulping, or secure electronic wiping
 
@@ -70,6 +74,7 @@ PHI that is **not** rendered unusable, unreadable, or indecipherable to unauthor
 ### 2.3 Discovery of Breach
 
 A breach is **discovered** on the first day that:
+
 - Any employee or agent of [YOUR COMPANY NAME] knows or should have known of the breach, OR
 - We are notified by a business associate of a breach
 
@@ -78,6 +83,7 @@ A breach is **discovered** on the first day that:
 ### 2.4 Harm Threshold
 
 **Low Probability of Compromise:** A breach does NOT require notification if a risk assessment demonstrates low probability that PHI was compromised, considering:
+
 1. **Nature and extent** of PHI involved
 2. **Unauthorized person** who used or accessed PHI
 3. **Whether PHI was actually acquired or viewed**
@@ -115,6 +121,7 @@ A breach is **discovered** on the first day that:
 #### Factor 1: Nature and Extent of PHI Involved
 
 **High Risk Indicators:**
+
 - Social Security Numbers, driver's license numbers, financial account numbers
 - Diagnosis, treatment, or medication information
 - Mental health or substance abuse records
@@ -122,6 +129,7 @@ A breach is **discovered** on the first day that:
 - Large volume of individuals affected (>500)
 
 **Lower Risk Indicators:**
+
 - Limited identifiers only (name, date of birth)
 - De-identified or partially redacted data
 - Small number of individuals affected (<50)
@@ -131,12 +139,14 @@ A breach is **discovered** on the first day that:
 #### Factor 2: Unauthorized Person Who Used/Accessed PHI
 
 **High Risk Indicators:**
+
 - External malicious actor (hacker, ransomware)
 - Person with intent to use PHI for fraud or identity theft
 - Public disclosure (posted online, sent to media)
 - Unknown recipient
 
 **Lower Risk Indicators:**
+
 - Healthcare provider covered by HIPAA (accidental misdirection)
 - Business associate with executed BAA
 - Known recipient who agrees to delete/return data
@@ -147,11 +157,13 @@ A breach is **discovered** on the first day that:
 #### Factor 3: Was PHI Actually Acquired or Viewed?
 
 **High Risk Indicators:**
+
 - Confirmed that PHI was viewed, downloaded, or exported
 - Data exfiltration detected (large data transfers)
 - Ransomware encryption (implies data theft)
 
 **Lower Risk Indicators:**
+
 - No evidence PHI was actually accessed
 - Encryption prevented data from being read
 - Recipient confirmed they did not open/view PHI
@@ -161,6 +173,7 @@ A breach is **discovered** on the first day that:
 #### Factor 4: Extent to Which Risk Has Been Mitigated
 
 **Mitigating Actions:**
+
 - PHI was encrypted at rest (even if stolen)
 - Unauthorized recipient destroyed/returned PHI (with verification)
 - Access was immediately revoked, preventing further exposure
@@ -173,10 +186,10 @@ A breach is **discovered** on the first day that:
 
 **Overall Risk Determination:**
 
-| Overall Risk | Notification Required? | Rationale |
-|-------------|----------------------|-----------|
-| **Low Probability of Compromise** | **NO** | Document risk assessment; no notification required |
-| **Medium/High Risk** | **YES** | Proceed with breach notification procedures |
+| Overall Risk                      | Notification Required? | Rationale                                          |
+| --------------------------------- | ---------------------- | -------------------------------------------------- |
+| **Low Probability of Compromise** | **NO**                 | Document risk assessment; no notification required |
+| **Medium/High Risk**              | **YES**                | Proceed with breach notification procedures        |
 
 **Risk Assessment Must Be Documented:** Create written risk assessment report within 3 business days and retain for 6 years.
 
@@ -191,37 +204,44 @@ A breach is **discovered** on the first day that:
 **Date of Assessment:** [YYYY-MM-DD]
 
 ## Incident Summary
+
 [Brief description of breach]
 
 ## Four-Factor Analysis
 
 ### Factor 1: Nature and Extent of PHI
+
 - **PHI Involved:** [List specific data elements]
 - **Sensitivity:** High / Medium / Low
 - **Number of Individuals:** [number]
 - **Score:** High / Medium / Low
 
 ### Factor 2: Unauthorized Person
+
 - **Who Accessed:** [Description]
 - **Intent:** Malicious / Accidental / Unknown
 - **Score:** High / Medium / Low
 
 ### Factor 3: Actual Acquisition/Viewing
+
 - **Evidence of Access:** Yes / No / Unknown
 - **Details:** [Describe evidence]
 - **Score:** High / Medium / Low
 
 ### Factor 4: Mitigation
+
 - **Actions Taken:** [List mitigation steps]
 - **Effectiveness:** High / Medium / Low
 - **Score:** High / Medium / Low
 
 ## Conclusion
+
 - **Overall Risk:** Low / Medium / High
 - **Notification Required:** YES / NO
 - **Rationale:** [Explanation of determination]
 
 ## Approval
+
 - **Privacy Officer:** [SIGNATURE], [DATE]
 - **Legal Counsel:** [SIGNATURE], [DATE]
 ```
@@ -252,11 +272,13 @@ All breach notifications to individuals must include:
    - How to get more information, who to call with questions
 
 **Format:**
+
 - **Written notice** via first-class mail (or email if individual agreed to electronic communications)
 - **Plain language** (no legal jargon)
 - **Substitute notice** if contact information is insufficient/out-of-date (see Section 5.2)
 
 **Timing:**
+
 - **Within 60 days** of breach discovery
 - **Expedited notification** if immediate harm (e.g., financial fraud risk)
 
@@ -265,12 +287,14 @@ All breach notifications to individuals must include:
 #### 4.2.1 Breaches Affecting ≥500 Individuals ("Tier 1")
 
 **Notification Method:**
+
 - **Online Portal:** https://ocrportal.hhs.gov/ocr/breach/wizard_breach.jsf
 - **Paper Form:** https://www.hhs.gov/sites/default/files/breach-notification-form.pdf
 
 **Timing:** **Within 60 days** of breach discovery
 
 **Required Information:**
+
 - Name and contact information of covered entity
 - Name and contact information of business associate (if applicable)
 - Date of breach, date of discovery
@@ -282,6 +306,7 @@ All breach notifications to individuals must include:
 #### 4.2.2 Breaches Affecting <500 Individuals ("Tier 2")
 
 **Notification Method:**
+
 - **Annual Report:** Submit log of breaches affecting <500 individuals
 - **Timing:** Within 60 days after end of calendar year
 - **Portal:** Same HHS breach portal
@@ -289,9 +314,11 @@ All breach notifications to individuals must include:
 ### 4.3 Media Notification (Breaches ≥500 in a Jurisdiction)
 
 **Required If:**
+
 - Breach affects ≥500 residents of a State or jurisdiction
 
 **Notification Method:**
+
 - **Prominent media outlet** serving the affected jurisdiction
 - **Press release** to major newspapers, TV stations
 - **Timing:** Concurrent with individual notification (within 60 days)
@@ -301,10 +328,12 @@ All breach notifications to individuals must include:
 ### 4.4 Business Associate Notification
 
 **If we are a Business Associate:**
+
 - **Notify covered entity** (our customer/clinic) within **60 days** of discovery
 - Provide details needed for covered entity to assess breach
 
 **If our Business Associate breaches:**
+
 - Business associate must notify us within 60 days
 - We then assess whether to notify individuals/HHS
 
@@ -317,12 +346,14 @@ All breach notifications to individuals must include:
 **Step 1: Prepare Notification Letter (Day 1-7)**
 
 Use template in Section 7.1. Customize with:
+
 - Specific details of breach
 - Number of individuals affected
 - Types of PHI compromised
 - Remediation steps
 
 **Review and Approval:**
+
 - Privacy Officer: [NAME]
 - Legal Counsel: [LAW FIRM]
 - CEO (for breaches ≥100 individuals)
@@ -350,6 +381,7 @@ ORDER BY p.name;
 ```
 
 **Data Quality Check:**
+
 - Verify addresses are current
 - Identify insufficient/outdated contact info (see substitute notice)
 
@@ -360,6 +392,7 @@ ORDER BY p.name;
 - **Email** (if individual opted in to electronic communications AND we have documented consent)
 
 **Do NOT:**
+
 - Send breach notifications via unencrypted email without consent
 - Include PHI in the notification itself (use patient ID only)
 
@@ -377,31 +410,37 @@ ORDER BY p.name;
 ### 5.2 Substitute Notice (Insufficient Contact Information)
 
 **Required When:**
+
 - Contact information is insufficient or out-of-date for **10 or more individuals**
 
 **Substitute Notice Options:**
 
 #### Option A: Posting on Website (If <10 individuals or <500 total)
+
 - **Conspicuous posting** on homepage of website
 - **Duration:** 90 days
 - **Content:** Same as individual notice, plus instructions to call for information
 
 #### Option B: Major Media Notice (If ≥10 individuals affected)
+
 - **Notice in major print or broadcast media** serving the affected area
 - **Toll-free number:** For individuals to learn if they are affected
 
 ### 5.3 Emergency Notification (Imminent Harm)
 
 **Expedited notification required if:**
+
 - **Immediate threat** of identity theft or financial fraud
 - **Active exploitation** of stolen PHI detected
 
 **Actions:**
+
 - **Notify individuals by phone** within 24-48 hours
 - **Provide specific guidance** on protective actions (freeze credit, change passwords)
 - **Follow up with written notice** per standard timeline
 
 **Example Scenarios:**
+
 - Stolen laptop with unencrypted financial account numbers
 - Ransomware with confirmed data exfiltration
 - Hacker actively using stolen credentials
@@ -413,6 +452,7 @@ ORDER BY p.name;
 ### 6.1 Required Documentation
 
 **HIPAA requires retaining for 6 years:**
+
 1. **Risk assessments** for all incidents (breach and non-breach)
 2. **Breach notifications** sent to individuals
 3. **HHS notifications** (submission confirmations)
@@ -421,12 +461,14 @@ ORDER BY p.name;
 6. **Individual responses** (calls, emails, questions)
 
 **Storage Location:**
+
 - **Physical documents:** Locked cabinet, Privacy Officer's office
 - **Electronic documents:** Secure file share (encrypted, access-controlled)
 
 ### 6.2 Breach Log
 
 **Maintain ongoing log of all breaches:**
+
 - Breaches affecting ≥500 individuals (Tier 1)
 - Breaches affecting <500 individuals (Tier 2)
 - Incidents determined not to be breaches (with risk assessment)
@@ -436,6 +478,7 @@ ORDER BY p.name;
 ### 6.3 Annual Reporting
 
 **By March 1 each year:**
+
 - Submit **annual breach report** to HHS for all breaches <500 individuals from previous calendar year
 - **Internal report** to Board of Directors summarizing all security incidents and breaches
 
@@ -530,6 +573,7 @@ You are entitled to one free credit report annually from each bureau. Visit www.
 **Portal:** https://ocrportal.hhs.gov/ocr/breach/wizard_breach.jsf
 
 **Required Fields:**
+
 1. Type of breach (hacking, unauthorized access, theft, loss, etc.)
 2. Location of breached information (paper, electronic, other)
 3. Date of breach
@@ -540,6 +584,7 @@ You are entitled to one free credit report annually from each bureau. Visit www.
 8. Business associate information (if applicable)
 
 **Confirmation:**
+
 - Portal provides **confirmation number** - save this!
 - **Breach appears on HHS public "Wall of Shame"** at https://ocrportal.hhs.gov/ocr/breach/breach_report.jsf
 
@@ -586,10 +631,10 @@ Individuals with questions may contact [Company] at [Toll-Free Number] or visit 
 
 **Maintain in secure Excel/database:**
 
-| Breach ID | Date Discovered | Date Occurred | # Individuals | PHI Involved | Type | Notification Date | HHS Notified | Notes |
-|-----------|----------------|---------------|---------------|--------------|------|-------------------|--------------|-------|
-| BR-2026-001 | 2026-02-09 | 2026-02-01 | 150 | Name, DOB, ROM data | Hacking | 2026-03-15 | Yes (2026-03-15) | Ransomware attack, data restored from backup |
-| BR-2026-002 | 2026-05-12 | 2026-05-10 | 5 | Name, email | Misdirected email | N/A (Low Risk) | No | Risk assessment: low probability, recipient deleted |
+| Breach ID   | Date Discovered | Date Occurred | # Individuals | PHI Involved        | Type              | Notification Date | HHS Notified     | Notes                                               |
+| ----------- | --------------- | ------------- | ------------- | ------------------- | ----------------- | ----------------- | ---------------- | --------------------------------------------------- |
+| BR-2026-001 | 2026-02-09      | 2026-02-01    | 150           | Name, DOB, ROM data | Hacking           | 2026-03-15        | Yes (2026-03-15) | Ransomware attack, data restored from backup        |
+| BR-2026-002 | 2026-05-12      | 2026-05-10    | 5             | Name, email         | Misdirected email | N/A (Low Risk)    | No               | Risk assessment: low probability, recipient deleted |
 
 ---
 
@@ -615,6 +660,7 @@ Individuals with questions may contact [Company] at [Toll-Free Number] or visit 
   - Notify MA Attorney General and Director of Consumer Affairs if ≥500 MA residents
 
 **Action Required:**
+
 - **Consult legal counsel** to determine which state laws apply
 - Comply with the **most stringent** applicable requirement
 
@@ -622,19 +668,20 @@ Individuals with questions may contact [Company] at [Toll-Free Number] or visit 
 
 ## 9. Responsibilities
 
-| Role | Responsibilities |
-|------|-----------------|
-| **Privacy Officer** | Overall breach response coordination, risk assessments, HHS notifications |
-| **Legal Counsel** | Legal advice, notification letter review, regulatory compliance |
-| **Incident Commander** | Technical investigation, containment, evidence preservation |
-| **Communications Lead** | Draft notifications, manage media inquiries, customer communications |
-| **CEO** | Approval for notifications ≥100 individuals, board reporting |
+| Role                    | Responsibilities                                                          |
+| ----------------------- | ------------------------------------------------------------------------- |
+| **Privacy Officer**     | Overall breach response coordination, risk assessments, HHS notifications |
+| **Legal Counsel**       | Legal advice, notification letter review, regulatory compliance           |
+| **Incident Commander**  | Technical investigation, containment, evidence preservation               |
+| **Communications Lead** | Draft notifications, manage media inquiries, customer communications      |
+| **CEO**                 | Approval for notifications ≥100 individuals, board reporting              |
 
 ---
 
 ## 10. Training and Awareness
 
 **Annual HIPAA training** must include:
+
 - How to recognize a breach
 - Reporting procedures (who to contact, when)
 - Prohibition on unauthorized PHI access
@@ -676,11 +723,11 @@ Website: www.hhs.gov/ocr
 
 This procedure has been reviewed and approved:
 
-**Privacy Officer:** _____________________ Date: _________
+**Privacy Officer:** ****\*\*****\_****\*\***** Date: \***\*\_\*\***
 
-**Legal Counsel:** _____________________ Date: _________
+**Legal Counsel:** ****\*\*****\_****\*\***** Date: \***\*\_\*\***
 
-**CEO:** _____________________ Date: _________
+**CEO:** ****\*\*****\_****\*\***** Date: \***\*\_\*\***
 
 ---
 

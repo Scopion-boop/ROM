@@ -70,6 +70,18 @@ export function createDrizzleUserRepo(): UserRepo {
             return rows[0] ? rowToRecord(rows[0]) : undefined;
         },
 
+        async delete(id) {
+            const db = getDb();
+            const rows = await db.delete(users).where(eq(users.id, id)).returning();
+            return rows.length > 0;
+        },
+
+        async getById(id) {
+            const db = getDb();
+            const rows = await db.select().from(users).where(eq(users.id, id));
+            return rows[0] ? rowToRecord(rows[0]) : undefined;
+        },
+
         async _clear() {
             const db = getDb();
             await db.delete(users);

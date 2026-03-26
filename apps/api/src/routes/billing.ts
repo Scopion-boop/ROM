@@ -25,70 +25,104 @@ export const billingRouter: IRouter = Router();
 const checkoutSchema = z.object({ priceId: z.string().min(1) });
 
 // GET /api/billing/subscription
-billingRouter.get('/subscription', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { organizationId } = req.user!;
-    const { subscriptions, orgs } = getRepos();
-    const [sub, org] = await Promise.all([
-      subscriptions.getActiveByOrgId(organizationId),
-      orgs.getById(organizationId),
-    ]);
-    const internalPlan = sub?.plan ?? null;
-    res.json({
-      plan: internalPlan ? internalToDisplay(internalPlan) : 'free',
-      status: sub?.status ?? 'active',
-      currentPeriodEnd: sub?.currentPeriodEnd ?? null,
-      trialEnd: sub?.trialEndsAt ?? null,
-      sessionsThisMonth: org?.monthlySessionCount ?? 0,
-      sessionLimit: getSessionLimit(internalPlan),
-    });
-  } catch (err) { next(err); }
-});
+billingRouter.get(
+  '/subscription',
+  requireAuth,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { organizationId } = req.user!;
+      const { subscriptions, orgs } = getRepos();
+      const [sub, org] = await Promise.all([
+        subscriptions.getActiveByOrgId(organizationId),
+        orgs.getById(organizationId),
+      ]);
+      const internalPlan = sub?.plan ?? null;
+      res.json({
+        plan: internalPlan ? internalToDisplay(internalPlan) : 'free',
+        status: sub?.status ?? 'active',
+        currentPeriodEnd: sub?.currentPeriodEnd ?? null,
+        trialEnd: sub?.trialEndsAt ?? null,
+        sessionsThisMonth: org?.monthlySessionCount ?? 0,
+        sessionLimit: getSessionLimit(internalPlan),
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 // POST /api/billing/checkout
-billingRouter.post('/checkout', requireAuth, validateBody(checkoutSchema), async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { organizationId } = req.user!;
-    const { priceId } = req.body as { priceId: string };
-    const { orgs } = getRepos();
-    const org = await orgs.getById(organizationId);
-    if (!org) { res.status(404).json({ error: 'Organization not found' }); return; }
+billingRouter.post(
+  '/checkout',
+  requireAuth,
+  validateBody(checkoutSchema),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { organizationId } = req.user!;
+      const { priceId } = req.body as { priceId: string };
+      const { orgs } = getRepos();
+      const org = await orgs.getById(organizationId);
+      if (!org) {
+        res.status(404).json({ error: 'Organization not found' });
+        return;
+      }
 
-    const stripeCustomerId = await getOrCreateStripeCustomer(organizationId, org.name, org.stripeCustomerId);
-    if (!org.stripeCustomerId) {
-      await orgs.updateStripeCustomerId(organizationId, stripeCustomerId);
+      const stripeCustomerId = await getOrCreateStripeCustomer(
+        organizationId,
+        org.name,
+        org.stripeCustomerId,
+      );
+      if (!org.stripeCustomerId) {
+        await orgs.updateStripeCustomerId(organizationId, stripeCustomerId);
+      }
+
+      const appUrl = process.env.APP_URL ?? 'http://localhost:2000';
+      const checkoutUrl = await createCheckoutSession(
+        stripeCustomerId,
+        priceId,
+        organizationId,
+        `${appUrl}/dashboard/billing?success=true`,
+        `${appUrl}/dashboard/billing?cancelled=true`,
+      );
+      res.json({ checkoutUrl });
+    } catch (err) {
+      next(err);
     }
-
-    const appUrl = process.env.APP_URL ?? 'http://localhost:2000';
-    const checkoutUrl = await createCheckoutSession(
-      stripeCustomerId, priceId, organizationId,
-      `${appUrl}/dashboard/billing?success=true`,
-      `${appUrl}/dashboard/billing?cancelled=true`,
-    );
-    res.json({ checkoutUrl });
-  } catch (err) { next(err); }
-});
+  },
+);
 
 // POST /api/billing/portal
-billingRouter.post('/portal', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { organizationId } = req.user!;
-    const { orgs } = getRepos();
-    const org = await orgs.getById(organizationId);
-    if (!org?.stripeCustomerId) {
-      res.status(400).json({ error: 'No billing account found. Please subscribe first.' });
-      return;
+billingRouter.post(
+  '/portal',
+  requireAuth,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { organizationId } = req.user!;
+      const { orgs } = getRepos();
+      const org = await orgs.getById(organizationId);
+      if (!org?.stripeCustomerId) {
+        res.status(400).json({ error: 'No billing account found. Please subscribe first.' });
+        return;
+      }
+      const appUrl = process.env.APP_URL ?? 'http://localhost:2000';
+      const portalUrl = await createPortalSession(
+        org.stripeCustomerId,
+        `${appUrl}/dashboard/billing`,
+      );
+      res.json({ portalUrl });
+    } catch (err) {
+      next(err);
     }
-    const appUrl = process.env.APP_URL ?? 'http://localhost:2000';
-    const portalUrl = await createPortalSession(org.stripeCustomerId, `${appUrl}/dashboard/billing`);
-    res.json({ portalUrl });
-  } catch (err) { next(err); }
-});
+  },
+);
 
 // POST /api/billing/webhook — registered with raw body in app.ts
 export async function billingWebhookHandler(req: Request, res: Response): Promise<void> {
   const sig = req.headers['stripe-signature'] as string | undefined;
-  if (!sig) { res.status(400).send('Missing stripe-signature header'); return; }
+  if (!sig) {
+    res.status(400).send('Missing stripe-signature header');
+    return;
+  }
 
   let event: Stripe.Event;
   try {
@@ -123,7 +157,9 @@ export async function billingWebhookHandler(req: Request, res: Response): Promis
             stripePriceId: priceId,
             plan: planInternal,
             status: sub.status as 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete',
-            currentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : undefined,
+            currentPeriodEnd: sub.current_period_end
+              ? new Date(sub.current_period_end * 1000).toISOString()
+              : undefined,
             trialEndsAt: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : undefined,
             cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
           });

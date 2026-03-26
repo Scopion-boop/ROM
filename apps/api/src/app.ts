@@ -25,11 +25,13 @@ app.use(
   cors(
     corsOrigin
       ? { origin: corsOrigin.split(',').map((o) => o.trim()), credentials: true }
-      : undefined
-  )
+      : undefined,
+  ),
 );
 app.use(securityHeaders);
-app.use(rateLimit());
+if (process.env.NODE_ENV !== 'test') {
+  app.use(rateLimit());
+}
 
 // Cookie parser — required for httpOnly cookie auth
 app.use(cookieParser());
@@ -58,6 +60,11 @@ app.use((req, res, next) => {
 
 // Logging
 app.use(requestLogger);
+
+// Stricter rate limit on auth endpoints in production (20 requests per minute)
+if (process.env.NODE_ENV !== 'test') {
+  app.use('/api/auth', rateLimit(60_000, 20));
+}
 
 // Routes
 app.use('/api/health', healthRouter);
